@@ -2,13 +2,45 @@
 name = "knowledge"
 version = "0.1.0"
 description = "Knowledge base service."
-authors = ["Your Name <you@example.com>"]
+authors = ["Ben Chambers <ben.chambers@datastax.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+pydantic = "^2.5.3"
+pydantic-settings = "^2.1.0"
+fastapi = "^0.108.0"
+uvicorn = "^0.25.0"
 
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.11"
+just = "^0.8.161"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+
+# Enable Pyflakes `E` and `F` codes by default.
+select = [
+    # Pyflakes
+    "F",
+    # Pycodestyle
+    "E",
+    "W",
+    # isort
+    "I001",
+]
+ignore = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Assume Python 3.11.
+target-version = "py311"
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
