@@ -1,0 +1,5 @@
+**
+!app
+!./pyproject.toml
+!./poetry.lock
+**/__pycache__
