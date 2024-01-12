@@ -1,24 +1,13 @@
 # Knowledge Base Service
 
-# Execute Locally
-
-You'll need a running Redis, as well as models in the `/models/embedding` and `/models/llm` directories for this.
-
-TODO: Improve the local execution.
-
-```
-poetry run -- uvicorn app.main:app --reload
-```
-
-Runs on `http://localhost:8000/docs`
-
 # Execute using Docker Compose
 
 ```
 docker compose up -d --build
 ```
 
-Runs on `http://localhost:8000/docs`.
+Swagger docs at `http://localhost:8000/docs`.
+Notebook `example_notebook.ipynb` uses the REST API directly.
 
 # Practices
 
