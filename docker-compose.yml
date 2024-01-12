@@ -4,8 +4,8 @@ services:
   dewy:
     image: app_image
     environment:
-      KB_ENVIRONMENT: LOCAL
-      KB_REDIS: "redis://default:testing123@redis:6379"
+      ENVIRONMENT: LOCAL
+      REDIS: "redis://default:testing123@redis:6379"
       LLAMA_INDEX_CACHE_DIR: "/tmp/cache/llama_index"
       HF_HOME: "/tmp/cache/hf"
     env_file:
