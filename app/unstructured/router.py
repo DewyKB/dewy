@@ -28,7 +28,7 @@ class Collection:
 PathCollection = Annotated[Collection, Depends()]
 
 
-@router.put("/{collection}/documents")
+@router.put("/{collection}/documents", operation_id="add_document", tags=["collection"])
 async def add_document_unstructured(
     store: StoreDep,
     # TODO: Use the collection.
@@ -61,7 +61,7 @@ async def add_document_unstructured(
     logger.debug("Done. Inserted {} nodes", len(nodes))
 
 
-@router.delete("/{collection}/documents/{document}")
+@router.delete("/{collection}/documents/{document}", operation_id="delete_document", tags=["collection"])
 async def delete_document_unstructured(
     store: StoreDep, collection: PathCollection, document: str
 ):
@@ -88,7 +88,7 @@ class RetrieveParams:
         self.n = n
 
 
-@router.post("/{collection}/retrieve")
+@router.post("/{collection}/retrieve", operation_id="retrieve", tags=["collection"])
 async def retrieve_documents_unstructured(
     store: StoreDep, collection: PathCollection, request: RetrieveRequest
 ) -> RetrieveResponse:
