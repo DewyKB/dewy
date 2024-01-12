@@ -16,8 +16,9 @@ class Store:
 
     def __init__(self) -> None:
         from llama_index.llms import HuggingFaceLLM
+
         model = "mistralai/Mistral-7B-v0.1"
-        model_kwargs={}
+        model_kwargs = {}
         self.llm = HuggingFaceLLM(
             model_name=model,
             model_kwargs=model_kwargs,

@@ -4,9 +4,10 @@ from typing import AsyncIterator, TypedDict
 from fastapi import FastAPI
 from llama_index import StorageContext
 
-from app.config import app_configs, settings
+from app.config import app_configs
 from app.ingest.store import Store
 from app.routes import api_router
+
 
 class State(TypedDict):
     storage_context: StorageContext

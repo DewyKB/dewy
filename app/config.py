@@ -24,6 +24,7 @@ class Config(BaseSettings):
     REDIS: Optional[RedisDsn] = None
     """The Redis service to use for queueing, indexing and document storage."""
 
+
 settings = Config()
 
 app_configs: dict[str, Any] = {
