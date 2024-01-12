@@ -1,6 +1,6 @@
 # Knowledge Base Service
 
-# Execute using Docker Compose
+## Execute using Docker Compose
 
 ```
 docker compose up -d --build
@@ -9,7 +9,7 @@ docker compose up -d --build
 Swagger docs at `http://localhost:8000/docs`.
 Notebook `example_notebook.ipynb` uses the REST API directly.
 
-# Practices
+## Practices
 
 Some skeleton code based on best practices from https://github.com/zhanymkanov/fastapi-best-practices.
 
