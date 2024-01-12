@@ -6,18 +6,21 @@ services:
     environment:
       KB_ENVIRONMENT: LOCAL
       KB_REDIS: "redis://default:testing123@redis:6379"
-      KB_OLLAMA_HOST: "ollama"
+      LLAMA_INDEX_CACHE_DIR: "/tmp/cache/llama_index"
+      HF_HOME: "/tmp/cache/hf"
     env_file:
       - .env
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:80"
+      - "8000:80"   # http on localhost:8000
     networks:
       - kb-network
     depends_on:
       - redis
+    volumes:
+      - llama-cache:/tmp/cache
 
   redis:
     build:
@@ -34,6 +37,7 @@ services:
 
 volumes:
   redis-data:
+  llama-cache:
 
 networks:
   kb-network:

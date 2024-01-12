@@ -16,9 +16,14 @@ class Store:
 
     def __init__(self) -> None:
         from llama_index.llms import HuggingFaceLLM
+        model = "mistralai/Mistral-7B-v0.1"
+        model_kwargs={}
         self.llm = HuggingFaceLLM(
-            model_name = "/models/llm",
-            tokenizer_name = "/models/llm")
+            model_name=model,
+            model_kwargs=model_kwargs,
+            tokenizer_name=model,
+            tokenizer_kwargs=model_kwargs,
+        )
 
         vector_store = RedisVectorStore(
             index_name="vector_store",
@@ -44,16 +49,16 @@ class Store:
             HierarchicalNodeParser.from_defaults(chunk_sizes=[2048, 512, 128]),
         ]
 
-        if self.llm:
-            # Transformations that require an LLM.
-            from llama_index.extractors import SummaryExtractor, TitleExtractor
+        # if self.llm:
+        #     # Transformations that require an LLM.
+        #     from llama_index.extractors import SummaryExtractor, TitleExtractor
 
-            transformations.extend(
-                [
-                    TitleExtractor(self.llm),
-                    SummaryExtractor(self.llm),
-                ]
-            )
+        #     transformations.extend(
+        #         [
+        #             TitleExtractor(self.llm),
+        #             SummaryExtractor(self.llm),
+        #         ]
+        #     )
 
         self.service_context = ServiceContext.from_defaults(
             llm=self.llm,

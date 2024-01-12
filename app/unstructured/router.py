@@ -57,8 +57,8 @@ async def add_document_unstructured(
         )
 
     logger.debug("Inserting {} documents from {}", len(documents), url)
-    nodes = await store.ingestion_pipeline.arun(documents)
-    logger.debug("Done. Insterted {} nodes", len(nodes))
+    nodes = await store.ingestion_pipeline.arun(documents=documents)
+    logger.debug("Done. Inserted {} nodes", len(nodes))
 
 
 @router.delete("/{collection}/documents/{document}")

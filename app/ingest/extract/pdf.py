@@ -42,5 +42,6 @@ def load_pdf(local_path: str, source: ExtractSource) -> List[Document]:
     # TODO: Test that the document store is populated.
     # TODO: Test that the URL is included in the metadata.
 
-    document = Document(text="".join(texts), extra_info=source.extra_info)
+    text = "".join(texts)
+    document = Document(text=text, extra_info=source.extra_info)
     return [document]
