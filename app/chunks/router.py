@@ -18,8 +18,8 @@ async def retrieve(
         # TODO: metadata filters / ACLs
     ).query(request.query)
 
-    retrieved_nodes = [Chunk.from_llama_index(node) for node in results.source_nodes]
+    chunks = [Chunk.from_llama_index(node) for node in results.source_nodes]
     return RetrieveResponse(
         synthesized_text=results.response,
-        retrieved_nodes=retrieved_nodes,
+        chunks=chunks,
     )
