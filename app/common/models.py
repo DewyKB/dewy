@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import Optional, Sequence
-
+from typing import Optional, Self, Union
 from pydantic import BaseModel, Field
 
+from llama_index.schema import NodeWithScore
 
 class SynthesisMode(str, Enum):
     """How result nodes should be synthesized into a single result."""
@@ -56,7 +56,6 @@ class SynthesisMode(str, Enum):
     This mode is faster than accumulate since we make fewer calls to the LLM.
     """
 
-
 class RetrieveRequest(BaseModel):
     """A request for retrieving unstructured (document) results."""
 
@@ -72,8 +71,7 @@ class RetrieveRequest(BaseModel):
     The default (`NO_TEXT`) will disable synthesis.
     """
 
-
-class TextNode(BaseModel):
+class TextContent(BaseModel):
     text: str = Field(default="", description="Text content of the node.")
     start_char_idx: Optional[int] = Field(
         default=None, description="Start char index of the node."
@@ -82,18 +80,39 @@ class TextNode(BaseModel):
         default=None, description="End char index of the node."
     )
 
+class ImageContent(BaseModel):
+    text: Optional[str] = Field(..., description="Textual description of the image.")
+    image: Optional[str] = Field(..., description="Image of the node.")
+    image_mimetype: Optional[str] = Field(..., description="Mimetype of the image.")
+    image_path: Optional[str] = Field(..., description="Path of the image.")
+    image_url: Optional[str] = Field(..., description="URL of the image.")
 
-class NodeWithScore(BaseModel):
-    node: TextNode
+class Chunk(BaseModel):
+    """A retrieved chunk."""
+    content: Union[TextContent, ImageContent]
     score: Optional[float] = None
 
+    @staticmethod
+    def from_llama_index(node: NodeWithScore) -> Self:
+        score = node.score
 
-class RetrieveResponse(BaseModel):
-    """The response from a retrieval request."""
+        content = None
+        from llama_index.schema import TextNode, ImageNode
+        if isinstance(node.node, TextNode):
+            content = TextContent(
+                text = node.node.text,
+                start_char_idx = node.node.start_char_idx,
+                end_char_idx = node.node.end_char_idx
+            )
+        elif isinstance(node.node, ImageNode):
+            content = ImageContent(
+                text = node.node.text if node.node.text else None,
+                image = node.node.image,
+                image_mimetype = node.node.image_mimetype,
+                image_path = node.node.image_path,
+                image_url = node.node.image_url,
+            )
+        else:
+            raise NotImplementedError(f"Unsupported node type ({node.node.class_name()}): {node!r}")
 
-    synthesized_text: Optional[str]
-    """Synthesized text if requested."""
-
-    # TODO: We may want to copy the NodeWithScore model to avoid API changes.
-    retrieved_nodes: Sequence[NodeWithScore]
-    """Retrieved nodes."""
+        return Chunk(content=content, score=score)
