@@ -1,4 +1,5 @@
 from typing import Any, Optional
+from fastapi.routing import APIRoute
 
 from pydantic import RedisDsn, ValidationInfo, field_validator
 from pydantic_core import Url
@@ -89,8 +90,46 @@ class Config(BaseSettings):
 
 settings = Config()
 
+def convert_snake_case_to_camel_case(string: str) -> str:
+    """Convert snake case to camel case"""
+
+    words = string.split("_")
+    return words[0] + "".join(word.title() for word in words[1:])
+
+
+def custom_generate_unique_id_function(route: APIRoute) -> str:
+    """Custom function to generate unique id for each endpoint"""
+
+    return convert_snake_case_to_camel_case(route.name)
+
+
 app_configs: dict[str, Any] = {
     "title": "Dewy Knowledge Base API",
+    "summary": "Knowledge curation for Retrieval Augmented Generation",
+    "description": """This API allows ingesting and retrieving knowledge.
+
+    Knowledge comes in a variety of forms -- text, image, tables, etc. and
+    from a variety of sources -- documents, web pages, audio, etc.
+    """,
+    "servers": [
+        {"url": "http://127.0.0.1:8000", "description": "Local server"},
+    ],
+    "openapi_tags": [
+        {
+            "name": "documents",
+            "description": "Operations for ingesting and retrieving documents."
+
+        },
+        {
+            "name": "chunks",
+            "description": "Operations for retrieving individual chunks.",
+        },
+        {
+            "name": "collections",
+            "description": "Operations related to collections of documents."
+        },
+    ],
+    "generate_unique_id_function": custom_generate_unique_id_function,
 }
 
 if not settings.ENVIRONMENT.is_debug:
