@@ -80,10 +80,12 @@ class Config(BaseSettings):
         MODELS = ["LLM_MODEL", "EMBEDDING_MODEL"]
         if v is None:
             for model in MODELS:
-                value = info.get(model, "")
-                if value.startswith("ollama"):
-                    raise ValueError(
-                        f"{info.field_name} must be set to use '{model}={value}'"
+                context = info.context
+                if context:
+                    value = context.get(model, "")
+                    if value.startswith("ollama"):
+                        raise ValueError(
+                            f"{info.field_name} must be set to use '{model}={value}'"
                     )
         return v
 
