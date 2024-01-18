@@ -19,6 +19,9 @@ class Config(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
 
+    DB: str = "sqlite:///database.db?check_same_thread=false"
+    """The database to connect to."""
+
     ENVIRONMENT: Environment = Environment.PRODUCTION
     """The environment the application is running in."""
 
@@ -114,7 +117,7 @@ app_configs: dict[str, Any] = {
     from a variety of sources -- documents, web pages, audio, etc.
     """,
     "servers": [
-        {"url": "http://127.0.0.1:8000", "description": "Local server"},
+        {"url": "http://localhost:8000", "description": "Local server"},
     ],
     "openapi_tags": [
         {

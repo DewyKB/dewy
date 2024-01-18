@@ -16,12 +16,7 @@ async def add(
     store: StoreDep,
     url: Annotated[str, Body(..., description="The URL of the document to add.")],
 ):
-    """Add a document to the unstructured collection.
-
-    Parameters:
-    - collection: The ID of the collection to add to.
-    - document: The URL of the document to add.
-    """
+    """Add a document."""
 
     # Load the content.
     logger.debug("Loading content from {}", url)
