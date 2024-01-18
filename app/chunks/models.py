@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from app.common.models import Chunk
 
+
 class RetrieveResponse(BaseModel):
     """The response from a chunk retrieval request."""
 

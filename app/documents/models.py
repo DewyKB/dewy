@@ -4,9 +4,11 @@ from pydantic import BaseModel
 
 from app.common.models import Chunk
 
+
 class RetrievedDocument(BaseModel):
     chunks: Sequence[Chunk]
     """Retrieved chunks in the given document.."""
+
 
 class RetrieveResponse(BaseModel):
     """The response from a chunk retrieval request."""

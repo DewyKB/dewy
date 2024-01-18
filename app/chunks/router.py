@@ -3,14 +3,14 @@ from loguru import logger
 
 from app.common.models import Chunk, RetrieveRequest
 from app.ingest.store import StoreDep
+
 from .models import RetrieveResponse
 
 router = APIRouter(tags=["chunks"], prefix="/chunks")
 
+
 @router.post("/retrieve")
-async def retrieve(
-    store: StoreDep, request: RetrieveRequest
-) -> RetrieveResponse:
+async def retrieve(store: StoreDep, request: RetrieveRequest) -> RetrieveResponse:
     """Retrieve chunks based on a given query."""
 
     logger.info("Retrieving chunks for query:", request)

@@ -11,6 +11,7 @@ from app.ingest.store import StoreDep
 
 router = APIRouter(tags=["documents"], prefix="/documents")
 
+
 @router.put("/")
 async def add(
     store: StoreDep,
@@ -36,9 +37,8 @@ async def add(
     nodes = await store.ingestion_pipeline.arun(documents=documents)
     logger.debug("Done. Inserted {} nodes", len(nodes))
 
+
 @router.post("/retrieve")
-async def retrieve(
-    _store: StoreDep, _request: RetrieveRequest
-) -> RetrieveResponse:
+async def retrieve(_store: StoreDep, _request: RetrieveRequest) -> RetrieveResponse:
     """Retrieve documents based on a given query."""
     raise NotImplementedError()

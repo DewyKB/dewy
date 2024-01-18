@@ -1,8 +1,9 @@
 from enum import Enum
 from typing import Optional, Self, Union
-from pydantic import BaseModel, Field
 
 from llama_index.schema import NodeWithScore
+from pydantic import BaseModel, Field
+
 
 class SynthesisMode(str, Enum):
     """How result nodes should be synthesized into a single result."""
@@ -56,6 +57,7 @@ class SynthesisMode(str, Enum):
     This mode is faster than accumulate since we make fewer calls to the LLM.
     """
 
+
 class RetrieveRequest(BaseModel):
     """A request for retrieving unstructured (document) results."""
 
@@ -71,6 +73,7 @@ class RetrieveRequest(BaseModel):
     The default (`NO_TEXT`) will disable synthesis.
     """
 
+
 class TextContent(BaseModel):
     text: str = Field(default="", description="Text content of the node.")
     start_char_idx: Optional[int] = Field(
@@ -80,6 +83,7 @@ class TextContent(BaseModel):
         default=None, description="End char index of the node."
     )
 
+
 class ImageContent(BaseModel):
     text: Optional[str] = Field(..., description="Textual description of the image.")
     image: Optional[str] = Field(..., description="Image of the node.")
@@ -87,8 +91,10 @@ class ImageContent(BaseModel):
     image_path: Optional[str] = Field(..., description="Path of the image.")
     image_url: Optional[str] = Field(..., description="URL of the image.")
 
+
 class Chunk(BaseModel):
     """A retrieved chunk."""
+
     content: Union[TextContent, ImageContent]
     score: Optional[float] = None
 
@@ -97,22 +103,25 @@ class Chunk(BaseModel):
         score = node.score
 
         content = None
-        from llama_index.schema import TextNode, ImageNode
+        from llama_index.schema import ImageNode, TextNode
+
         if isinstance(node.node, TextNode):
             content = TextContent(
-                text = node.node.text,
-                start_char_idx = node.node.start_char_idx,
-                end_char_idx = node.node.end_char_idx
+                text=node.node.text,
+                start_char_idx=node.node.start_char_idx,
+                end_char_idx=node.node.end_char_idx,
             )
         elif isinstance(node.node, ImageNode):
             content = ImageContent(
-                text = node.node.text if node.node.text else None,
-                image = node.node.image,
-                image_mimetype = node.node.image_mimetype,
-                image_path = node.node.image_path,
-                image_url = node.node.image_url,
+                text=node.node.text if node.node.text else None,
+                image=node.node.image,
+                image_mimetype=node.node.image_mimetype,
+                image_path=node.node.image_path,
+                image_url=node.node.image_url,
             )
         else:
-            raise NotImplementedError(f"Unsupported node type ({node.node.class_name()}): {node!r}")
+            raise NotImplementedError(
+                f"Unsupported node type ({node.node.class_name()}): {node!r}"
+            )
 
         return Chunk(content=content, score=score)

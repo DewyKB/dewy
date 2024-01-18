@@ -1,6 +1,6 @@
 from typing import Any, Optional
-from fastapi.routing import APIRoute
 
+from fastapi.routing import APIRoute
 from pydantic import RedisDsn, ValidationInfo, field_validator
 from pydantic_core import Url
 from pydantic_settings import BaseSettings
@@ -89,11 +89,12 @@ class Config(BaseSettings):
                     if value.startswith("ollama"):
                         raise ValueError(
                             f"{info.field_name} must be set to use '{model}={value}'"
-                    )
+                        )
         return v
 
 
 settings = Config()
+
 
 def convert_snake_case_to_camel_case(string: str) -> str:
     """Convert snake case to camel case"""
@@ -122,8 +123,7 @@ app_configs: dict[str, Any] = {
     "openapi_tags": [
         {
             "name": "documents",
-            "description": "Operations for ingesting and retrieving documents."
-
+            "description": "Operations for ingesting and retrieving documents.",
         },
         {
             "name": "chunks",
@@ -131,7 +131,7 @@ app_configs: dict[str, Any] = {
         },
         {
             "name": "collections",
-            "description": "Operations related to collections of documents."
+            "description": "Operations related to collections of documents.",
         },
     ],
     "generate_unique_id_function": custom_generate_unique_id_function,
