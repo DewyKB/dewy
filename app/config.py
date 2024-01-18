@@ -109,25 +109,37 @@ def custom_generate_unique_id_function(route: APIRoute) -> str:
     return convert_snake_case_to_camel_case(route.name)
 
 
+API_DESCRIPTION: str = """This API allows ingesting and retrieving knowledge.
+
+Knowledge comes in a variety of forms -- text, image, tables, etc. and
+from a variety of sources -- documents, web pages, audio, etc.
+"""
+
+STATEMENTS_DESCRIPTION: str = """Operations for retrieving statements.
+
+Statements include chunks of raw-text, images, and tables from documents,
+as well as extracted propositions (facts) and other information from
+the documents.
+
+Additionally, a summary of retrieved statements may be requested as well
+as the statements or instead of the statements.
+"""
+
 app_configs: dict[str, Any] = {
     "title": "Dewy Knowledge Base API",
     "summary": "Knowledge curation for Retrieval Augmented Generation",
-    "description": """This API allows ingesting and retrieving knowledge.
-
-    Knowledge comes in a variety of forms -- text, image, tables, etc. and
-    from a variety of sources -- documents, web pages, audio, etc.
-    """,
+    "description": API_DESCRIPTION,
     "servers": [
         {"url": "http://localhost:8000", "description": "Local server"},
     ],
     "openapi_tags": [
         {
             "name": "documents",
-            "description": "Operations for ingesting and retrieving documents.",
+            "description": "Operations on specific documents, including ingestion.",
         },
         {
-            "name": "chunks",
-            "description": "Operations for retrieving individual chunks.",
+            "name": "statements",
+            "description": STATEMENTS_DESCRIPTION,
         },
         {
             "name": "collections",
