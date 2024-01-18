@@ -18,6 +18,7 @@ loguru = "^0.7.2"
 redis = "^5.0.1"
 accelerate = "^0.26.1"
 safetensors = "^0.4.1"
+sqlmodel = "^0.0.14"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.11"
