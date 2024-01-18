@@ -3,15 +3,15 @@ from typing import Annotated, List
 from fastapi import APIRouter, Path
 from sqlmodel import Session, select
 
-from app.common.schema import Collection, DbDep
+from app.common.schema import Collection, EngineDep
 
 router = APIRouter(tags=["collections"], prefix="/collections")
 
 
 @router.put("/")
-async def add(db: DbDep, collection: Collection) -> Collection:
+async def add(engine: EngineDep, collection: Collection) -> Collection:
     """Create a collection."""
-    with Session(db) as session:
+    with Session(engine) as session:
         session.add(collection)
         session.commit()
         session.refresh(collection)
@@ -19,18 +19,17 @@ async def add(db: DbDep, collection: Collection) -> Collection:
 
 
 @router.get("/")
-async def list(db: DbDep) -> List[Collection]:
+async def list(engine: EngineDep) -> List[Collection]:
     """List collections."""
-    with Session(db) as session:
-        collections = session.exec(select(Collection)).all()
-        return collections
+    with Session(engine) as session:
+        return session.exec(select(Collection)).all()
 
 
 PathCollectionId = Annotated[int, Path(..., description="The collection ID.")]
 
 
 @router.get("/{id}")
-async def get(id: PathCollectionId, db: DbDep) -> Collection:
+async def get(id: PathCollectionId, engine: EngineDep) -> Collection:
     """Get a specific collection."""
-    with Session(db) as session:
+    with Session(engine) as session:
         return session.get(Collection, id)

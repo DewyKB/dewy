@@ -8,6 +8,7 @@ services:
       REDIS: "redis://default:testing123@redis:6379"
       LLAMA_INDEX_CACHE_DIR: "/tmp/cache/llama_index"
       HF_HOME: "/tmp/cache/hf"
+      # DB: "sqlite:///var/db/database.db?check_same_thread=false"
     env_file:
       - .env
     build:
@@ -21,6 +22,7 @@ services:
       - redis
     volumes:
       - llama-cache:/tmp/cache
+      - db:/var/db
 
   redis:
     build:
@@ -36,6 +38,7 @@ services:
       - 8001:8001
 
 volumes:
+  db:
   redis-data:
   llama-cache:
 
