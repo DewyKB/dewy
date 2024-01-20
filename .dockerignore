@@ -1,5 +1,14 @@
+# Ignore everything
 **
+
+# Include (don't ignore) the application code
 !app
 !./pyproject.toml
 !./poetry.lock
+
+# Re-ignore pycache within `app`.
 **/__pycache__
+
+# Include (don't ignore) the migrations.
+!migrations/*.sql
+!yoyo.ini

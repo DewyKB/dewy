@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 from fastapi.routing import APIRoute
-from pydantic import RedisDsn, ValidationInfo, field_validator
+from pydantic import RedisDsn, PostgresDsn, ValidationInfo, field_validator
 from pydantic_core import Url
 from pydantic_settings import BaseSettings
 
@@ -19,8 +19,11 @@ class Config(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
 
-    DB: str = "sqlite:///database.db?check_same_thread=false"
-    """The database to connect to."""
+    DB: PostgresDsn
+    """The Postgres database to connect to."""
+
+    APPLY_MIGRATIONS: bool = False
+    """Whether migrations should be applied to the database."""
 
     ENVIRONMENT: Environment = Environment.PRODUCTION
     """The environment the application is running in."""
@@ -115,36 +118,12 @@ Knowledge comes in a variety of forms -- text, image, tables, etc. and
 from a variety of sources -- documents, web pages, audio, etc.
 """
 
-STATEMENTS_DESCRIPTION: str = """Operations for retrieving statements.
-
-Statements include chunks of raw-text, images, and tables from documents,
-as well as extracted propositions (facts) and other information from
-the documents.
-
-Additionally, a summary of retrieved statements may be requested as well
-as the statements or instead of the statements.
-"""
-
 app_configs: dict[str, Any] = {
     "title": "Dewy Knowledge Base API",
     "summary": "Knowledge curation for Retrieval Augmented Generation",
     "description": API_DESCRIPTION,
     "servers": [
         {"url": "http://localhost:8000", "description": "Local server"},
-    ],
-    "openapi_tags": [
-        {
-            "name": "documents",
-            "description": "Operations on specific documents, including ingestion.",
-        },
-        {
-            "name": "statements",
-            "description": STATEMENTS_DESCRIPTION,
-        },
-        {
-            "name": "collections",
-            "description": "Operations related to collections of documents.",
-        },
     ],
     "generate_unique_id_function": custom_generate_unique_id_function,
 }

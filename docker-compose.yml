@@ -8,7 +8,8 @@ services:
       REDIS: "redis://default:testing123@redis:6379"
       LLAMA_INDEX_CACHE_DIR: "/tmp/cache/llama_index"
       HF_HOME: "/tmp/cache/hf"
-      # DB: "sqlite:///var/db/database.db?check_same_thread=false"
+      DB: "postgresql://dewydbuser:dewydbpwd@postgres/dewydb"
+      APPLY_MIGRATIONS: true
     env_file:
       - .env
     build:
@@ -20,9 +21,27 @@ services:
       - kb-network
     depends_on:
       - redis
+      - postgres
     volumes:
       - llama-cache:/tmp/cache
-      - db:/var/db
+
+  postgres:
+    image: ankane/pgvector
+    ports:
+     - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_DB=dewydb
+      - POSTGRES_USER=dewydbuser
+      - POSTGRES_PASSWORD=dewydbpwd
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - db:/var/lib/postgresql
+    networks:
+      - kb-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U root']
+      interval: 60s
 
   redis:
     build:
