@@ -172,7 +172,10 @@ class CollectionEmbeddings:
         async with self._pg_pool.acquire() as conn:
             logger.info("Executing SQL query for chunks from {}", self.collection_id)
             embeddings = await conn.fetch(
-                self.collection_id, self._retrieve_chunks, embedded_query, n
+                self._retrieve_chunks, 
+                self.collection_id, 
+                embedded_query, 
+                n
             )
             embeddings = [
                 TextResult(
@@ -219,7 +222,7 @@ class CollectionEmbeddings:
                     INSERT INTO chunk (document_id, kind, text)
                     VALUES ($1, $2, $3);
                     """,
-                    [(document_id, "text", text_chunk) for text_chunk in text_chunks],
+                    [(document_id, "text", text_chunk.encode('utf-8').decode('utf-8', 'ignore').replace("\x00", "\uFFFD")) for text_chunk in text_chunks],
                 )
 
                 # Then, embed each of those chunks.

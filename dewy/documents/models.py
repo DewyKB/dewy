@@ -5,9 +5,11 @@ from pydantic import BaseModel
 
 
 class CreateRequest(BaseModel):
-    """The name of the collection the document should be added to."""
+    """The name of the collection the document should be added to. Either `collection` or `collection_id` must be provided"""
+    collection: Optional[str] = None
 
-    collection_id: int
+    """The id of the collection the document should be added to. Either `collection` or `collection_id` must be provided"""
+    collection_id: Optional[int] = None
 
     """The URL of the document to add."""
     url: str

@@ -25,15 +25,25 @@ async def add_document(
 ) -> Document:
     """Add a document."""
 
-    row = None
+    collection_id = req.collection_id    
     async with pg_pool.acquire() as conn:
+        if collection_id is None:
+            collection_id = await conn.fetchval(
+                """
+                SELECT collection_id
+                FROM document
+                WHERE name = $1
+            """,
+            req.collection
+            )
+        row = None
         row = await conn.fetchrow(
             """
         INSERT INTO document (collection_id, url, ingest_state)
         VALUES ($1, $2, 'pending')
         RETURNING id, collection_id, url, ingest_state, ingest_error
         """,
-            req.collection_id,
+            collection_id,
             req.url,
         )
 
