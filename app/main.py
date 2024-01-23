@@ -4,6 +4,7 @@ from typing import AsyncIterator, TypedDict
 import asyncpg
 from fastapi import FastAPI
 
+from app.collections.models import EmbeddingModel
 from app.common import db
 from app.config import app_configs, settings
 from app.ingest.store import Store
