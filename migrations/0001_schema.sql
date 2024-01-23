@@ -1,8 +1,13 @@
 -- Apply the base schema.
+CREATE TYPE embedding_model as ENUM (
+    'openai_text_embedding_ada_002',
+    'hf_baai_bge_small_en'
+);
 
 CREATE TABLE collection (
     id SERIAL NOT NULL,
     name VARCHAR NOT NULL,
+    text_embedding_model embedding_model NOT NULL,
 
     PRIMARY KEY (id)
 );
@@ -82,7 +87,9 @@ CREATE TYPE embedding_kind AS ENUM (
 CREATE TABLE embedding(
     id SERIAL NOT NULL,
 
-    chunk_id INTEGER,
+    embedding vector NOT NULL,
+    embedding_model embedding_model NOT NULL,
+    chunk_id INTEGER NOT NULL,
 
     key_text VARCHAR,
 

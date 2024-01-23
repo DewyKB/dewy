@@ -12,7 +12,9 @@ router = APIRouter(prefix="/chunks")
 
 
 @router.post("/retrieve")
-async def retrieve_chunks(store: StoreDep, request: RetrieveRequest) -> RetrieveResponse:
+async def retrieve_chunks(
+    store: StoreDep, request: RetrieveRequest
+) -> RetrieveResponse:
     """Retrieve chunks based on a given query."""
 
     from llama_index.response_synthesizers import ResponseMode

@@ -11,4 +11,3 @@
 
 # Include (don't ignore) the migrations.
 !migrations/*.sql
-!yoyo.ini

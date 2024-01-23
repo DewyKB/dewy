@@ -1,22 +1,25 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Path
-from pydantic import parse_obj_as
 
+from app.collections.models import Collection, CollectionCreate
 from app.common.db import PgConnectionDep
-from app.collections.models import *
 
 router = APIRouter(prefix="/collections")
 
 
 @router.put("/")
-async def add_collection(conn: PgConnectionDep, collection: CollectionCreate) -> Collection:
+async def add_collection(
+    conn: PgConnectionDep, collection: CollectionCreate
+) -> Collection:
     """Create a collection."""
-    result = await conn.fetchrow("""
+    result = await conn.fetchrow(
+        """
         INSERT INTO collection (name) VALUES ($1)
         RETURNING id, name
     """,
-    collection.name)
+        collection.name,
+    )
     return Collection.model_validate(dict(result))
 
 
