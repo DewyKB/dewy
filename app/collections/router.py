@@ -1,35 +1,37 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Path
-from sqlmodel import Session, select
+from pydantic import parse_obj_as
 
-from app.common.schema import Collection, EngineDep
+from app.common.db import PgConnectionDep
+from app.collections.models import *
 
-router = APIRouter(tags=["collections"], prefix="/collections")
+router = APIRouter(prefix="/collections")
 
 
 @router.put("/")
-async def add(engine: EngineDep, collection: Collection) -> Collection:
+async def add_collection(conn: PgConnectionDep, collection: CollectionCreate) -> Collection:
     """Create a collection."""
-    with Session(engine) as session:
-        session.add(collection)
-        session.commit()
-        session.refresh(collection)
-        return collection
+    result = await conn.fetchrow("""
+        INSERT INTO collection (name) VALUES ($1)
+        RETURNING id, name
+    """,
+    collection.name)
+    return Collection.model_validate(dict(result))
 
 
 @router.get("/")
-async def list(engine: EngineDep) -> List[Collection]:
+async def list_collections(conn: PgConnectionDep) -> List[Collection]:
     """List collections."""
-    with Session(engine) as session:
-        return session.exec(select(Collection)).all()
+    results = await conn.fetch("SELECT id, name FROM collection")
+    return [Collection.model_validate(dict(result)) for result in results]
 
 
 PathCollectionId = Annotated[int, Path(..., description="The collection ID.")]
 
 
 @router.get("/{id}")
-async def get(id: PathCollectionId, engine: EngineDep) -> Collection:
+async def get_collection(id: PathCollectionId, conn: PgConnectionDep) -> Collection:
     """Get a specific collection."""
-    with Session(engine) as session:
-        return session.get(Collection, id)
+    result = await conn.fetchrow("SELECT id, name FROM collection WHERE id = $1", id)
+    return Collection.model_validate(dict(result))

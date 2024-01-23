@@ -20,4 +20,6 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 # Finally, copy in the application code.
 COPY ./app /code/app
 
+COPY ./migrations/0001_schema.sql /code/migrations/0001_schema.sql
+
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]

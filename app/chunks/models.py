@@ -27,26 +27,26 @@ class RetrieveRequest(BaseModel):
     """Whether to include a generated summary."""
 
 
-class BaseStatement(BaseModel):
+class BaseChunk(BaseModel):
     kind: Literal["text", "raw_text", "image"]
 
     score: Optional[float] = None
-    """The similarity score of this statement."""
+    """The similarity score of this chunk."""
 
 
-class TextStatement(BaseStatement):
+class TextChunk(BaseChunk):
     kind: Literal["text"] = "text"
     raw: bool
-    text: str = Field(default="", description="Text content of the node.")
+    text: str = Field(default="", description="Text content of the chunk.")
     start_char_idx: Optional[int] = Field(
-        default=None, description="Start char index of the node."
+        default=None, description="Start char index of the chunk."
     )
     end_char_idx: Optional[int] = Field(
-        default=None, description="End char index of the node."
+        default=None, description="End char index of the chunk."
     )
 
 
-class ImageStatement(BaseStatement):
+class ImageChunk(BaseChunk):
     kind: Literal["image"] = "image"
     text: Optional[str] = Field(..., description="Textual description of the image.")
     image: Optional[str] = Field(..., description="Image of the node.")
@@ -59,7 +59,7 @@ class RetrieveResponse(BaseModel):
     """The response from a chunk retrieval request."""
 
     summary: Optional[str]
-    """Summary of the retrieved statements."""
+    """Summary of the retrieved chunks."""
 
-    statements: Sequence[Union[TextStatement, ImageStatement]]
-    """Retrieved statements."""
+    chunks: Sequence[Union[TextChunk, ImageChunk]]
+    """Retrieved chunks."""

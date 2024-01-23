@@ -6,14 +6,14 @@ from loguru import logger
 
 from app.ingest.store import StoreDep
 
-from .models import ImageStatement, RetrieveRequest, RetrieveResponse, TextStatement
+from .models import ImageChunk, RetrieveRequest, RetrieveResponse, TextChunk
 
-router = APIRouter(tags=["statements"], prefix="/statements")
+router = APIRouter(prefix="/chunks")
 
 
 @router.post("/retrieve")
-async def retrieve(store: StoreDep, request: RetrieveRequest) -> RetrieveResponse:
-    """Retrieve statements based on a given query."""
+async def retrieve_chunks(store: StoreDep, request: RetrieveRequest) -> RetrieveResponse:
+    """Retrieve chunks based on a given query."""
 
     from llama_index.response_synthesizers import ResponseMode
 
@@ -30,15 +30,15 @@ async def retrieve(store: StoreDep, request: RetrieveRequest) -> RetrieveRespons
 
     return RetrieveResponse(
         summary=results.response,
-        statements=statements if request.include_statements else [],
+        chunks=statements if request.include_statements else [],
     )
 
 
-def node_to_statement(node: NodeWithScore) -> Union[TextStatement, ImageStatement]:
+def node_to_statement(node: NodeWithScore) -> Union[TextChunk, ImageChunk]:
     from llama_index.schema import ImageNode, TextNode
 
     if isinstance(node.node, TextNode):
-        return TextStatement(
+        return TextChunk(
             raw=True,
             score=node.score,
             text=node.node.text,
@@ -46,7 +46,7 @@ def node_to_statement(node: NodeWithScore) -> Union[TextStatement, ImageStatemen
             end_char_idx=node.node.end_char_idx,
         )
     elif isinstance(node.node, ImageNode):
-        return ImageStatement(
+        return ImageChunk(
             score=node.score,
             text=node.node.text if node.node.text else None,
             image=node.node.image,
