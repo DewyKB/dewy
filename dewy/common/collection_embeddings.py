@@ -6,7 +6,7 @@ from llama_index.node_parser import SentenceSplitter
 from llama_index.schema import TextNode
 from loguru import logger
 
-from dewy.chunks.models import TextChunk
+from dewy.chunks.models import TextResult
 from dewy.collections.models import DistanceMetric
 from dewy.collections.router import get_dimensions
 
@@ -65,7 +65,8 @@ class CollectionEmbeddings:
         SELECT
           relevant_embeddings.chunk_id AS chunk_id,
           chunk.text AS text,
-          relevant_embeddings.score AS score
+          relevant_embeddings.score AS score,
+          chunk.document_id AS document_id
         FROM relevant_embeddings
         JOIN chunk
         ON chunk.id = relevant_embeddings.chunk_id
@@ -149,7 +150,7 @@ class CollectionEmbeddings:
             embeddings = [e["chunk_id"] for e in embeddings]
             return embeddings
 
-    async def retrieve_text_chunks(self, query: str, n: int = 10) -> List[TextChunk]:
+    async def retrieve_text_chunks(self, query: str, n: int = 10) -> List[TextResult]:
         """Retrieve embeddings related to the given query.
 
         Parameters:
@@ -168,7 +169,15 @@ class CollectionEmbeddings:
                                           embedded_query,
                                           n)
             embeddings = [
-                TextChunk(raw=True, score=e["score"], text=e["text"])
+                TextResult(
+                    chunk_id=e["chunk_id"],
+                    document_id=e["document_id"],
+                    score=e["score"], 
+                    text=e["text"],
+                    raw=True, 
+                    start_char_idx=None,
+                    end_char_idx=None,
+                )
                 for e in embeddings
             ]
             return embeddings

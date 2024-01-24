@@ -1,7 +1,32 @@
-from typing import Literal, Optional, Sequence, Union
+from typing import Literal, Optional, Sequence, Union, Annotated
 
 from pydantic import BaseModel, Field
 
+class TextChunk(BaseModel):
+    id: int
+    document_id: int
+    kind: Literal["text"] = "text"
+
+    raw: bool
+    start_char_idx: Optional[int] = Field(
+        default=None, description="Start char index of the chunk."
+    )
+    end_char_idx: Optional[int] = Field(
+        default=None, description="End char index of the chunk."
+    )
+
+
+class ImageChunk(BaseModel):
+    id: int
+    document_id: int
+    kind: Literal["image"] = "image"
+
+    image: Optional[str] = Field(..., description="Image of the node.")
+    image_mimetype: Optional[str] = Field(..., description="Mimetype of the image.")
+    image_path: Optional[str] = Field(..., description="Path of the image.")
+    image_url: Optional[str] = Field(..., description="URL of the image.")
+
+Chunk = Annotated[Union[TextChunk, ImageChunk], Field(discriminator='kind')]
 
 class RetrieveRequest(BaseModel):
     """A request for retrieving chunks from a collection."""
@@ -19,28 +44,37 @@ class RetrieveRequest(BaseModel):
     # For instance -- if we summarize the text statements, maybe it only includes
     # images and tables in the response. But for now, this is a big switch to
     # exclude statements entirely.
-    include_statements: bool = True
-    """Whether to include statements in the result.
+    include_text_chunks: bool = True
+    """Whether to include text chunks in the result.
 
-    If this is false, no statements will be included in the result, although
-    the summary (if enbaled) may include information from the statements.
+    If this is false, no text chunks will be included in the result, although
+    the summary (if enbaled) may include information from the chunks.
+    """
+
+    include_image_chunks: bool = True
+    """Whether to include image chunks in the result.
+
+    If this is false, no image chunks will be included in the result, although
+    the summary (if enbaled) may include information from the chunks.
     """
 
     include_summary: bool = False
     """Whether to include a generated summary."""
 
+class TextResult(BaseModel):
+    chunk_id: int
+    """The ID of the chunk associated with this result"""
+    
+    document_id: int
+    """The ID of the document associated with this result"""
 
-class BaseChunk(BaseModel):
-    kind: Literal["text", "raw_text", "image"]
+    score: float
+    """The similarity score of this result."""
 
-    score: Optional[float] = None
-    """The similarity score of this chunk."""
+    text: str 
+    "Textual description of the chunk."
 
-
-class TextChunk(BaseChunk):
-    kind: Literal["text"] = "text"
     raw: bool
-    text: str = Field(default="", description="Text content of the chunk.")
     start_char_idx: Optional[int] = Field(
         default=None, description="Start char index of the chunk."
     )
@@ -48,21 +82,29 @@ class TextChunk(BaseChunk):
         default=None, description="End char index of the chunk."
     )
 
+class ImageResult(BaseModel):
+    chunk_id: int
+    """The ID of the chunk associated with this result"""
+    
+    document_id: int
+    """The ID of the document associated with this result"""
 
-class ImageChunk(BaseChunk):
-    kind: Literal["image"] = "image"
-    text: Optional[str] = Field(..., description="Textual description of the image.")
+    score: float
+    """The similarity score of this result."""
+
     image: Optional[str] = Field(..., description="Image of the node.")
     image_mimetype: Optional[str] = Field(..., description="Mimetype of the image.")
     image_path: Optional[str] = Field(..., description="Path of the image.")
     image_url: Optional[str] = Field(..., description="URL of the image.")
 
-
 class RetrieveResponse(BaseModel):
-    """The response from a chunk retrieval request."""
+    """The response from a retrieval request."""
 
     summary: Optional[str]
     """Summary of the retrieved chunks."""
 
-    chunks: Sequence[Union[TextChunk, ImageChunk]]
-    """Retrieved chunks."""
+    text_results: Sequence[TextResult]
+    """Retrieved text chunks."""
+
+    image_results: Sequence[ImageResult]
+    """Retrieved image chunks."""

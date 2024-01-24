@@ -1,12 +1,52 @@
-from fastapi import APIRouter
+from typing import Union, Annotated, List
+
+from fastapi import APIRouter, Query, Path
 
 from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgPoolDep
 
-from .models import RetrieveRequest, RetrieveResponse
+from .models import Chunk, RetrieveRequest, RetrieveResponse
 
 router = APIRouter(prefix="/chunks")
 
+@router.get("/")
+async def list_chunks(
+    pg_pool: PgPoolDep,
+    collection_id: Annotated[int | None, Query(description="Limit to chunks associated with this collection")] = None,
+    document_id: Annotated[int | None, Query(description="Limit to chunks associated with this document")] = None,
+) -> List[Chunk]:
+    """List chunks."""
+
+    # TODO: handle collection & document ID
+    results = await pg_pool.fetch(
+        """
+        SELECT chunk.id, chunk.document_id, chunk.kind, chunk.text
+        FROM chunk
+        WHERE document.collection_id = coalesce($1, document.collection_id)
+        AND chunk.document_id = coalesce($2, chunk.document_id)
+        JOIN document ON document.id = chunk.document_id
+        """,
+        collection_id,
+        document_id,
+    )
+    return [Chunk.model_validate(dict(result)) for result in results]
+
+PathChunkId = Annotated[int, Path(..., description="The chunk ID.")]
+
+@router.get("/{id}")
+async def get_chunk(
+    pg_pool: PgPoolDep,
+    id: PathChunkId,
+) -> Chunk:
+    # TODO: Test / return not found?
+    result = await pg_pool.fetchrow(
+        """
+        SELECT id, document_id, kind, text
+        FROM chunk WHERE id = $1
+        """,
+        id,
+    )
+    return Chunk.model_validate(dict(result))
 
 @router.post("/retrieve")
 async def retrieve_chunks(
@@ -19,6 +59,10 @@ async def retrieve_chunks(
     collection = await CollectionEmbeddings.for_collection_id(
         pg_pool, request.collection_id
     )
-    chunks = await collection.retrieve_text_chunks(query=request.query, n=request.n)
+    text_results = await collection.retrieve_text_chunks(query=request.query, n=request.n)
 
-    return RetrieveResponse(summary=None, chunks=chunks)
+    return RetrieveResponse(
+        summary=None,
+        text_results=text_results if request.include_text_chunks else [],
+        # image_results=image_results if request.include_image_chunks else [],
+    )
