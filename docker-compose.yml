@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   dewy:
-    image: app_image
+    image: dewy
     environment:
       ENVIRONMENT: LOCAL
       REDIS: "redis://default:testing123@redis:6379"

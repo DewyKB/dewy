@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from llama_index.schema import NodeWithScore
 from loguru import logger
 
-from app.ingest.store import StoreDep
+from dewy.ingest.store import StoreDep
 
 from .models import ImageChunk, RetrieveRequest, RetrieveResponse, TextChunk
 

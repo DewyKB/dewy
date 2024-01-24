@@ -9,7 +9,7 @@ from llama_index.storage.docstore.redis_docstore import RedisDocumentStore
 from llama_index.vector_stores import RedisVectorStore
 from loguru import logger
 
-from app.config import settings
+from dewy.config import settings
 
 DEFAULT_OPENAI_EMBEDDING_MODEL: str = "text-embedding-ada-002"
 DEFAULT_HF_EMBEDDING_MODEL: str = "BAAI/bge-small-en"
