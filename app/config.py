@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 from fastapi.routing import APIRoute
-from pydantic import RedisDsn, PostgresDsn, ValidationInfo, field_validator
+from pydantic import PostgresDsn, RedisDsn, ValidationInfo, field_validator
 from pydantic_core import Url
 from pydantic_settings import BaseSettings
 

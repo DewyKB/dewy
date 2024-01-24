@@ -1,14 +1,12 @@
 from typing import Annotated, List
-import asyncpg
 
+import asyncpg
 from fastapi import APIRouter, BackgroundTasks, Body, HTTPException, Path, status
 from loguru import logger
-from sqlalchemy import Engine
-from sqlmodel import Session, select
-from app.collections.router import PathCollectionId
 
+from app.collections.router import PathCollectionId
 from app.common.db import PgConnectionDep, PgPoolDep
-from app.documents.models import *
+from app.documents.models import Document
 from app.ingest.extract import extract
 from app.ingest.extract.source import ExtractSource
 from app.ingest.store import Store, StoreDep
@@ -43,11 +41,15 @@ async def ingest_document(id: int, store: Store, pg_pool: asyncpg.Pool):
         nodes = await store.ingestion_pipeline.arun(documents=documents)
         logger.debug("Done. Inserted {} nodes", len(nodes))
 
-        await conn.execute("""
+        await conn.execute(
+            """
         UPDATE document
         SET ingest_state = 'ingested', ingest_error = NULL
         WHERE id = $1
-        """, id)
+        """,
+            id,
+        )
+
 
 @router.put("/")
 async def add_document(
@@ -61,37 +63,51 @@ async def add_document(
 
     row = None
     async with pg_pool.acquire() as conn:
-        row = await conn.fetchrow("""
-        INSERT INTO document (collection_id, url, ingest_state) VALUES ($1, $2, 'pending')
+        row = await conn.fetchrow(
+            """
+        INSERT INTO document (collection_id, url, ingest_state)
+        VALUES ($1, $2, 'pending')
         RETURNING id, collection_id, url, ingest_state, ingest_error
-        """, collection_id, url)
+        """,
+            collection_id,
+            url,
+        )
 
     document = Document.model_validate(dict(row))
     background.add_task(ingest_document, document.id, store, pg_pool)
     return document
 
+
 PathDocumentId = Annotated[int, Path(..., description="The document ID.")]
 
+
 @router.get("/")
-async def list_documents(collection_id: PathCollectionId, conn: PgConnectionDep) -> List[Document]:
+async def list_documents(
+    collection_id: PathCollectionId, conn: PgConnectionDep
+) -> List[Document]:
     """List documents."""
     # TODO: Test
-    results = await conn.fetch("""
+    results = await conn.fetch(
+        """
         SELECT id, collection_id, url, ingest_state, ingest_error
         FROM document WHERE collection_id = $1
-    """, collection_id)
+    """,
+        collection_id,
+    )
     return [Document.model_validate(dict(result)) for result in results]
+
 
 @router.get("/{id}")
 async def get_document(
-    conn: PgConnectionDep,
-    collection_id: PathCollectionId,
-    id: PathDocumentId
+    conn: PgConnectionDep, collection_id: PathCollectionId, id: PathDocumentId
 ) -> Document:
     # TODO: Test / return not found?
     result = await conn.fetchrow(
         """
         SELECT id, collection_id, url, ingest_state, ingest_error
         FROM document WHERE id = $1 AND collection_id = $2
-        """, id, collection_id)
+        """,
+        id,
+        collection_id,
+    )
     return Document.model_validate(dict(result))

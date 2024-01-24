@@ -14,6 +14,7 @@ class IngestState(Enum):
     FAILED = "failed"
     """Document failed to be ingested. See `ingest_errors` for details."""
 
+
 class Document(BaseModel):
     """Schema for documents in the SQL DB."""
 

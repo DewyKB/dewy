@@ -1,10 +1,15 @@
 -- Apply the base schema.
 
+CREATE TYPE distance_metric AS ENUM ('cosine', 'l2', 'ip');
+
 CREATE TABLE collection (
     id SERIAL NOT NULL,
     name VARCHAR NOT NULL,
+    text_embedding_model VARCHAR NOT NULL,
+    text_distance_metric distance_metric NOT NULL,
 
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE (name)
 );
 
 CREATE TYPE ingest_state AS ENUM ('pending', 'ingested', 'failed');
@@ -82,7 +87,9 @@ CREATE TYPE embedding_kind AS ENUM (
 CREATE TABLE embedding(
     id SERIAL NOT NULL,
 
-    chunk_id INTEGER,
+    embedding vector NOT NULL,
+    collection_id INTEGER NOT NULL,
+    chunk_id INTEGER NOT NULL,
 
     key_text VARCHAR,
 
