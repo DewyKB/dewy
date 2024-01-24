@@ -1,15 +1,15 @@
 -- Apply the base schema.
-CREATE TYPE embedding_model as ENUM (
-    'openai_text_embedding_ada_002',
-    'hf_baai_bge_small_en'
-);
+
+CREATE TYPE distance_metric AS ENUM ('cosine', 'l2', 'ip');
 
 CREATE TABLE collection (
     id SERIAL NOT NULL,
     name VARCHAR NOT NULL,
-    text_embedding_model embedding_model NOT NULL,
+    text_embedding_model VARCHAR NOT NULL,
+    text_distance_metric distance_metric NOT NULL,
 
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE (name)
 );
 
 CREATE TYPE ingest_state AS ENUM ('pending', 'ingested', 'failed');
@@ -88,7 +88,7 @@ CREATE TABLE embedding(
     id SERIAL NOT NULL,
 
     embedding vector NOT NULL,
-    embedding_model embedding_model NOT NULL,
+    collection_id INTEGER NOT NULL,
     chunk_id INTEGER NOT NULL,
 
     key_text VARCHAR,

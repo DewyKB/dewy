@@ -4,7 +4,6 @@ from typing import AsyncIterator, TypedDict
 import asyncpg
 from fastapi import FastAPI
 
-from app.collections.models import EmbeddingModel
 from app.common import db
 from app.config import app_configs, settings
 from app.ingest.store import Store
@@ -28,23 +27,6 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[State]:
                 with open("migrations/0001_schema.sql") as schema_file:
                     schema = schema_file.read()
                     await conn.execute(schema)
-
-                # TODO: create indices with different distance metrics and
-                # either allow configuring that, or setting a default for each
-                # embedding model? We'd need to change the `vector_cosine_ops`
-                # to `vector_{l2,ip}_ops` for l2 distance or inner-product, and
-                # use different operators when querying.
-                index_creation = [
-                    f"""
-                    CREATE INDEX IF NOT EXISTS {emb.name}_index
-                    ON embedding
-                    USING hnsw ((embedding::vector({emb.dimensions})) vector_cosine_ops)
-                    WHERE (embedding_model = '{emb.name}');
-                    """
-                    for emb in EmbeddingModel
-                ]
-                print(index_creation)
-                await conn.execute("\n\n".join(index_creation))
 
         state = {
             "store": Store(),
