@@ -18,8 +18,8 @@ COPY --from=requirements-stage /tmp/requirements.txt /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 # Finally, copy in the application code.
-COPY ./app /code/app
+COPY ./dewy /code/dewy
 
 COPY ./migrations/0001_schema.sql /code/migrations/0001_schema.sql
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "dewy.main:app", "--host", "0.0.0.0", "--port", "80"]

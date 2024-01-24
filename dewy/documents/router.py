@@ -4,11 +4,11 @@ import asyncpg
 from fastapi import APIRouter, BackgroundTasks, Body, HTTPException, Path, status, Query
 from loguru import logger
 
-from app.common.db import PgConnectionDep, PgPoolDep
-from app.documents.models import Document
-from app.ingest.extract import extract
-from app.ingest.extract.source import ExtractSource
-from app.ingest.store import Store, StoreDep
+from dewy.common.db import PgConnectionDep, PgPoolDep
+from dewy.documents.models import Document
+from dewy.ingest.extract import extract
+from dewy.ingest.extract.source import ExtractSource
+from dewy.ingest.store import Store, StoreDep
 
 from .models import CreateRequest
 

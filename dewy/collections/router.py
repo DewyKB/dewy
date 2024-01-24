@@ -2,8 +2,8 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Path
 
-from app.collections.models import Collection, CollectionCreate
-from app.common.db import PgConnectionDep
+from dewy.collections.models import Collection, CollectionCreate
+from dewy.common.db import PgConnectionDep
 
 router = APIRouter(prefix="/collections")
 

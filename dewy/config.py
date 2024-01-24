@@ -1,23 +1,21 @@
 from typing import Any, Optional
 
 from fastapi.routing import APIRoute
-from pydantic import PostgresDsn, RedisDsn, ValidationInfo, field_validator
+from pydantic import ConfigDict, PostgresDsn, RedisDsn, ValidationInfo, field_validator
 from pydantic_core import Url
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from app.constants import Environment
+from dewy.constants import Environment
 
 # See https://github.com/zhanymkanov/fastapi-best-practices#10-use-pydantics-basesettings-for-configs
 
 
 class Config(BaseSettings):
     """Application configuration, parsed from environment variables."""
-
-    class Config:
-        """Configurations for the pydantic BaseSettings."""
-
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file = ".env",
+        env_file_encoding = "utf-8",
+    )
 
     DB: PostgresDsn
     """The Postgres database to connect to."""

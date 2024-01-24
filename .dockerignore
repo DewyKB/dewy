@@ -2,11 +2,11 @@
 **
 
 # Include (don't ignore) the application code
-!app
+!dewy
 !./pyproject.toml
 !./poetry.lock
 
-# Re-ignore pycache within `app`.
+# Re-ignore pycache within `dewy`.
 **/__pycache__
 
 # Include (don't ignore) the migrations.
