@@ -1,8 +1,4 @@
 -- Apply the base schema.
-CREATE TYPE embedding_model as ENUM (
-    'openai_text_embedding_ada_002',
-    'hf_baai_bge_small_en'
-);
 
 CREATE TYPE distance_metric AS ENUM ('cosine', 'l2', 'ip');
 

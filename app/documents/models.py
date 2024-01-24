@@ -3,6 +3,12 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+class CreateRequest(BaseModel):
+    """The name of the collection the document should be added to."""
+    collection_id: int
+
+    """The URL of the document to add."""
+    url: str
 
 class IngestState(Enum):
     PENDING = "pending"
