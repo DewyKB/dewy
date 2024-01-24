@@ -1,20 +1,18 @@
 from typing import Annotated, List
 
 import asyncpg
-from fastapi import APIRouter, BackgroundTasks, Body, HTTPException, Path, status
+from fastapi import APIRouter, BackgroundTasks, Body, HTTPException, Path, status, Query
 from loguru import logger
 
-from app.collections.router import PathCollectionId
 from app.common.db import PgConnectionDep, PgPoolDep
 from app.documents.models import Document
 from app.ingest.extract import extract
 from app.ingest.extract.source import ExtractSource
 from app.ingest.store import Store, StoreDep
 
-# TODO: Move this to `/documents`. Will require figuring out
-# how to specify the collection for create, list, etc.
-router = APIRouter(prefix="/collections/{collection_id}/documents")
+from .models import CreateRequest
 
+router = APIRouter(prefix="/documents")
 
 # We can't use the session from the request because it ends as soon
 # as the request completes. So we need to pass the engine and start
@@ -53,11 +51,10 @@ async def ingest_document(id: int, store: Store, pg_pool: asyncpg.Pool):
 
 @router.put("/")
 async def add_document(
-    collection_id: PathCollectionId,
     store: StoreDep,
     pg_pool: PgPoolDep,
     background: BackgroundTasks,
-    url: Annotated[str, Body(..., description="The URL of the document to add.")],
+    req: CreateRequest,
 ) -> Document:
     """Add a document."""
 
@@ -69,8 +66,8 @@ async def add_document(
         VALUES ($1, $2, 'pending')
         RETURNING id, collection_id, url, ingest_state, ingest_error
         """,
-            collection_id,
-            url,
+            req.collection_id,
+            req.url,
         )
 
     document = Document.model_validate(dict(row))
@@ -83,31 +80,39 @@ PathDocumentId = Annotated[int, Path(..., description="The document ID.")]
 
 @router.get("/")
 async def list_documents(
-    collection_id: PathCollectionId, conn: PgConnectionDep
+    conn: PgConnectionDep,
+    collection_id: Annotated[int | None, Query(description="Limit to documents associated with this collection")] = None,
 ) -> List[Document]:
     """List documents."""
     # TODO: Test
-    results = await conn.fetch(
+    if collection_id == None:
+        results = await conn.fetch(
+            """
+            SELECT id, collection_id, url, ingest_state, ingest_error
+            FROM document
         """
-        SELECT id, collection_id, url, ingest_state, ingest_error
-        FROM document WHERE collection_id = $1
-    """,
-        collection_id,
-    )
+        )
+    else:
+        results = await conn.fetch(
+            """
+            SELECT id, collection_id, url, ingest_state, ingest_error
+            FROM document WHERE collection_id = $1
+        """,
+            collection_id,
+        )
     return [Document.model_validate(dict(result)) for result in results]
 
 
 @router.get("/{id}")
 async def get_document(
-    conn: PgConnectionDep, collection_id: PathCollectionId, id: PathDocumentId
+    conn: PgConnectionDep, id: PathDocumentId
 ) -> Document:
     # TODO: Test / return not found?
     result = await conn.fetchrow(
         """
         SELECT id, collection_id, url, ingest_state, ingest_error
-        FROM document WHERE id = $1 AND collection_id = $2
+        FROM document WHERE id = $1
         """,
         id,
-        collection_id,
     )
     return Document.model_validate(dict(result))
