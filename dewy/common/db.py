@@ -26,7 +26,7 @@ async def create_pool(dsn: str) -> AsyncIterator[asyncpg.Pool]:
 
     pool = await asyncpg.create_pool(dsn, init=init_pool)
     yield pool
-    pool.close()
+    await pool.close()
 
 
 def _pg_pool(request: Request) -> asyncpg.Pool:
