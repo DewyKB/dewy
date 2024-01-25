@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 from fastapi.routing import APIRoute
-from pydantic import ConfigDict, PostgresDsn, RedisDsn, ValidationInfo, field_validator
+from pydantic import PostgresDsn, RedisDsn, ValidationInfo, field_validator
 from pydantic_core import Url
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -12,9 +12,10 @@ from dewy.constants import Environment
 
 class Config(BaseSettings):
     """Application configuration, parsed from environment variables."""
+
     model_config = SettingsConfigDict(
-        env_file = ".env",
-        env_file_encoding = "utf-8",
+        env_file=".env",
+        env_file_encoding="utf-8",
     )
 
     DB: PostgresDsn
