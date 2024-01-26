@@ -3,10 +3,10 @@ from typing import AsyncIterator, TypedDict
 
 import asyncpg
 from fastapi import FastAPI
-from loguru import logger
 from fastapi.middleware.cors import CORSMiddleware
 
 from dewy.common import db
+from dewy.common.db_migration import apply_migrations
 from dewy.config import app_configs, settings
 from dewy.routes import api_router
 
@@ -23,11 +23,8 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[State]:
     # for simple migration scripts.
     async with db.create_pool(settings.DB.unicode_string()) as pg_pool:
         if settings.APPLY_MIGRATIONS:
-            logger.info("Applying migrations")
             async with pg_pool.acquire() as conn:
-                with open("migrations/0001_schema.sql") as schema_file:
-                    schema = schema_file.read()
-                    await conn.execute(schema)
+                await apply_migrations(conn, migration_dir="migrations")
 
         state = {
             "pg_pool": pg_pool,
@@ -47,6 +44,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.get("/healthcheck", include_in_schema=False)
 async def healthcheck() -> dict[str, str]:
