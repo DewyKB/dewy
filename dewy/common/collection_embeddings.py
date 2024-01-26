@@ -143,10 +143,9 @@ class CollectionEmbeddings:
 
         async with self._pg_pool.acquire() as conn:
             logger.info("Executing SQL query for chunks from {}", self.collection_id)
-            embeddings = await conn.fetch(self._retrieve_embeddings,
-                                          self.collection_id,
-                                          embedded_query,
-                                          n)
+            embeddings = await conn.fetch(
+                self._retrieve_embeddings, self.collection_id, embedded_query, n
+            )
             embeddings = [e["chunk_id"] for e in embeddings]
             return embeddings
 
@@ -164,10 +163,9 @@ class CollectionEmbeddings:
 
         async with self._pg_pool.acquire() as conn:
             logger.info("Executing SQL query for chunks from {}", self.collection_id)
-            embeddings = await conn.fetch(self.collection_id,
-                                          self._retrieve_chunks,
-                                          embedded_query,
-                                          n)
+            embeddings = await conn.fetch(
+                self.collection_id, self._retrieve_chunks, embedded_query, n
+            )
             embeddings = [
                 TextResult(
                     chunk_id=e["chunk_id"],

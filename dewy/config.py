@@ -21,8 +21,12 @@ class Config(BaseSettings):
     DB: PostgresDsn
     """The Postgres database to connect to."""
 
-    APPLY_MIGRATIONS: bool = False
-    """Whether migrations should be applied to the database."""
+    APPLY_MIGRATIONS: bool = True
+    """Whether migrations should be applied to the database.
+
+    This should be set to false if there are multiple services running to prevent
+    concurrent migrations.
+    """
 
     ENVIRONMENT: Environment = Environment.PRODUCTION
     """The environment the application is running in."""
