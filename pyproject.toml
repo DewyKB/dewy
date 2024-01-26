@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Knowledge base service."
 authors = ["Ben Chambers <ben.chambers@datastax.com>"]
 readme = "README.md"
+license = "Apache-2.0"
 
 [tool.poetry.dependencies]
 python = "^3.11"
