@@ -36,54 +36,57 @@ Dewy helps you build AI agents and RAG applications by managing the extraction o
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy up and running follow these simple example steps.
+To get a local copy up and running follow these steps.
 
-### Installation
-
-1. Clone the repo
+1. Fire up Dewy
     ```sh
-    git clone https://github.com/DewyKB/dewy.git
-    ```
-1. Install Python packages
-    ```sh
-    poetry install
-    ```
-1. Configure remote LLM execution (optional - will use local models if not specified)
-    ```js
-    export ENVIRONMENT=LOCAL
-    export REDIS=redis://default:testing123@localhost:6379
+    // Configure your OpenAI key (optional - local models will be used if not provided)
     export OPENAI_API_KEY=...
+    
+    // Run the docker container
+    docker run -d dewy-kb
+    
+    // Go to the management console to start creating resources!
+    open localhost:3001
     ```
-1. Run the Dewy service
+1. Install the API client library
     ```sh
-    poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000
+    npm install dewy-ts
     ```
-1. Run the admin frontend (optional)
-    ```sh
-    cd frontend
-    npm install
-    npm run dev
+1. Add documents
+    ```typescript
+    import { Dewy } from 'dewy_ts';
+    const dewy = new Dewy({endpoint: “localhost:3000”})
+
+    await dewy.addDocument({url: “https://arxiv.org/abs/2005.11401”})
+1. Retrieve document chunks for LLM prompting
+    ```typescript
+    import { Dewy } from 'dewy_ts';
+    const dewy = new Dewy({endpoint: “localhost:3000”})
+
+    const context = await dewy.retrieveChunks({query: "tell me about RAG", n: 10});
+
+    const prompt = [
+      {
+        role: 'system',
+        content: `You are a helpful assistant. 
+        You will take into account any CONTEXT BLOCK that is provided in a conversation.  
+        START CONTEXT BLOCK
+        ${context.results.map((c: any) => c.chunk.text).join("\n")}
+        END OF CONTEXT BLOCK
+        `,
+      },
+    ]
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      stream: true,
+      messages: [...prompt, [{role: 'user': content: 'Tell me about RAG'}]]
+    })
     ```
 
 Swagger docs at `http://localhost:8000/docs`.
-Notebook `example_notebook.ipynb` uses the REST API directly.
-
-### Practices
-
-Some skeleton code based on best practices from https://github.com/zhanymkanov/fastapi-best-practices.
-
-The following commands run tests and apply linting.
-If you're in a `poetry shell`, you can omit the `poetry run`:
-
-* Running tests: `poetry run pytest`
-* Linting (and formatting): `poetry run ruff check --fix`
-* Formatting: `poetry run ruff format`
-* Type Checking: `poetry run mypy app`
-
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
+Notebook `example_notebook.ipynb` uses the REST API from Python.
 
 <!-- CONTRIBUTING -->
 ## Contributing
@@ -99,9 +102,51 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+### Development Installation
+
+1. Clone the repo
+    ```sh
+    git clone https://github.com/DewyKB/dewy.git
+    ```
+1. Install Python packages
+    ```sh
+    poetry install
+    ```
+1. Configure Dewy.
+    Dewy will read env vars from an `.env` file if provided. You can also set these directly 
+    in the environment, for example when configuring an instance running in docker / kubernetes.
+    ```sh
+    cat > .env << EOF
+    ENVIRONMENT=LOCAL
+    DB=postgresql://...
+    OPENAI_API_KEY=...
+    EOF
+    ```
+1. Run the Dewy service
+    ```sh
+    poetry run uvicorn dewy.main:app --host 0.0.0.0 --port 8000
+    ```
+1. Run the admin frontend (optional)
+    ```sh
+    cd frontend
+    npm install
+    npm run dev
+    ```
+
+### Practices
+
+Some skeleton code based on best practices from https://github.com/zhanymkanov/fastapi-best-practices.
+
+The following commands run tests and apply linting.
+If you're in a `poetry shell`, you can omit the `poetry run`:
+
+* Running tests: `poetry run pytest`
+* Linting (and formatting): `poetry run ruff check --fix`
+* Formatting: `poetry run ruff format`
+* Type Checking: `poetry run mypy app`
 
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p
 
 <!-- LICENSE -->
 ## License
