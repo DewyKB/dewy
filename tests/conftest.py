@@ -1,7 +1,8 @@
+import asyncio
+
 import pytest
 from asgi_lifespan import LifespanManager
 from httpx import AsyncClient
-from pytest_asyncio import is_async_test
 
 pytest_plugins = ["pytest_docker_fixtures"]
 
@@ -21,12 +22,13 @@ configure_image(
 
 
 @pytest.fixture(scope="session")
-async def app(pg):
+async def app(pg, event_loop):
     # Set environment variables before the application is loaded.
     import os
 
     (pg_host, pg_port) = pg
     os.environ["DB"] = f"postgresql://dewydbuser:dewydbpwd@{pg_host}:{pg_port}/dewydb"
+    os.environ["APPLY_MIGRATIONS"] = "true"
 
     from dewy.main import app
 
@@ -40,8 +42,25 @@ async def client(app) -> AsyncClient:
         yield client
 
 
-def pytest_collection_modifyitems(items):
-    pytest_asyncio_tests = (item for item in items if is_async_test(item))
-    session_scope_marker = pytest.mark.asyncio(scope="session")
-    for async_test in pytest_asyncio_tests:
-        async_test.add_marker(session_scope_marker)
+# This approach to using a session scoped event loop doesn't seem to work
+# with setting up a single, session scoped FastAPI service. Specifically,
+# the service seems to capture the event loop before the event loop is
+# created, and then causes problems about things being in different loops.
+#
+# See https://github.com/pytest-dev/pytest-asyncio/issues/705, and
+# https://github.com/pytest-dev/pytest-asyncio/issues/718.
+#
+# def pytest_collection_modifyitems(items):
+#     pytest_asyncio_tests = (item for item in items if is_async_test(item))
+#     session_scope_marker = pytest.mark.asyncio(scope="session")
+#     for async_test in pytest_asyncio_tests:
+#         async_test.add_marker(session_scope_marker)
+
+
+# sets up a single, session-scoped async event loop.
+@pytest.fixture(scope="session")
+def event_loop():
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+    loop.close()

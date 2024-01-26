@@ -4,6 +4,7 @@ from typing import AsyncIterator, TypedDict
 import asyncpg
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
 
 from dewy.common import db
 from dewy.common.db_migration import apply_migrations
@@ -26,6 +27,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[State]:
             async with pg_pool.acquire() as conn:
                 await apply_migrations(conn, migration_dir="migrations")
 
+        logger.info("Created database connection")
         state = {
             "pg_pool": pg_pool,
         }
