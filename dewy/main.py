@@ -1,4 +1,5 @@
 import contextlib
+from re import L
 from typing import AsyncIterator, TypedDict
 
 import asyncpg
@@ -29,6 +30,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[State]:
                     schema = schema_file.read()
                     await conn.execute(schema)
 
+        logger.info("Created database connection")
         state = {
             "pg_pool": pg_pool,
         }
