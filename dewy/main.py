@@ -1,11 +1,10 @@
 import contextlib
-from re import L
 from typing import AsyncIterator, TypedDict
 
 import asyncpg
 from fastapi import FastAPI
-from loguru import logger
 from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
 
 from dewy.common import db
 from dewy.config import app_configs, settings
@@ -49,6 +48,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.get("/healthcheck", include_in_schema=False)
 async def healthcheck() -> dict[str, str]:

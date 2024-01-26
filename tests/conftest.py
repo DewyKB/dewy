@@ -1,8 +1,8 @@
 import asyncio
+
 import pytest
 from asgi_lifespan import LifespanManager
 from httpx import AsyncClient
-from pytest_asyncio import is_async_test
 
 pytest_plugins = ["pytest_docker_fixtures"]
 
@@ -55,6 +55,7 @@ async def client(app) -> AsyncClient:
 #     session_scope_marker = pytest.mark.asyncio(scope="session")
 #     for async_test in pytest_asyncio_tests:
 #         async_test.add_marker(session_scope_marker)
+
 
 # sets up a single, session-scoped async event loop.
 @pytest.fixture(scope="session")
