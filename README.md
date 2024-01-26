@@ -28,7 +28,14 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Dewy helps you build AI agents and RAG applications by managing the extraction of knowledge from your documents and implementing semantic search over the extracted content. Load your documents and Dewy takes care of parsing, chunking, summarizing, and indexing for retrieval. Dewy builds on the lessons of putting real Gen AI applications into production so you can focus on getting 💩 done, rather than comparing vector databases and building data extraction infrastructure.
+Dewy helps you build AI agents and RAG applications by managing the extraction of knowledge from your documents and implementing semantic search over the extracted content.
+Load your documents and Dewy takes care of parsing, chunking, summarizing, and indexing for retrieval
+Dewy builds on the lessons of putting real Gen AI applications into production so you can focus on getting 💩 done, rather than comparing vector databases and building data extraction infrastructure.
+
+Below is the typical architecture of an AI agent performing RAG.
+Dewy handles all of the parts shown in brown, letting you focus on your application -- the parts in green.
+
+<img src="images/app_architecture.png" alt="System architecture showing steps of RAG.">
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -42,10 +49,10 @@ To get a local copy up and running follow these steps.
     ```sh
     // Configure your OpenAI key (optional - local models will be used if not provided)
     export OPENAI_API_KEY=...
-    
+
     // Run the docker container
     docker run -d dewy-kb
-    
+
     // Go to the management console to start creating resources!
     open localhost:3001
     ```
@@ -69,8 +76,8 @@ To get a local copy up and running follow these steps.
     const prompt = [
       {
         role: 'system',
-        content: `You are a helpful assistant. 
-        You will take into account any CONTEXT BLOCK that is provided in a conversation.  
+        content: `You are a helpful assistant.
+        You will take into account any CONTEXT BLOCK that is provided in a conversation.
         START CONTEXT BLOCK
         ${context.results.map((c: any) => c.chunk.text).join("\n")}
         END OF CONTEXT BLOCK
@@ -113,7 +120,7 @@ Don't forget to give the project a star! Thanks again!
     poetry install
     ```
 1. Configure Dewy.
-    Dewy will read env vars from an `.env` file if provided. You can also set these directly 
+    Dewy will read env vars from an `.env` file if provided. You can also set these directly
     in the environment, for example when configuring an instance running in docker / kubernetes.
     ```sh
     cat > .env << EOF
