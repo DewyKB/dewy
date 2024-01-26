@@ -4,7 +4,10 @@ from pydantic import BaseModel, Field
 
 
 class RetrieveRequest(BaseModel):
-    """A request for retrieving unstructured (document) results."""
+    """A request for retrieving chunks from a collection."""
+
+    collection_id: int
+    """The collection to retrieve chunks from."""
 
     query: str
     """The query string to use for retrieval."""

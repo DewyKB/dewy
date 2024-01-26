@@ -44,7 +44,7 @@ CREATE TABLE chunk(
     document_id INTEGER,
 
     -- The kind of chunk.
-    kind chunk_kind NULL,
+    kind chunk_kind NOT NULL,
 
     -- The text associated with the chunk, if any.
     --

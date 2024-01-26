@@ -7,14 +7,11 @@ from loguru import logger
 
 from dewy.common import db
 from dewy.config import app_configs, settings
-from dewy.ingest.store import Store
 from dewy.routes import api_router
 
 
 class State(TypedDict):
-    store: Store
     pg_pool: asyncpg.Pool
-
 
 
 @contextlib.asynccontextmanager
@@ -32,11 +29,8 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[State]:
                     await conn.execute(schema)
 
         state = {
-            "store": Store(),
             "pg_pool": pg_pool,
         }
-
-        logger.info("Created store and db")
         yield state
 
 
