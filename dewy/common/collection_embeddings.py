@@ -46,21 +46,21 @@ class CollectionEmbeddings:
         self._retrieve_embeddings = f"""
         SELECT
           chunk_id,
-          {self.text_distance_metric.distance(field, "$1")} AS score
+          {self.text_distance_metric.distance(field, "$2")} AS score
         FROM embedding
-        WHERE collection_id = {self.collection_id}
-        ORDER BY {self.text_distance_metric.order_by(field, "$1")}
-        LIMIT $2
+        WHERE collection_id = $1
+        ORDER BY {self.text_distance_metric.order_by(field, "$2")}
+        LIMIT $3
         """
 
         self._retrieve_chunks = f"""
         WITH relevant_embeddings AS (
           SELECT
             chunk_id,
-            {self.text_distance_metric.distance(field, "$1")} AS score
+            {self.text_distance_metric.distance(field, "$2")} AS score
           FROM embedding
-          WHERE collection_id = {self.collection_id}
-          ORDER BY {self.text_distance_metric.order_by(field, "$1")}
+          WHERE collection_id = $1
+          ORDER BY {self.text_distance_metric.order_by(field, "$2")}
         )
         SELECT
           relevant_embeddings.chunk_id AS chunk_id,
@@ -69,7 +69,7 @@ class CollectionEmbeddings:
         FROM relevant_embeddings
         JOIN chunk
         ON chunk.id = relevant_embeddings.chunk_id
-        LIMIT $2
+        LIMIT $3
         """
 
     @staticmethod
@@ -142,7 +142,10 @@ class CollectionEmbeddings:
 
         async with self._pg_pool.acquire() as conn:
             logger.info("Executing SQL query for chunks from {}", self.collection_id)
-            embeddings = await conn.fetch(self._retrieve_embeddings, embedded_query, n)
+            embeddings = await conn.fetch(self._retrieve_embeddings,
+                                          self.collection_id,
+                                          embedded_query,
+                                          n)
             embeddings = [e["chunk_id"] for e in embeddings]
             return embeddings
 
@@ -160,7 +163,10 @@ class CollectionEmbeddings:
 
         async with self._pg_pool.acquire() as conn:
             logger.info("Executing SQL query for chunks from {}", self.collection_id)
-            embeddings = await conn.fetch(self._retrieve_chunks, embedded_query, n)
+            embeddings = await conn.fetch(self.collection_id,
+                                          self._retrieve_chunks,
+                                          embedded_query,
+                                          n)
             embeddings = [
                 TextChunk(raw=True, score=e["score"], text=e["text"])
                 for e in embeddings
