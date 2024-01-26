@@ -1,14 +1,15 @@
+from io import text_encoding
 from typing import List, Self, Tuple
 
 import asyncpg
-from llama_index.embeddings import OpenAIEmbedding
+from llama_index.embeddings import BaseEmbedding
 from llama_index.node_parser import SentenceSplitter
 from llama_index.schema import TextNode
 from loguru import logger
 
 from dewy.chunks.models import TextResult
 from dewy.collections.models import DistanceMetric
-from dewy.collections.router import get_dimensions
+from dewy.config import settings
 
 from .extract import extract
 
@@ -22,6 +23,7 @@ class CollectionEmbeddings:
         *,
         collection_id: int,
         text_embedding_model: str,
+        text_embedding_dimensions: int,
         text_distance_metric: DistanceMetric,
     ) -> None:
         """Create a new CollectionEmbeddings."""
@@ -35,14 +37,12 @@ class CollectionEmbeddings:
 
         # TODO: Look at a sentence window splitter?
         self._splitter = SentenceSplitter()
-        # TODO: Support other embeddings (based on the model).
-        self._embedding = OpenAIEmbedding()
+        self._embedding = _resolve_embedding_model(self.text_embedding_model)
+
+        field = f"embedding::vector({text_embedding_dimensions})"
 
         # TODO: Figure out how to limit by the number of *chunks* not the number
         # of embeddings.
-        dimensions = get_dimensions(self.text_embedding_model)
-        field = f"embedding::vector({dimensions})"
-
         self._retrieve_embeddings = f"""
         SELECT
           chunk_id,
@@ -80,10 +80,13 @@ class CollectionEmbeddings:
             result = await conn.fetchrow(
                 """
                 SELECT
-                    id,
+                    collection.id as id,
                     text_embedding_model,
-                    text_distance_metric
+                    text_distance_metric,
+                    text_embedding_dimensions.dimensions AS text_embedding_dimensions
                 FROM collection
+                JOIN text_embedding_dimensions
+                    ON text_embedding_dimensions.name = collection.text_embedding_model
                 WHERE collection.id = $1;
                 """,
                 collection_id,
@@ -93,6 +96,7 @@ class CollectionEmbeddings:
                 pg_pool,
                 collection_id=result["id"],
                 text_embedding_model=result["text_embedding_model"],
+                text_embedding_dimensions=result["text_embedding_dimensions"],
                 text_distance_metric=DistanceMetric(result["text_distance_metric"]),
             )
 
@@ -110,9 +114,12 @@ class CollectionEmbeddings:
                     collection.name,
                     collection.id as id,
                     collection.text_embedding_model,
-                    collection.text_distance_metric
+                    collection.text_distance_metric,
+                    text_embedding_dimensions.dimensions AS text_embedding_dimensions
                 FROM document
                 JOIN collection ON document.collection_id = collection.id
+                JOIN text_embedding_dimensions
+                    ON text_embedding_dimensions.name = collection.text_embedding_model
                 WHERE document.id = $1;
                 """,
                 document_id,
@@ -123,6 +130,7 @@ class CollectionEmbeddings:
                 pg_pool,
                 collection_id=result["id"],
                 text_embedding_model=result["text_embedding_model"],
+                text_embedding_dimensions=result["text_embedding_dimensions"],
                 text_distance_metric=DistanceMetric(result["text_distance_metric"]),
             )
             return (result["url"], configured_ingestion)
@@ -170,9 +178,9 @@ class CollectionEmbeddings:
                 TextResult(
                     chunk_id=e["chunk_id"],
                     document_id=e["document_id"],
-                    score=e["score"], 
+                    score=e["score"],
                     text=e["text"],
-                    raw=True, 
+                    raw=True,
                     start_char_idx=None,
                     end_char_idx=None,
                 )
@@ -276,3 +284,59 @@ class CollectionEmbeddings:
         #    all resulting nodes are resident in memory.
         #  - It uses metadata to return the "window" (if using sentence windows).
         return [node.text for node in await self._splitter.acall([TextNode(text=text)])]
+
+
+DEFAULT_OPENAI_EMBEDDING_MODEL: str = "openai:text-embedding-ada-002"
+DEFAULT_HF_EMBEDDING_MODEL: str = "hf:BAAI/bge-small-en"
+
+
+async def get_dimensions(conn: asyncpg.Connection, model_name: str) -> int:
+    dimensions = await conn.fetchval(
+        """
+        SELECT dimensions
+        FROM text_embedding_dimensions
+        WHERE name = $1
+        """,
+        model_name,
+    )
+
+    if dimensions is not None:
+        return dimensions
+
+    model = _resolve_embedding_model(model_name)
+    dimensions = len(await model.aget_text_embedding("test string"))
+
+    # TODO: Deal with concurrency? I suspect it is OK if this fails
+    # due to the uniqueness constraint, and we should just move on.
+    # Someone wrote the value for that name to the table, and we should
+    # have determined the same values.
+    await conn.execute(
+        """
+        INSERT INTO text_embedding_dimensions (name, dimensions)
+        VALUES ($1, $2)
+        """,
+        model_name,
+        dimensions,
+    )
+
+    return dimensions
+
+
+def _resolve_embedding_model(model: str) -> BaseEmbedding:
+    if not model:
+        if settings.OPENAI_API_KEY:
+            model = DEFAULT_OPENAI_EMBEDDING_MODEL
+        else:
+            model = DEFAULT_HF_EMBEDDING_MODEL
+
+    split = model.split(":", 2)
+    if split[0] == "openai":
+        from llama_index.embeddings import OpenAIEmbedding
+
+        return OpenAIEmbedding(model=split[1])
+    elif split[0] == "hf":
+        from llama_index.embeddings import HuggingFaceEmbedding
+
+        return HuggingFaceEmbedding(model_name=split[1])
+    else:
+        raise ValueError(f"Unrecognized embedding model '{model}'")
