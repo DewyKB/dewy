@@ -36,7 +36,7 @@ Below is the typical architecture of an AI agent performing RAG.
 Dewy handles all of the parts shown in brown, letting you focus on your application -- the parts in green.
 
 <center>
-  <img src="images/app_architecture.png" alt="System architecture showing steps of RAG." max-width="450px">
+  <img src="images/app_architecture.png" alt="System architecture showing steps of RAG." style="max-width: 450px">
 </center>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
