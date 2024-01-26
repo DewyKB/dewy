@@ -16,22 +16,20 @@ from .extract import extract
 class CollectionEmbeddings:
     """Helper class for working with the embeddings in a collection."""
 
-    def __init__(self, pg_pool: asyncpg.Pool, collection_row: asyncpg.Record) -> None:
-        """Create a new CollectionEmbeddings.
-
-        Parameters:
-        - pg_pool: The asyncpg pool for connecting to the database
-        - collection_row: A record from the database containing the following
-          fields: collection_id, name, text_embedding_model, text_distance_model.
-        """
+    def __init__(
+        self,
+        pg_pool: asyncpg.Pool,
+        *,
+        collection_id: int,
+        text_embedding_model: str,
+        text_distance_metric: DistanceMetric,
+    ) -> None:
+        """Create a new CollectionEmbeddings."""
         self._pg_pool = pg_pool
+        self.collection_id = collection_id
+        self.text_embedding_model = text_embedding_model
+        self.text_distance_metric = text_distance_metric
 
-        self.collection_id = collection_row["collection_id"]
-        self.name = collection_row["name"]
-        self.text_embedding_model = collection_row["text_embedding_model"]
-        self.text_distance_metric = DistanceMetric(
-            collection_row["text_distance_metric"]
-        )
         self.extract_tables = False
         self.extract_images = False
 
@@ -81,8 +79,7 @@ class CollectionEmbeddings:
             result = await conn.fetchrow(
                 """
                 SELECT
-                    name,
-                    id as collection_id,
+                    id,
                     text_embedding_model,
                     text_distance_metric
                 FROM collection
@@ -91,7 +88,12 @@ class CollectionEmbeddings:
                 collection_id,
             )
 
-            return CollectionEmbeddings(pg_pool, result)
+            return CollectionEmbeddings(
+                pg_pool,
+                collection_id=result["id"],
+                text_embedding_model=result["text_embedding_model"],
+                text_distance_metric=DistanceMetric(result["text_distance_metric"]),
+            )
 
     @staticmethod
     async def for_document_id(pg_pool: asyncpg.Pool, document_id: int) -> (str, Self):
@@ -103,10 +105,9 @@ class CollectionEmbeddings:
             result = await conn.fetchrow(
                 """
                 SELECT
-                    document.id,
-                    document.url,
+                    document.url as url,
                     collection.name,
-                    collection.id as collection_id,
+                    collection.id as id,
                     collection.text_embedding_model,
                     collection.text_distance_metric
                 FROM document
@@ -117,7 +118,12 @@ class CollectionEmbeddings:
             )
 
             # TODO: Cache the configured ingestions, and only recreate when needed?
-            configured_ingestion = CollectionEmbeddings(pg_pool, result)
+            configured_ingestion = CollectionEmbeddings(
+                pg_pool,
+                collection_id=result["id"],
+                text_embedding_model=result["text_embedding_model"],
+                text_distance_metric=DistanceMetric(result["text_distance_metric"]),
+            )
             return (result["url"], configured_ingestion)
 
     async def retrieve_text_embeddings(
