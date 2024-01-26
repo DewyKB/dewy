@@ -35,7 +35,9 @@ Dewy builds on the lessons of putting real Gen AI applications into production s
 Below is the typical architecture of an AI agent performing RAG.
 Dewy handles all of the parts shown in brown, letting you focus on your application -- the parts in green.
 
-<img src="images/app_architecture.png" alt="System architecture showing steps of RAG.">
+<center>
+  <img src="images/app_architecture.png" alt="System architecture showing steps of RAG." max-width="450px">
+</center>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
