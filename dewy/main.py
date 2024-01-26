@@ -4,6 +4,7 @@ from typing import AsyncIterator, TypedDict
 import asyncpg
 from fastapi import FastAPI
 from loguru import logger
+from fastapi.middleware.cors import CORSMiddleware
 
 from dewy.common import db
 from dewy.config import app_configs, settings
@@ -36,6 +37,16 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[State]:
 
 app = FastAPI(lifespan=lifespan, **app_configs)
 
+origins = [
+    "http://localhost:5173",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/healthcheck", include_in_schema=False)
 async def healthcheck() -> dict[str, str]:
