@@ -5,7 +5,7 @@ from fastapi import APIRouter, Path, Query
 from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgPoolDep
 
-from .models import Chunk, RetrieveRequest, RetrieveResponse
+from .models import Chunk, RetrieveRequest, RetrieveResponse, TextChunk
 
 router = APIRouter(prefix="/chunks")
 
@@ -25,16 +25,16 @@ async def list_chunks(
     # TODO: handle collection & document ID
     results = await pg_pool.fetch(
         """
-        SELECT chunk.id, chunk.document_id, chunk.kind, chunk.text
+        SELECT chunk.id, chunk.document_id, chunk.kind, chunk.text, TRUE AS raw
         FROM chunk
+        JOIN document ON document.id = chunk.document_id
         WHERE document.collection_id = coalesce($1, document.collection_id)
         AND chunk.document_id = coalesce($2, chunk.document_id)
-        JOIN document ON document.id = chunk.document_id
         """,
         collection_id,
         document_id,
     )
-    return [Chunk.model_validate(dict(result)) for result in results]
+    return [TextChunk.model_validate(dict(result)) for result in results]
 
 
 PathChunkId = Annotated[int, Path(..., description="The chunk ID.")]

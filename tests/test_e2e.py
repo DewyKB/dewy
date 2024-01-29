@@ -1,8 +1,11 @@
 import random
 import string
 import time
+from typing import List
 
-from dewy.chunks.models import RetrieveRequest, RetrieveResponse
+from pydantic import TypeAdapter
+
+from dewy.chunks.models import Chunk, RetrieveRequest, RetrieveResponse
 from dewy.documents.models import AddDocumentRequest
 
 SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
@@ -34,6 +37,14 @@ async def ingest(client, collection: int, url: str) -> int:
 
     return document_id
 
+async def list_chunks(client, collection: int, document: int):
+    response = await client.get("/api/chunks/", params = {
+        'collection_id': collection,
+        'document_id': document
+    })
+    assert response.status_code == 200
+    ta = TypeAdapter(List[Chunk])
+    return ta.validate_json(response.content)
 
 async def retrieve(client, collection: int, query: str) -> RetrieveResponse:
     request = RetrieveRequest(
@@ -48,6 +59,11 @@ async def retrieve(client, collection: int, query: str) -> RetrieveResponse:
 async def test_e2e_openai_ada002(client):
     collection = await create_collection(client, "openai:text-embedding-ada-002")
     document = await ingest(client, collection, SKELETON_OF_THOUGHT_PDF)
+    chunks = await list_chunks(client, collection, document)
+    assert len(chunks) > 0
+    assert chunks[0].document_id == document
+    assert chunks[0].text.startswith("Skeleton-of-Thought: Large Language Models")
+
     results = await retrieve(
         client, collection, "outline the steps to using skeleton-of-thought prompting"
     )
@@ -61,6 +77,11 @@ async def test_e2e_openai_ada002(client):
 async def test_e2e_hf_bge_small(client):
     collection = await create_collection(client, "hf:BAAI/bge-small-en")
     document = await ingest(client, collection, SKELETON_OF_THOUGHT_PDF)
+    chunks = await list_chunks(client, collection, document)
+    assert len(chunks) > 0
+    assert chunks[0].document_id == document
+    assert chunks[0].text.startswith("Skeleton-of-Thought: Large Language Models")
+
     results = await retrieve(
         client, collection, "outline the steps to using skeleton-of-thought prompting"
     )
