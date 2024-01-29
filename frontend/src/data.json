@@ -33,16 +33,20 @@
     {
       "id": 0,
       "collection_id": 0,
+      "url": "https://arxiv.org/pdf/2005.11401.pdf",
       "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "chunks": {"tokens": {"index": {"statements": true}}},
       "kind": "PDF",
-      "chunks": {"tokens": {"index": {"statements": true}}}
+      "indexed": false
     },
     {
       "id": 1,
       "collection_id": 1,
+      "url": "https://arxiv.org/pdf/2305.14283.pdf",
       "title": "Query Rewriting for Retrieval-Augmented Large Language Models",
+      "chunks": null,
       "kind": "PDF",
-      "chunks": null
+      "indexed": true
     }
   ],
   "chunks": [

@@ -61,7 +61,7 @@ async def extract(
     """Extract documents from a local or remote URL."""
     import httpx
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(follow_redirects=True) as client:
         # Determine the extension by requesting the headers.
         response = await client.head(url)
         response.raise_for_status()
@@ -69,7 +69,7 @@ async def extract(
         logger.debug("Content type of {} is {}", url, content_type)
 
         # Load the content.
-        if content_type == "application/pdf":
+        if content_type.startswith("application/pdf"):
             from tempfile import NamedTemporaryFile
 
             with NamedTemporaryFile(suffix=".pdf") as temp_file:

@@ -25,8 +25,8 @@ async def add_document(
 ) -> Document:
     """Add a document."""
 
-    row = None
     async with pg_pool.acquire() as conn:
+        row = None
         row = await conn.fetchrow(
             """
         INSERT INTO document (collection_id, url, ingest_state)
