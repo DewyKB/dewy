@@ -53,8 +53,13 @@ To get a local copy up and running follow these steps.
     export OPENAI_API_KEY=...
 
     // Run the docker container
+<<<<<<< Updated upstream
     docker run -d dewy-kb
 
+=======
+    docker run -d dewykb/dewy
+    
+>>>>>>> Stashed changes
     // Go to the management console to start creating resources!
     open localhost:3001
     ```
