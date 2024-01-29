@@ -108,7 +108,7 @@ async def _apply_migration(
                 return False
             elif applied_sha256 is not None:
                 raise ValueError(
-                    f"Migration '{migration_path}' already applied with different SHA. Recreate DB."
+                    f"'{migration_path}' applied with different SHA. Recreate DB."
                 )
             else:
                 logger.info("Applying migration '{}'", migration_path)

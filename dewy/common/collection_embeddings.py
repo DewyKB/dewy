@@ -1,4 +1,3 @@
-from io import text_encoding
 from typing import List, Self, Tuple
 
 import asyncpg
@@ -172,10 +171,7 @@ class CollectionEmbeddings:
         async with self._pg_pool.acquire() as conn:
             logger.info("Executing SQL query for chunks from {}", self.collection_id)
             embeddings = await conn.fetch(
-                self._retrieve_chunks, 
-                self.collection_id, 
-                embedded_query, 
-                n
+                self._retrieve_chunks, self.collection_id, embedded_query, n
             )
             embeddings = [
                 TextResult(

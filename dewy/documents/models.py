@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class CreateRequest(BaseModel):
+class AddDocumentRequest(BaseModel):
     collection_id: Optional[int] = None
     """The id of the collection the document should be added to. Either `collection` or `collection_id` must be provided"""
 

@@ -7,6 +7,7 @@ class TextChunk(BaseModel):
     id: int
     document_id: int
     kind: Literal["text"] = "text"
+    text: str
 
     raw: bool
     text: str 
