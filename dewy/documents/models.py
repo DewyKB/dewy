@@ -5,14 +5,14 @@ from pydantic import BaseModel
 
 
 class CreateRequest(BaseModel):
-    """The name of the collection the document should be added to. Either `collection` or `collection_id` must be provided"""
     collection: Optional[str] = None
+    """The name of the collection the document should be added to. Either `collection` or `collection_id` must be provided"""
 
-    """The id of the collection the document should be added to. Either `collection` or `collection_id` must be provided"""
     collection_id: Optional[int] = None
+    """The id of the collection the document should be added to. Either `collection` or `collection_id` must be provided"""
 
-    """The URL of the document to add."""
     url: str
+    """The URL of the document to add."""
 
 
 class IngestState(Enum):
