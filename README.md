@@ -47,21 +47,33 @@ Dewy handles all of the parts shown in brown, letting you focus on your applicat
 
 To get a local copy up and running follow these steps.
 
+1. (Optional) Start a `pgvector` instance to persist your data
+    ```sh
+    docker run -d \
+      -p 5432:5432 \
+      -e POSTGRES_DB=dewydb \
+      -e POSTGRES_USER=dewydbuser \
+      -e POSTGRES_PASSWORD=dewydbpwd \
+      -e POSTGRES_HOST_AUTH_METHOD=trust \
+      ankane/pgvector
+    ```
+1. Install Dewy
+    ```
+    pip install dewy
+    ```
 1. Fire up Dewy
     ```sh
     // Configure your OpenAI key (optional - local models will be used if not provided)
     export OPENAI_API_KEY=...
 
-    // Run the docker container
-<<<<<<< Updated upstream
-    docker run -d dewy-kb
+    // Configure your pgvector endpoint (this assumes you installed with Docker as shown previously)
+    export DB=postgresql://dewydbuser:dewydbpwd@localhost/dewydb
 
-=======
-    docker run -d dewykb/dewy
-    
->>>>>>> Stashed changes
+    // Run the docker container
+    dewy
+
     // Go to the management console to start creating resources!
-    open localhost:3001
+    open http://localhost/admin
     ```
 1. Install the API client library
     ```sh
@@ -136,15 +148,13 @@ Don't forget to give the project a star! Thanks again!
     OPENAI_API_KEY=...
     EOF
     ```
+1. Build the frontend
+    ```sh
+    cd frontend && npm install && npm run build
+    ```
 1. Run the Dewy service
     ```sh
-    poetry run uvicorn dewy.main:app --host 0.0.0.0 --port 8000
-    ```
-1. Run the admin frontend (optional)
-    ```sh
-    cd frontend
-    npm install
-    npm run dev
+    poetry run dewy
     ```
 
 ### Practices

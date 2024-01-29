@@ -9,7 +9,17 @@ COPY ./pyproject.toml ./poetry.lock* /tmp/
 RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 ######
-# 2. Create the actual image.
+# 2. Compile the frontend 
+FROM node:20.9.0-alpine as frontend-stage
+WORKDIR /app
+COPY ./frontend/package.json ./package.json
+RUN npm install --silent
+
+COPY ./frontend/ ./
+RUN npm run build
+
+######
+# 3. Create the actual image.
 FROM python:3.11
 WORKDIR /code
 
@@ -19,6 +29,7 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 # Finally, copy in the application code.
 COPY ./dewy /code/dewy
+COPY --from=frontend-stage /app/dist /code/dewy/frontend/dist
 
 COPY ./migrations/0001_schema.sql /code/migrations/0001_schema.sql
 
