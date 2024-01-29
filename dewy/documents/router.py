@@ -78,7 +78,7 @@ async def get_document(conn: PgConnectionDep, id: PathDocumentId) -> Document:
     # TODO: Test / return not found?
     result = await conn.fetchrow(
         """
-        SELECT id, collection_id, url, ingest_state, ingest_error
+        SELECT id, collection_id, url, ingest_state, ingest_error, extracted_text
         FROM document WHERE id = $1
         """,
         id,
