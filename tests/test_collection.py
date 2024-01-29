@@ -3,10 +3,8 @@ import string
 
 
 async def test_create_collection(client):
-    name = ''.join(random.choices(string.ascii_lowercase, k=5))
-    create_response = await client.put(
-        "/api/collections/", json={"name": name}
-    )
+    name = "".join(random.choices(string.ascii_lowercase, k=5))
+    create_response = await client.put("/api/collections/", json={"name": name})
     assert create_response.status_code == 200
 
     json = create_response.json()

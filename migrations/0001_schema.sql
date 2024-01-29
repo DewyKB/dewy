@@ -12,6 +12,21 @@ CREATE TABLE collection (
     UNIQUE (name)
 );
 
+CREATE TABLE text_embedding_dimensions (
+    id SERIAL NOT NULL,
+    name VARCHAR NOT NULL,
+    dimensions INTEGER NOT NULL,
+
+    PRIMARY KEY (id),
+    UNIQUE (name)
+);
+
+INSERT INTO text_embedding_dimensions (name, dimensions)
+VALUES ('openai:text-embedding-ada-002', 1536);
+
+INSERT INTO text_embedding_dimensions (name, dimensions)
+VALUES ('hf:BAAI/bge-small-en', 384);
+
 CREATE TYPE ingest_state AS ENUM ('pending', 'ingested', 'failed');
 CREATE TABLE document(
     id SERIAL NOT NULL,

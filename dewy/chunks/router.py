@@ -1,6 +1,6 @@
-from typing import Union, Annotated, List
+from typing import Annotated, List
 
-from fastapi import APIRouter, Query, Path
+from fastapi import APIRouter, Path, Query
 
 from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgPoolDep
@@ -9,11 +9,16 @@ from .models import Chunk, RetrieveRequest, RetrieveResponse
 
 router = APIRouter(prefix="/chunks")
 
+
 @router.get("/")
 async def list_chunks(
     pg_pool: PgPoolDep,
-    collection_id: Annotated[int | None, Query(description="Limit to chunks associated with this collection")] = None,
-    document_id: Annotated[int | None, Query(description="Limit to chunks associated with this document")] = None,
+    collection_id: Annotated[
+        int | None, Query(description="Limit to chunks associated with this collection")
+    ] = None,
+    document_id: Annotated[
+        int | None, Query(description="Limit to chunks associated with this document")
+    ] = None,
 ) -> List[Chunk]:
     """List chunks."""
 
@@ -31,7 +36,9 @@ async def list_chunks(
     )
     return [Chunk.model_validate(dict(result)) for result in results]
 
+
 PathChunkId = Annotated[int, Path(..., description="The chunk ID.")]
+
 
 @router.get("/{id}")
 async def get_chunk(
@@ -48,6 +55,7 @@ async def get_chunk(
     )
     return Chunk.model_validate(dict(result))
 
+
 @router.post("/retrieve")
 async def retrieve_chunks(
     pg_pool: PgPoolDep, request: RetrieveRequest
@@ -59,7 +67,9 @@ async def retrieve_chunks(
     collection = await CollectionEmbeddings.for_collection_id(
         pg_pool, request.collection_id
     )
-    text_results = await collection.retrieve_text_chunks(query=request.query, n=request.n)
+    text_results = await collection.retrieve_text_chunks(
+        query=request.query, n=request.n
+    )
 
     return RetrieveResponse(
         summary=None,

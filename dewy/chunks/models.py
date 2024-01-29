@@ -1,6 +1,7 @@
-from typing import Literal, Optional, Sequence, Union, Annotated
+from typing import Annotated, Literal, Optional, Sequence, Union
 
 from pydantic import BaseModel, Field
+
 
 class TextChunk(BaseModel):
     id: int
@@ -26,7 +27,9 @@ class ImageChunk(BaseModel):
     image_path: Optional[str] = Field(..., description="Path of the image.")
     image_url: Optional[str] = Field(..., description="URL of the image.")
 
-Chunk = Annotated[Union[TextChunk, ImageChunk], Field(discriminator='kind')]
+
+Chunk = Annotated[Union[TextChunk, ImageChunk], Field(discriminator="kind")]
+
 
 class RetrieveRequest(BaseModel):
     """A request for retrieving chunks from a collection."""
@@ -61,17 +64,18 @@ class RetrieveRequest(BaseModel):
     include_summary: bool = False
     """Whether to include a generated summary."""
 
+
 class TextResult(BaseModel):
     chunk_id: int
     """The ID of the chunk associated with this result"""
-    
+
     document_id: int
     """The ID of the document associated with this result"""
 
     score: float
     """The similarity score of this result."""
 
-    text: str 
+    text: str
     "Textual description of the chunk."
 
     raw: bool
@@ -82,10 +86,11 @@ class TextResult(BaseModel):
         default=None, description="End char index of the chunk."
     )
 
+
 class ImageResult(BaseModel):
     chunk_id: int
     """The ID of the chunk associated with this result"""
-    
+
     document_id: int
     """The ID of the document associated with this result"""
 
@@ -96,6 +101,7 @@ class ImageResult(BaseModel):
     image_mimetype: Optional[str] = Field(..., description="Mimetype of the image.")
     image_path: Optional[str] = Field(..., description="Path of the image.")
     image_url: Optional[str] = Field(..., description="URL of the image.")
+
 
 class RetrieveResponse(BaseModel):
     """The response from a retrieval request."""

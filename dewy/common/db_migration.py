@@ -40,7 +40,11 @@ async def apply_migrations(
     if applied_migrations:
         logger.warn("Unrecognized migrations applied: {}", applied_migrations)
 
-    logger.info("Migrations complete. {} total, {} newly applied", len(defined_migrations), applied)
+    logger.info(
+        "Migrations complete. {} total, {} newly applied",
+        len(defined_migrations),
+        applied,
+    )
 
 
 MIGRATION_RE = re.compile(r"([0-9]{4})[a-zA-Z0-9_-]+\.sql")

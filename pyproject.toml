@@ -20,6 +20,7 @@ safetensors = "^0.4.1"
 asyncpg = "^0.29.0"
 pgvector = "^0.2.4"
 numpy = "^1.26.3"
+transformers = "^4.37.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.11"
