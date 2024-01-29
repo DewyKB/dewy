@@ -1,0 +1,56 @@
+name: CI
+
+on:
+    push:
+      branches:
+        - master
+    pull_request:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    python_test:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: Install Python
+          uses: actions/setup-python@v4
+          # see details (matrix, python-version, python-version-file, etc.)
+          # https://github.com/actions/setup-python
+          with:
+            python-version: '3.11'
+        - name: Install poetry
+          uses: abatilo/actions-poetry@v2
+        - name: Setup a local virtual environment (if no poetry.toml file)
+          run: |
+            poetry config virtualenvs.create true --local
+            poetry config virtualenvs.in-project true --local
+        - uses: actions/cache@v3
+          name: Define a cache for the virtual environment based on the dependencies lock file
+          with:
+            path: ./.venv
+            key: venv-${{ hashFiles('poetry.lock') }}
+        - name: Install the project dependencies
+          run: poetry install
+        - name: pytest
+          run: poetry run pytest -v
+          env:
+            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    python_lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Ruff Lint
+              uses: chartboost/ruff-action@v1
+
+    python_format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Ruff Format (Check)
+              uses: chartboost/ruff-action@v1
+              with:
+                  args: format --check
