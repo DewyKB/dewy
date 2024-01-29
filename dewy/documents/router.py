@@ -7,7 +7,7 @@ from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgConnectionDep, PgPoolDep
 from dewy.documents.models import Document
 
-from .models import CreateRequest
+from .models import AddDocumentRequest
 
 router = APIRouter(prefix="/documents")
 
@@ -21,7 +21,7 @@ async def ingest_document(document_id: int, pg_pool: asyncpg.Pool) -> None:
 async def add_document(
     pg_pool: PgPoolDep,
     background: BackgroundTasks,
-    req: CreateRequest,
+    req: AddDocumentRequest,
 ) -> Document:
     """Add a document."""
 

@@ -74,5 +74,5 @@ async def retrieve_chunks(
     return RetrieveResponse(
         summary=None,
         text_results=text_results if request.include_text_chunks else [],
-        # image_results=image_results if request.include_image_chunks else [],
+        image_results=[],
     )

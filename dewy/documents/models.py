@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class CreateRequest(BaseModel):
+class AddDocumentRequest(BaseModel):
     """The name of the collection the document should be added to."""
 
     collection_id: int
