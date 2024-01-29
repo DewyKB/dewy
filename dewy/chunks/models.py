@@ -10,6 +10,7 @@ class TextChunk(BaseModel):
     text: str
 
     raw: bool
+    text: str 
     start_char_idx: Optional[int] = Field(
         default=None, description="Start char index of the chunk."
     )

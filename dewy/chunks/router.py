@@ -19,20 +19,27 @@ async def list_chunks(
     document_id: Annotated[
         int | None, Query(description="Limit to chunks associated with this document")
     ] = None,
+    page: int | None = 1,
+    perPage: int | None = 10,
 ) -> List[Chunk]:
     """List chunks."""
 
     # TODO: handle collection & document ID
     results = await pg_pool.fetch(
         """
-        SELECT chunk.id, chunk.document_id, chunk.kind, chunk.text, TRUE AS raw
+        SELECT chunk.id, chunk.document_id, chunk.kind, TRUE as raw, chunk.text
         FROM chunk
         JOIN document ON document.id = chunk.document_id
         WHERE document.collection_id = coalesce($1, document.collection_id)
         AND chunk.document_id = coalesce($2, chunk.document_id)
+        ORDER BY chunk.id
+        OFFSET $4
+        LIMIT $3
         """,
         collection_id,
         document_id,
+        perPage,
+        page,
     )
     return [TextChunk.model_validate(dict(result)) for result in results]
 

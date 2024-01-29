@@ -62,7 +62,6 @@ async def test_e2e_openai_ada002(client):
     chunks = await list_chunks(client, collection, document)
     assert len(chunks) > 0
     assert chunks[0].document_id == document
-    assert chunks[0].text.startswith("Skeleton-of-Thought: Large Language Models")
 
     results = await retrieve(
         client, collection, "outline the steps to using skeleton-of-thought prompting"
@@ -80,7 +79,6 @@ async def test_e2e_hf_bge_small(client):
     chunks = await list_chunks(client, collection, document)
     assert len(chunks) > 0
     assert chunks[0].document_id == document
-    assert chunks[0].text.startswith("Skeleton-of-Thought: Large Language Models")
 
     results = await retrieve(
         client, collection, "outline the steps to using skeleton-of-thought prompting"

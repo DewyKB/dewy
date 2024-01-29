@@ -111,3 +111,10 @@ CREATE TABLE embedding(
     PRIMARY KEY (id),
     FOREIGN KEY(chunk_id) REFERENCES chunk (id)
 );
+
+-- Default collection
+INSERT INTO collection (name, text_embedding_model, text_distance_metric) VALUES ('main', 'openai:text-embedding-ada-002', 'cosine');
+CREATE INDEX embedding_collection_1_index
+ON embedding
+USING hnsw ((embedding::vector(1536)) vector_cosine_ops)
+WHERE collection_id = 1;

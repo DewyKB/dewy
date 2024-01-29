@@ -218,7 +218,7 @@ class CollectionEmbeddings:
                     INSERT INTO chunk (document_id, kind, text)
                     VALUES ($1, $2, $3);
                     """,
-                    [(document_id, "text", text_chunk) for text_chunk in text_chunks],
+                    [(document_id, "text", text_chunk.encode('utf-8').decode('utf-8', 'ignore').replace("\x00", "\uFFFD")) for text_chunk in text_chunks],
                 )
 
                 # Then, embed each of those chunks.
