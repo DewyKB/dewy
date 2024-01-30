@@ -1,7 +1,7 @@
 import contextlib
 import os
 from pathlib import Path
-from typing import AsyncIterator, TypedDict
+from typing import AsyncIterator, Optional, TypedDict
 
 import asyncpg
 import uvicorn
@@ -17,7 +17,7 @@ from dewy.routes import api_router
 
 
 class State(TypedDict):
-    pg_pool: asyncpg.Pool
+    pg_pool: Optional[asyncpg.Pool]
 
 
 # Resolve paths, independent of PWD
@@ -30,17 +30,18 @@ migrations_path = current_file_path.parent.parent / "migrations"
 async def lifespan(_app: FastAPI) -> AsyncIterator[State]:
     """Function creating instances used during the lifespan of the service."""
 
-    # TODO: Look at https://gist.github.com/mattbillenstein/270a4d44cbdcb181ac2ed58526ae137d
-    # for simple migration scripts.
-    async with db.create_pool(settings.DB.unicode_string()) as pg_pool:
-        if settings.APPLY_MIGRATIONS:
-            async with pg_pool.acquire() as conn:
-                await apply_migrations(conn, migration_dir=migrations_path)
+    if settings.DB is not None:
+        async with db.create_pool(settings.DB.unicode_string()) as pg_pool:
+            if settings.APPLY_MIGRATIONS:
+                async with pg_pool.acquire() as conn:
+                    await apply_migrations(conn, migration_dir=migrations_path)
 
-        logger.info("Created database connection")
-        state = {
-            "pg_pool": pg_pool,
-        }
+            logger.info("Created database connection")
+            state = State(pg_pool=pg_pool)
+            yield state
+    else:
+        logger.warn("No database configured. CRUD methods will fail.")
+        state = State(pg_pool=None)
         yield state
 
 
