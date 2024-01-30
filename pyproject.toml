@@ -15,11 +15,11 @@ dewy = "dewy.main:run"
 
 [tool.poe.tasks.check-ruff]
 help = "Check ruff formatting and checks."
-sequence = ["check-ruff-checks", "check-ruff-format"]
+sequence = ["check-ruff-format", "check-ruff-checks"]
 
 [tool.poe.tasks.fix-ruff]
 help = "Fix ruff formatting and checks."
-sequence = ["fix-ruff-checks", "fix-ruff-format"]
+sequence = ["fix-ruff-format", "fix-ruff-checks"]
 
 [tool.poe.tasks.check-ruff-checks]
 cmd = "ruff check"

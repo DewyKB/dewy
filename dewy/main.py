@@ -37,11 +37,11 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[State]:
                     await apply_migrations(conn, migration_dir=migrations_path)
 
             logger.info("Created database connection")
-            state = State(pg_pool = pg_pool)
+            state = State(pg_pool=pg_pool)
             yield state
     else:
         logger.warn("No database configured. CRUD methods will fail.")
-        state = State(pg_pool = None)
+        state = State(pg_pool=None)
         yield state
 
 

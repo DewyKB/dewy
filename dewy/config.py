@@ -2,7 +2,6 @@ from typing import Any, Optional
 
 from fastapi.routing import APIRoute
 from pydantic import PostgresDsn
-from pydantic_core import Url
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from dewy.constants import Environment
@@ -42,6 +41,7 @@ class Config(BaseSettings):
 
     This is required for using openai models.
     """
+
 
 settings = Config()
 
