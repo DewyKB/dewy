@@ -1,13 +1,15 @@
 import random
 import string
+
 from dewy_client.api.default import add_collection, get_collection, list_collections
 from dewy_client.models import CollectionCreate
 
+
 async def test_create_collection(client):
     name = "".join(random.choices(string.ascii_lowercase, k=5))
-    collection = await add_collection.asyncio(client=client, body=CollectionCreate(
-        name = name
-    ))
+    collection = await add_collection.asyncio(
+        client=client, body=CollectionCreate(name=name)
+    )
 
     assert collection.name == name
     assert collection.text_embedding_model == "openai:text-embedding-ada-002"

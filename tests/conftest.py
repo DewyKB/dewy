@@ -2,8 +2,8 @@ import asyncio
 
 import pytest
 from asgi_lifespan import LifespanManager
-from httpx import AsyncClient
 from dewy_client import Client
+from httpx import AsyncClient
 
 pytest_plugins = ["pytest_docker_fixtures"]
 
