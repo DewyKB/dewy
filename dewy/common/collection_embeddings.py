@@ -283,10 +283,14 @@ class CollectionEmbeddings:
                 await conn.execute(
                     """
                     UPDATE document
-                    SET ingest_state = 'ingested', ingest_error = NULL
+                    SET
+                      ingest_state = 'ingested',
+                      ingest_error = NULL,
+                      extracted_text = $2
                     WHERE id = $1
                     """,
                     document_id,
+                    extracted.text,
                 )
 
     async def _chunk_sentences(self, text: str) -> List[str]:

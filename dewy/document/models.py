@@ -29,6 +29,14 @@ class Document(BaseModel):
     id: Optional[int] = None
     collection_id: int
 
+    extracted_text: Optional[str] = None
+    """The text that was extracted for this document.
+
+    This is only returned when getting a specific document, not listing documents.
+
+    Will not be set until after the document is ingested.
+    """
+
     url: str
 
     ingest_state: Optional[IngestState] = None

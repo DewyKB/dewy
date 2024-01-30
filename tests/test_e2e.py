@@ -5,8 +5,8 @@ from typing import List
 
 from pydantic import TypeAdapter
 
-from dewy.chunks.models import Chunk, RetrieveRequest, RetrieveResponse
-from dewy.documents.models import AddDocumentRequest
+from dewy.chunk.models import Chunk, RetrieveRequest, RetrieveResponse
+from dewy.document.models import AddDocumentRequest, Document
 
 SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
 
@@ -47,6 +47,13 @@ async def list_chunks(client, collection: int, document: int):
     return ta.validate_json(response.content)
 
 
+async def get_document(client, document_id: int) -> Document:
+    response = await client.get(f"/api/documents/{document_id}")
+    assert response.status_code == 200
+    assert response
+    return Document.model_validate_json(response.content)
+
+
 async def retrieve(client, collection: int, query: str) -> RetrieveResponse:
     request = RetrieveRequest(
         collection_id=collection, query=query, include_image_chunks=False
@@ -61,10 +68,14 @@ async def retrieve(client, collection: int, query: str) -> RetrieveResponse:
 
 async def test_e2e_openai_ada002(client):
     collection = await create_collection(client, "openai:text-embedding-ada-002")
-    document = await ingest(client, collection, SKELETON_OF_THOUGHT_PDF)
-    chunks = await list_chunks(client, collection, document)
+    document_id = await ingest(client, collection, SKELETON_OF_THOUGHT_PDF)
+
+    document = await get_document(client, document_id)
+    assert document.extracted_text.startswith("Skeleton-of-Thought")
+
+    chunks = await list_chunks(client, collection, document_id)
     assert len(chunks) > 0
-    assert chunks[0].document_id == document
+    assert chunks[0].document_id == document_id
 
     results = await retrieve(
         client, collection, "outline the steps to using skeleton-of-thought prompting"
@@ -72,16 +83,20 @@ async def test_e2e_openai_ada002(client):
     assert len(results.text_results) > 0
     print(results.text_results)
 
-    assert results.text_results[0].document_id == document
+    assert results.text_results[0].document_id == document_id
     assert "skeleton" in results.text_results[0].text.lower()
 
 
 async def test_e2e_hf_bge_small(client):
     collection = await create_collection(client, "hf:BAAI/bge-small-en")
-    document = await ingest(client, collection, SKELETON_OF_THOUGHT_PDF)
-    chunks = await list_chunks(client, collection, document)
+    document_id = await ingest(client, collection, SKELETON_OF_THOUGHT_PDF)
+
+    document = await get_document(client, document_id)
+    assert document.extracted_text.startswith("Skeleton-of-Thought")
+
+    chunks = await list_chunks(client, collection, document_id)
     assert len(chunks) > 0
-    assert chunks[0].document_id == document
+    assert chunks[0].document_id == document_id
 
     results = await retrieve(
         client, collection, "outline the steps to using skeleton-of-thought prompting"
@@ -89,5 +104,5 @@ async def test_e2e_hf_bge_small(client):
     assert len(results.text_results) > 0
     print(results.text_results)
 
-    assert results.text_results[0].document_id == document
+    assert results.text_results[0].document_id == document_id
     assert "skeleton" in results.text_results[0].text.lower()
