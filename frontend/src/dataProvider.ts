@@ -5,7 +5,7 @@ import data from "./data.json";
 
 export const fakeDataProvider = fakeRestDataProvider(data, true);
 
-const apiUrl = 'http://localhost:8000';
+const apiUrl = 'http://localhost';
 const httpClient = fetchUtils.fetchJson;
 
 

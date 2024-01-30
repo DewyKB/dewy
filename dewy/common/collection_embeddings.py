@@ -6,8 +6,8 @@ from llama_index.node_parser import SentenceSplitter
 from llama_index.schema import TextNode
 from loguru import logger
 
-from dewy.chunks.models import TextResult
-from dewy.collections.models import DistanceMetric
+from dewy.chunk.models import TextResult
+from dewy.collection.models import DistanceMetric
 from dewy.config import settings
 
 from .extract import extract
@@ -212,13 +212,26 @@ class CollectionEmbeddings:
         # TODO: support indirect embeddings
         async with self._pg_pool.acquire() as conn:
             async with conn.transaction():
+
+                def encode_chunk(c: str) -> str:
+                    # We believe that either invalid unicode or the occurrence
+                    # of nulls was causing problems that *looked* like only the
+                    # first page from a PDF was being indexed
+                    # (https://github.com/DewyKB/dewy/issues/20). We do not know
+                    # that all of this is truly necessary.
+                    encoded = c.encode("utf-8").decode("utf-8", "ignore")
+                    return encoded.replace("\x00", "\uFFFD")
+
                 # First, insert the chunks.
                 await conn.executemany(
                     """
                     INSERT INTO chunk (document_id, kind, text)
                     VALUES ($1, $2, $3);
                     """,
-                    [(document_id, "text", text_chunk.encode('utf-8').decode('utf-8', 'ignore').replace("\x00", "\uFFFD")) for text_chunk in text_chunks],
+                    [
+                        (document_id, "text", encode_chunk(text_chunk))
+                        for text_chunk in text_chunks
+                    ],
                 )
 
                 # Then, embed each of those chunks.

@@ -18,6 +18,9 @@ class Config(BaseSettings):
         env_file_encoding="utf-8",
     )
 
+    SERVE_ADMIN_UI: bool = True
+    """If true, serve the admin UI."""
+
     DB: PostgresDsn
     """The Postgres database to connect to."""
 

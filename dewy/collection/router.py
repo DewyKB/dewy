@@ -3,7 +3,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Path
 from loguru import logger
 
-from dewy.collections.models import Collection, CollectionCreate
+from dewy.collection.models import Collection, CollectionCreate
 from dewy.common.collection_embeddings import get_dimensions
 from dewy.common.db import PgConnectionDep
 

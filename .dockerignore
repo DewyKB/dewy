@@ -3,6 +3,7 @@
 
 # Include (don't ignore) the application code
 !dewy
+!frontend
 !./pyproject.toml
 !./poetry.lock
 

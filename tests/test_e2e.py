@@ -5,8 +5,8 @@ from typing import List
 
 from pydantic import TypeAdapter
 
-from dewy.chunks.models import Chunk, RetrieveRequest, RetrieveResponse
-from dewy.documents.models import AddDocumentRequest, Document
+from dewy.chunk.models import Chunk, RetrieveRequest, RetrieveResponse
+from dewy.document.models import AddDocumentRequest, Document
 
 SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
 
@@ -22,7 +22,7 @@ async def create_collection(client, text_embedding_model: str) -> int:
 async def ingest(client, collection: int, url: str) -> int:
     add_request = AddDocumentRequest(collection_id=collection, url=url)
     add_response = await client.put(
-        "/api/documents/", data=add_request.model_dump_json()
+        "/api/documents/", content=add_request.model_dump_json()
     )
     assert add_response.status_code == 200
 
@@ -37,11 +37,11 @@ async def ingest(client, collection: int, url: str) -> int:
 
     return document_id
 
+
 async def list_chunks(client, collection: int, document: int):
-    response = await client.get("/api/chunks/", params = {
-        'collection_id': collection,
-        'document_id': document
-    })
+    response = await client.get(
+        "/api/chunks/", params={"collection_id": collection, "document_id": document}
+    )
     assert response.status_code == 200
     ta = TypeAdapter(List[Chunk])
     return ta.validate_json(response.content)
@@ -57,7 +57,9 @@ async def retrieve(client, collection: int, query: str) -> RetrieveResponse:
         collection_id=collection, query=query, include_image_chunks=False
     )
 
-    response = await client.post("/api/chunks/retrieve", data=request.model_dump_json())
+    response = await client.post(
+        "/api/chunks/retrieve", content=request.model_dump_json()
+    )
     assert response.status_code == 200
     return RetrieveResponse.model_validate_json(response.content)
 
