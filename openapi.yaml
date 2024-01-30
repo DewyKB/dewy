@@ -1,0 +1,641 @@
+openapi: 3.1.0
+info:
+  title: Dewy Knowledge Base API
+  summary: Knowledge curation for Retrieval Augmented Generation
+  description: 'This API allows ingesting and retrieving knowledge.
+
+
+    Knowledge comes in a variety of forms -- text, image, tables, etc. and
+
+    from a variety of sources -- documents, web pages, audio, etc.'
+  version: 0.1.0
+servers:
+- url: http://localhost:8000
+  description: Local server
+paths:
+  /api/collections/:
+    get:
+      summary: List Collections
+      description: List collections.
+      operationId: listCollections
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Collection'
+                type: array
+                title: Response Listcollections
+    put:
+      summary: Add Collection
+      description: Create a collection.
+      operationId: addCollection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionCreate'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/collections/{id}:
+    get:
+      summary: Get Collection
+      description: Get a specific collection.
+      operationId: getCollection
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: The collection ID.
+          title: Id
+        description: The collection ID.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/documents/:
+    put:
+      summary: Add Document
+      description: Add a document.
+      operationId: addDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddDocumentRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Documents
+      description: List documents.
+      operationId: listDocuments
+      parameters:
+      - name: collection_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Limit to documents associated with this collection
+          title: Collection Id
+        description: Limit to documents associated with this collection
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+                title: Response Listdocuments
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/documents/{id}:
+    get:
+      summary: Get Document
+      operationId: getDocument
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: The document ID.
+          title: Id
+        description: The document ID.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chunks/:
+    get:
+      summary: List Chunks
+      description: List chunks.
+      operationId: listChunks
+      parameters:
+      - name: collection_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Limit to chunks associated with this collection
+          title: Collection Id
+        description: Limit to chunks associated with this collection
+      - name: document_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Limit to chunks associated with this document
+          title: Document Id
+        description: Limit to chunks associated with this document
+      - name: page
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: 1
+          title: Page
+      - name: perPage
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: 10
+          title: Perpage
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                  - $ref: '#/components/schemas/TextChunk'
+                  - $ref: '#/components/schemas/ImageChunk'
+                  discriminator:
+                    propertyName: kind
+                    mapping:
+                      text: '#/components/schemas/TextChunk'
+                      image: '#/components/schemas/ImageChunk'
+                title: Response Listchunks
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chunks/{id}:
+    get:
+      summary: Get Chunk
+      operationId: getChunk
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: The chunk ID.
+          title: Id
+        description: The chunk ID.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/TextChunk'
+                - $ref: '#/components/schemas/ImageChunk'
+                discriminator:
+                  propertyName: kind
+                  mapping:
+                    text: '#/components/schemas/TextChunk'
+                    image: '#/components/schemas/ImageChunk'
+                title: Response Getchunk
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chunks/retrieve:
+    post:
+      summary: Retrieve Chunks
+      description: Retrieve chunks based on a given query.
+      operationId: retrieveChunks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetrieveRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrieveResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AddDocumentRequest:
+      properties:
+        collection_id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Collection Id
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - url
+      title: AddDocumentRequest
+    Collection:
+      properties:
+        id:
+          type: integer
+          title: Id
+        name:
+          type: string
+          title: Name
+        text_embedding_model:
+          type: string
+          title: Text Embedding Model
+        text_distance_metric:
+          allOf:
+          - $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+      type: object
+      required:
+      - id
+      - name
+      - text_embedding_model
+      title: Collection
+    CollectionCreate:
+      properties:
+        name:
+          type: string
+          title: Name
+          examples:
+          - my_collection
+        text_embedding_model:
+          type: string
+          title: Text Embedding Model
+          default: openai:text-embedding-ada-002
+          examples:
+          - openai:text-embedding-ada-002
+          - hf:BAAI/bge-small-en
+        text_distance_metric:
+          allOf:
+          - $ref: '#/components/schemas/DistanceMetric'
+          default: cosine
+      type: object
+      required:
+      - name
+      title: CollectionCreate
+      description: The request to create a collection.
+    DistanceMetric:
+      type: string
+      enum:
+      - cosine
+      - ip
+      - l2
+      title: DistanceMetric
+    Document:
+      properties:
+        id:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Id
+        collection_id:
+          type: integer
+          title: Collection Id
+        extracted_text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Extracted Text
+        url:
+          type: string
+          title: Url
+        ingest_state:
+          anyOf:
+          - $ref: '#/components/schemas/IngestState'
+          - type: 'null'
+        ingest_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ingest Error
+      type: object
+      required:
+      - collection_id
+      - url
+      title: Document
+      description: Schema for documents in the SQL DB.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ImageChunk:
+      properties:
+        id:
+          type: integer
+          title: Id
+        document_id:
+          type: integer
+          title: Document Id
+        kind:
+          const: image
+          title: Kind
+          default: image
+        image:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image
+          description: Image of the node.
+        image_mimetype:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Mimetype
+          description: Mimetype of the image.
+        image_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Path
+          description: Path of the image.
+        image_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Url
+          description: URL of the image.
+      type: object
+      required:
+      - id
+      - document_id
+      - image
+      - image_mimetype
+      - image_path
+      - image_url
+      title: ImageChunk
+    ImageResult:
+      properties:
+        chunk_id:
+          type: integer
+          title: Chunk Id
+        document_id:
+          type: integer
+          title: Document Id
+        score:
+          type: number
+          title: Score
+        image:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image
+          description: Image of the node.
+        image_mimetype:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Mimetype
+          description: Mimetype of the image.
+        image_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Path
+          description: Path of the image.
+        image_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Url
+          description: URL of the image.
+      type: object
+      required:
+      - chunk_id
+      - document_id
+      - score
+      - image
+      - image_mimetype
+      - image_path
+      - image_url
+      title: ImageResult
+    IngestState:
+      type: string
+      enum:
+      - pending
+      - ingested
+      - failed
+      title: IngestState
+    RetrieveRequest:
+      properties:
+        collection_id:
+          type: integer
+          title: Collection Id
+        query:
+          type: string
+          title: Query
+        n:
+          type: integer
+          title: N
+          default: 10
+        include_text_chunks:
+          type: boolean
+          title: Include Text Chunks
+          default: true
+        include_image_chunks:
+          type: boolean
+          title: Include Image Chunks
+          default: true
+        include_summary:
+          type: boolean
+          title: Include Summary
+          default: false
+      type: object
+      required:
+      - collection_id
+      - query
+      title: RetrieveRequest
+      description: A request for retrieving chunks from a collection.
+    RetrieveResponse:
+      properties:
+        summary:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary
+        text_results:
+          items:
+            $ref: '#/components/schemas/TextResult'
+          type: array
+          title: Text Results
+        image_results:
+          items:
+            $ref: '#/components/schemas/ImageResult'
+          type: array
+          title: Image Results
+      type: object
+      required:
+      - summary
+      - text_results
+      - image_results
+      title: RetrieveResponse
+      description: The response from a retrieval request.
+    TextChunk:
+      properties:
+        id:
+          type: integer
+          title: Id
+        document_id:
+          type: integer
+          title: Document Id
+        kind:
+          const: text
+          title: Kind
+          default: text
+        text:
+          type: string
+          title: Text
+        raw:
+          type: boolean
+          title: Raw
+        start_char_idx:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Start Char Idx
+          description: Start char index of the chunk.
+        end_char_idx:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: End Char Idx
+          description: End char index of the chunk.
+      type: object
+      required:
+      - id
+      - document_id
+      - text
+      - raw
+      title: TextChunk
+    TextResult:
+      properties:
+        chunk_id:
+          type: integer
+          title: Chunk Id
+        document_id:
+          type: integer
+          title: Document Id
+        score:
+          type: number
+          title: Score
+        text:
+          type: string
+          title: Text
+        raw:
+          type: boolean
+          title: Raw
+        start_char_idx:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Start Char Idx
+          description: Start char index of the chunk.
+        end_char_idx:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: End Char Idx
+          description: End char index of the chunk.
+      type: object
+      required:
+      - chunk_id
+      - document_id
+      - score
+      - text
+      - raw
+      title: TextResult
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

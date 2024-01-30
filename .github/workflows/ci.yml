@@ -33,11 +33,19 @@ jobs:
             path: ./.venv
             key: venv-${{ hashFiles('poetry.lock') }}
         - name: Install the project dependencies
-          run: poetry install
+          run: poetry install --with=dev
         - name: pytest
           run: poetry run pytest -v
           env:
             OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        - name: check openapi client up to date
+          run: |
+            poetry run poe extract-openapi
+            poetry run poe update-client
+            # Record intent to add any new files in client
+            git add -N dewy-client
+            # Diff, and report any changes (including any new files in dewy-client)
+            git diff --exit-code
 
     python_lint:
         runs-on: ubuntu-latest

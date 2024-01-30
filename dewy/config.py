@@ -62,11 +62,11 @@ def custom_generate_unique_id_function(route: APIRoute) -> str:
 API_DESCRIPTION: str = """This API allows ingesting and retrieving knowledge.
 
 Knowledge comes in a variety of forms -- text, image, tables, etc. and
-from a variety of sources -- documents, web pages, audio, etc.
-"""
+from a variety of sources -- documents, web pages, audio, etc."""
 
 app_configs: dict[str, Any] = {
     "title": "Dewy Knowledge Base API",
+    "version": "0.1.0",
     "summary": "Knowledge curation for Retrieval Augmented Generation",
     "description": API_DESCRIPTION,
     "servers": [
