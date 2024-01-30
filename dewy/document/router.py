@@ -5,7 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Path, Query
 
 from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgConnectionDep, PgPoolDep
-from dewy.documents.models import Document
+from dewy.document.models import Document
 
 from .models import AddDocumentRequest
 

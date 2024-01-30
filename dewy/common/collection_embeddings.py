@@ -6,8 +6,8 @@ from llama_index.node_parser import SentenceSplitter
 from llama_index.schema import TextNode
 from loguru import logger
 
-from dewy.chunks.models import TextResult
-from dewy.collections.models import DistanceMetric
+from dewy.chunk.models import TextResult
+from dewy.collection.models import DistanceMetric
 from dewy.config import settings
 
 from .extract import extract
