@@ -2,7 +2,7 @@
 name = "dewy"
 version = "0.1.0"
 description = "Knowledge base service."
-authors = ["Ben Chambers <ben.chambers@datastax.com>"]
+authors = ["Ben Chambers <ben.chambers@datastax.com>", "Ryan Michael <ryan.michael@datastax.com>"]
 readme = "README.md"
 license = "Apache-2.0"
 include = [
