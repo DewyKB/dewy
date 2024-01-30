@@ -30,7 +30,10 @@ async def create_pool(dsn: str) -> AsyncIterator[asyncpg.Pool]:
 
 
 def _pg_pool(request: Request) -> asyncpg.Pool:
-    return request.state.pg_pool
+    pg_pool = request.state.pg_pool
+    if pg_pool is None:
+        raise ValueError("DB not configured. Unable to get pool.")
+    return pg_pool
 
 
 PgPoolDep = Annotated[asyncpg.Pool, Depends(_pg_pool)]
