@@ -13,6 +13,34 @@ include = [
 [tool.poetry.scripts]
 dewy = "dewy.main:run"
 
+[tool.poe.tasks.check-ruff]
+help = "Check ruff formatting and checks."
+sequence = ["check-ruff-checks", "check-ruff-format"]
+
+[tool.poe.tasks.fix-ruff]
+help = "Fix ruff formatting and checks."
+sequence = ["fix-ruff-checks", "fix-ruff-format"]
+
+[tool.poe.tasks.check-ruff-checks]
+cmd = "ruff check"
+
+[tool.poe.tasks.check-ruff-format]
+cmd = "ruff format --check"
+
+[tool.poe.tasks.fix-ruff-checks]
+cmd = "ruff check --fix"
+
+[tool.poe.tasks.fix-ruff-format]
+cmd = "ruff format"
+
+[tool.poe.tasks.test]
+help = "Run unit and feature tests"
+cmd  = "pytest"
+
+[tool.poe.tasks.extract-openapi]
+help = "Update openapi.toml from the swagger docs"
+cmd = "python scripts/extract_openapi.py dewy.main:app"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 pydantic = "^2.5.3"
