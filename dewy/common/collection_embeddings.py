@@ -290,7 +290,7 @@ class CollectionEmbeddings:
                     WHERE id = $1
                     """,
                     document_id,
-                    extracted.text
+                    extracted.text,
                 )
 
     async def _chunk_sentences(self, text: str) -> List[str]:

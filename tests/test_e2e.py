@@ -46,11 +46,13 @@ async def list_chunks(client, collection: int, document: int):
     ta = TypeAdapter(List[Chunk])
     return ta.validate_json(response.content)
 
+
 async def get_document(client, document_id: int) -> Document:
     response = await client.get(f"/api/documents/{document_id}")
     assert response.status_code == 200
     assert response
     return Document.model_validate_json(response.content)
+
 
 async def retrieve(client, collection: int, query: str) -> RetrieveResponse:
     request = RetrieveRequest(
