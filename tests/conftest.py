@@ -2,6 +2,7 @@ import asyncio
 
 import pytest
 from asgi_lifespan import LifespanManager
+from dewy_client import Client
 from httpx import AsyncClient
 
 pytest_plugins = ["pytest_docker_fixtures"]
@@ -37,8 +38,10 @@ async def app(pg, event_loop):
 
 
 @pytest.fixture(scope="session")
-async def client(app) -> AsyncClient:
-    async with AsyncClient(app=app, base_url="http://test") as client:
+async def client(app) -> Client:
+    async with AsyncClient(app=app, base_url="http://test") as httpx_client:
+        client = Client(base_url="http://test")
+        client.set_async_httpx_client(httpx_client)
         yield client
 
 
