@@ -18,7 +18,6 @@ permissions:
 jobs:
   build:
     name: Build Site
-    id: build
     runs-on: ubuntu-latest
 
     steps:
@@ -41,13 +40,6 @@ jobs:
         uses: actions/upload-pages-artifact@v2
         with:
             path: docs/build
-      - name: Deploy docs to GitHub pages
-        # Only run on push to main.
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
 
   # Deploy job
   deploy:
