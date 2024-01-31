@@ -1,0 +1,53 @@
+# kinds
+- name: bug
+  description: Something isn't working
+  color: "d73a4a"
+- name: docs
+  description: Improvements or additions to documentation
+  color: "0075ca"
+- name: enhancement
+  description: New feature or request
+  color: "a2eeef"
+- name: build
+  description: Changes to Build (Yarn, NPM, Poetry, etc.)
+  color: "e4e669"
+- name: ci
+  description: Changes to CI (GitHub Actions)
+  color: "e4e669"
+- name: refactor
+  description: Improvements to code quality
+  color: "e4e669"
+- name: revert
+  description: Reverting earlier changes
+  color: "e4e669"
+
+# Labels controlling the changelog
+- name: highlight
+  description: Changes to highlight in the changelog
+  color: "a2eeef"
+- name: skip-changelog
+  description: Apply to PRs that should not appear in the changelog
+  color: d8eb34
+
+# Labels providing additional information on status of an issue/PR.
+- name: good first issue
+  description: Good for newcomers
+  color: "7057ff"
+- name: help wanted
+  description: Extra attention is needed
+  color: "008672"
+- name: invalid
+  description: This doesn't seem right
+  color: "e4e669"
+- name: question
+  description: Further information is requested
+  color: "d876e3"
+- name: wontfix
+  description: Indicates that work won't continue on an issue, pull request, or discussion
+  color: e0e0e
+- name: duplicate
+  description: Indicates similar issues, pull requests, or discussions
+  color: e0e0e0
+- name: invalid
+  description: Indicates that an issue, pull request, or discussion is no longer relevant
+  color: e0e0e0
