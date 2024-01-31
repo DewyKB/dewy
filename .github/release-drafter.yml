@@ -1,0 +1,78 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+categories:
+  - title: 'Breaking Changes'
+    lables:
+      - 'breaking'
+  - title: '🚀 Features'
+    labels:
+      - 'enhancement'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'bug'
+  - title: '📄 Docs'
+    labels:
+      - 'docs'
+  - title: '🧰 Maintenance'
+    collapse-after: 5
+    labels:
+      - 'chore'
+      - 'build'
+      - 'ci'
+      - 'refactor'
+      - 'perf'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
+version-resolver:
+  major:
+    labels:
+      - 'breaking'
+  minor:
+    labels:
+      - 'enhancement'
+  patch:
+    labels:
+      - 'bug'
+      - 'perf'
+  default: patch
+template: |
+  ## Changes
+
+  $CHANGES
+# Assign labels to PRs
+autolabeler:
+  - label: 'docs'
+    files:
+      - docs/*
+    title:
+      - '/^docs/'
+  - label: 'breaking'
+    title:
+      - '/^[a-zA-Z0-9()]+!/'
+  - label: 'bug'
+    title:
+      - '/^fix/i'
+  - label: 'test'
+    title:
+      - '/^test/i'
+  - label: 'perf'
+    title:
+      - '/^perf/i'
+  - label: 'enhancement'
+    title:
+      - '/^feat/i'
+  - label: 'chore'
+    title:
+      - '/^chore/i'
+  - label: 'build'
+    title:
+      - '/^build/i'
+  - label: 'ci'
+    title:
+      - '/^ci/i'
+  - label: 'revert'
+    title:
+      - '/^revert/i'
+  - label: 'refactor'
+    title:
+      - '/^refactor/i'

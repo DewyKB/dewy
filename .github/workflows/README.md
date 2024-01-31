@@ -1,14 +1,14 @@
 # GitHub Actions for Dewy
 
-We currently have 3 workflows:
+We currently have the following workflows:
 
 1. `ci.yml` defines the CI process for the core service and clients.
-2. `lint-pr.yml` defines linting of the PR itself (comments, etc.).
+2. `lint-pr.yml`: Checks PRs for style, naming, and provides some automation.
+  - Verifies the title of the PR conforms to conventional commits.
+  - Runs an "autolabeler" to provide labels based on title and files touched.
 3. `site.yml` defines the build and deployment process for the site.
+4. `release-drafter.yml`: Generates draft release notes as PRs are merged.
 
 ## Future Improvements
 
-1. Release drafting / publishing.
-2. Assign labels to PRs based on directories touched (eg., `docs`, `service`, etc.) and
-   conventional commit (`fix`, `feature`, etc.).
-3. Require conditional checks https://github.com/marketplace/actions/require-conditional-status-checks
+- Require conditional checks https://github.com/marketplace/actions/require-conditional-status-checks
