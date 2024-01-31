@@ -3,7 +3,7 @@
   description: Something isn't working
   color: "d73a4a"
 - name: docs
-  description: Improvements or additions to documentation
+  description: Documentation only changes
   color: "0075ca"
 - name: enhancement
   description: New feature or request
@@ -11,14 +11,26 @@
 - name: build
   description: Changes to Build (Yarn, NPM, Poetry, etc.)
   color: "e4e669"
+- name: style
+  description: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+  color: "e4e669"
 - name: ci
   description: Changes to CI (GitHub Actions)
   color: "e4e669"
+- name: test
+  description: Adding missing tests or correcting existing tests
+  color: "e4e669"
 - name: refactor
-  description: Improvements to code quality
+  description: A code change that neither fixes a bug nor adds a feature
   color: "e4e669"
 - name: revert
   description: Reverting earlier changes
+  color: "e4e669"
+- name: chore
+  description: Other changes that don't modify src or test files
+  color: "e4e669"
+- name: perf
+  description: A code change that improves performance
   color: "e4e669"
 
 # Labels controlling the changelog

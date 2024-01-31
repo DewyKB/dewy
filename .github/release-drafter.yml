@@ -1,8 +1,11 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 categories:
-  - title: 'Breaking Changes'
-    lables:
+  - title: '🏆 Highlights'
+    labels:
+      - 'highlight'
+  - title: '💥 Breaking Changes'
+    labels:
       - 'breaking'
   - title: '🚀 Features'
     labels:
@@ -10,7 +13,7 @@ categories:
   - title: '🐛 Bug Fixes'
     labels:
       - 'bug'
-  - title: '📄 Docs'
+  - title: '📚 Docs'
     labels:
       - 'docs'
   - title: '🧰 Maintenance'
@@ -21,14 +24,17 @@ categories:
       - 'ci'
       - 'refactor'
       - 'perf'
+      - 'test'
+      - 'style'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
 version-resolver:
   major:
-    labels:
-      - 'breaking'
+    labels: []
   minor:
     labels:
+      # Until we hit `1.0.0`, breaking changes can rev the minor version.
+      - 'breaking'
       - 'enhancement'
   patch:
     labels:
@@ -52,6 +58,9 @@ autolabeler:
   - label: 'bug'
     title:
       - '/^fix/i'
+  - label: 'style'
+    title:
+      - '/^style/i'
   - label: 'test'
     title:
       - '/^test/i'

@@ -8,6 +8,7 @@ We currently have the following workflows:
   - Runs an "autolabeler" to provide labels based on title and files touched.
 3. `site.yml` defines the build and deployment process for the site.
 4. `release-drafter.yml`: Generates draft release notes as PRs are merged.
+5. `sync-labels.yml`: Updates the labels in the project to match `.github/labels.yml`.
 
 ## Future Improvements
 
