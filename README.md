@@ -19,7 +19,7 @@
     <br />
     <a href="https://github.com/DewyKB/dewy/issues">Report Bug</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues">Request Feature</a>
+    <a href="https://github.com/DewyKB/dewy/issues">Request Feature</a>
   </p>
 </div>
 
@@ -29,11 +29,11 @@
 ## About The Project
 
 Dewy helps you build AI agents and RAG applications by managing the extraction of knowledge from your documents and implementing semantic search over the extracted content.
-Load your documents and Dewy takes care of parsing, chunking, summarizing, and indexing for retrieval
+Load your documents and Dewy takes care of parsing, chunking, summarizing, and indexing for retrieval.
 Dewy builds on the lessons of putting real Gen AI applications into production so you can focus on getting 💩 done, rather than comparing vector databases and building data extraction infrastructure.
 
 Below is the typical architecture of an AI agent performing RAG.
-Dewy handles all of the parts shown in brown, letting you focus on your application -- the parts in green.
+Dewy handles all of the parts shown in brown so you can focus on your application -- the parts in green.
 
 <p align="center">
   <img src="images/app_architecture.png" alt="System architecture showing steps of RAG." width="600px">
@@ -48,6 +48,9 @@ Dewy handles all of the parts shown in brown, letting you focus on your applicat
 To get a local copy up and running follow these steps.
 
 1. (Optional) Start a `pgvector` instance to persist your data
+
+    Dewy uses a vector database to store metadata about the documents you've loaded as well as embeddings used to provide semantic search results. 
+
     ```sh
     docker run -d \
       -p 5432:5432 \
@@ -57,41 +60,67 @@ To get a local copy up and running follow these steps.
       -e POSTGRES_HOST_AUTH_METHOD=trust \
       ankane/pgvector
     ```
+    If you already have an instance of `pgvector` you can create a database for Dewy and configure Dewy use it using the `DB` env var (see below).
+    
 1. Install Dewy
     ```
     pip install dewy
     ```
+
+    This will install Dewy in your local Python environment.
+
+1. Configure Dewy.
+    Dewy will read env vars from an `.env` file if provided. You can also set these directly
+    in the environment, for example when configuring an instance running in docker / kubernetes.
+
+    ```sh
+    # ~/.env
+    ENVIRONMENT=LOCAL
+    DB=postgresql://...
+    OPENAI_API_KEY=...
+    ```
+
 1. Fire up Dewy
     ```sh
-    // Configure your OpenAI key (optional - local models will be used if not provided)
-    export OPENAI_API_KEY=...
-
-    // Configure your pgvector endpoint (this assumes you installed with Docker as shown previously)
-    export DB=postgresql://dewydbuser:dewydbpwd@localhost/dewydb
-
-    // Run the docker container
     dewy
-
-    // Go to the management console to start creating resources!
-    open http://localhost/admin
     ```
+
+    Dewy includes an admin console you can use to create collections, load documents, and run test queries.
+
+    ```sh
+    open http://localhost:8000/admin
+    ```
+
+### Using Dewy in Typescript / Javascript
+
 1. Install the API client library
     ```sh
     npm install dewy-ts
     ```
+
+1. Connect to an instance of Dewy
+    ```typescript
+    import { Dewy } from 'dewy_ts';
+    const dewy = new Dewy()
+    ```
+
 1. Add documents
     ```typescript
-    import { Dewy } from 'dewy_ts';
-    const dewy = new Dewy({endpoint: “localhost:3000”})
+    await dewy.default.addDocument({
+      collection_id: 1,
+      url: “https://arxiv.org/abs/2005.11401”,
+    })
+    ```
 
-    await dewy.addDocument({url: “https://arxiv.org/abs/2005.11401”})
 1. Retrieve document chunks for LLM prompting
     ```typescript
-    import { Dewy } from 'dewy_ts';
-    const dewy = new Dewy({endpoint: “localhost:3000”})
+    const context = await dewy.default.retrieveChunks({
+      collection_id: 1,
+      query: "tell me about RAG", 
+      n: 10,
+    });
 
-    const context = await dewy.retrieveChunks({query: "tell me about RAG", n: 10});
-
+    // Minimal prompt example
     const prompt = [
       {
         role: 'system',
@@ -104,6 +133,7 @@ To get a local copy up and running follow these steps.
       },
     ]
 
+    // Using OpenAI to generate responses
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       stream: true,
@@ -111,8 +141,27 @@ To get a local copy up and running follow these steps.
     })
     ```
 
-Swagger docs at `http://localhost:8000/docs`.
+### Using Dewy in Python
+
 Notebook `example_notebook.ipynb` uses the REST API from Python.
+
+(TODO: document the Python client more better)
+
+## Roadmap
+
+Dewy is under active development.
+This is an overview of our current roadmap - please 👍 issues that are important to you.
+Don't see a feature that would make Dewy better for your application - [create a feature request](https://github.com/DewyKB/dewy/issues)!
+
+* Support more document formats (ie [Markdown](https://github.com/DewyKB/dewy/issues/29), [DOCX](https://github.com/DewyKB/dewy/issues/28), [HTML](https://github.com/DewyKB/dewy/issues/27))
+* Support more types of chunk extractors
+* Multi-modal search over images, tables, audio, etc. 
+* Integrations with LangChain, LlamaIndex, Haystack, etc.
+* Support flexible result ranking (ie rag-fusion, mmr, etc).
+* Provide metrics around which chunks are used, relevance scores, etc.
+* Query history and explorer in the UI.
+* Multi-tenancy
+* Hybrid search
 
 <!-- CONTRIBUTING -->
 ## Contributing

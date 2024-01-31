@@ -33,4 +33,4 @@ COPY --from=frontend-stage /app/dist /code/dewy/frontend/dist
 
 COPY ./migrations/0001_schema.sql /code/migrations/0001_schema.sql
 
-CMD ["uvicorn", "dewy.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "dewy.main:app", "--host", "0.0.0.0", "--port", "8000"]

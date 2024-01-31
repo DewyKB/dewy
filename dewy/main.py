@@ -76,4 +76,4 @@ if settings.SERVE_ADMIN_UI and os.path.isdir(react_build_path):
 
 # Function for running Dewy as a script
 def run(*args):
-    uvicorn.run("dewy.main:app", host="0.0.0.0", port=80)
+    uvicorn.run("dewy.main:app", host="0.0.0.0", port=8000)

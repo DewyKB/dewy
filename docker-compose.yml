@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:80"   # http on localhost:8000
+      - "8000:8000"   # http on localhost:8000
     networks:
       - kb-network
     depends_on:
