@@ -1,5 +1,8 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
+exclude-labels:
+  - skip-changelog
+  - docs
 categories:
   - title: '🏆 Highlights'
     labels:
