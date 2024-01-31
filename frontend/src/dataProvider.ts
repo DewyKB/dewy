@@ -38,6 +38,23 @@ export const dataProvider = {
         const { json } = await httpClient(url, params);
         return { data: json };
     },
+    getManyReference: async (resource, params) => {
+        const { page, perPage } = params.pagination;
+        const { field, order } = params.sort;
+        const queryparams = {
+            [params.target]: params.id,
+            ...params.pagination, 
+            ...params.sort, 
+            ...params.filter,
+        };
+
+        const url = `${apiUrl}/api/${resource}?${stringify(queryparams)}`;
+        const { json, headers } = await httpClient(url);
+        return {
+            data: json,
+            pageInfo: {hasNextPage: false, hasPreviousPage: false},
+        };
+    },
     create: async (resource, params) => {
         const { json } = await httpClient(`${apiUrl}/api/${resource}/`, {
             method: 'PUT',
