@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://DewyKB.github.io/dewy/blog</id>
+    <title>Dewy Blog</title>
+    <updated>2024-02-01T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://DewyKB.github.io/dewy/blog"/>
+    <subtitle>Dewy Blog</subtitle>
+    <icon>https://DewyKB.github.io/dewy/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Introducing Dewy]]></title>
+        <id>https://DewyKB.github.io/dewy/blog/introducing-dewy</id>
+        <link href="https://DewyKB.github.io/dewy/blog/introducing-dewy"/>
+        <updated>2024-02-01T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque elementum dignissim ultricies. Fusce rhoncus ipsum tempor eros aliquam consequat. Lorem ipsum dolor sit amet]]></summary>
+        <content type="html"><![CDATA[<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque elementum dignissim ultricies. Fusce rhoncus ipsum tempor eros aliquam consequat. Lorem ipsum dolor sit amet</p>]]></content>
+        <author>
+            <name>Ryan Michael</name>
+            <uri>https://github.com/kerinin</uri>
+        </author>
+        <author>
+            <name>Ben Chambers</name>
+            <uri>https://github.com/bjchambers</uri>
+        </author>
+    </entry>
+</feed>
