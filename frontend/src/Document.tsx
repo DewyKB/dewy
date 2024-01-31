@@ -1,12 +1,17 @@
 import { 
     List,
     Datagrid,
+    ChipField,
     TextField,
+    ReferenceManyField,
+    Show,
+    SimpleShowLayout,
     ReferenceField,
     BooleanField,
     FileField,
     TopToolbar,
     EditButton,
+    ShowButton,
     FilterButton,
     CreateButton,
     SearchInput,
@@ -15,6 +20,7 @@ import {
     SimpleForm,
     SelectInput,
     ReferenceInput,
+    RichTextField,
     FileInput,
     required,
     TextInput
@@ -38,6 +44,7 @@ export const DocumentList = () => (
         <Datagrid>
             <TextField source="url" />
             <>
+            <ShowButton />
             <EditButton />
             </>
         </Datagrid>
@@ -60,4 +67,20 @@ export const DocumentEdit = () => (
         <TextInput source="url"/>
     </SimpleForm>
     </Edit>
+);
+
+export const DocumentShow = () => (
+    <Show>
+        <SimpleShowLayout>
+            <TextField source="url" />
+            <RichTextField source="text" />
+            <ReferenceManyField label="Chunk" reference="chunks" target="document_id">
+              <Datagrid>
+                <ChipField source="kind"/>
+                <TextField source="text" sx={{overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: "3", WebkitBoxOrient: "vertical"}}/>
+                <ShowButton/>
+              </Datagrid>
+            </ReferenceManyField>
+        </SimpleShowLayout>
+    </Show>
 );

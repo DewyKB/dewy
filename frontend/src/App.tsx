@@ -12,7 +12,7 @@ import SegmentIcon from '@mui/icons-material/Segment';
 import { Route } from "react-router-dom";
 import { dataProvider } from "./dataProvider";
 import { CollectionList, CollectionCreate, CollectionEdit } from "./Collection";
-import { DocumentList, DocumentCreate, DocumentEdit } from "./Document";
+import { DocumentList, DocumentCreate, DocumentEdit, DocumentShow } from "./Document";
 import { ChunkList } from "./Chunk";
 import { Search } from "./Search";
 import { MyLayout } from "./MyLayout";
@@ -38,6 +38,7 @@ export const App = () => (
       list={DocumentList}
       edit={DocumentEdit}
       create={DocumentCreate}
+      show={DocumentShow}
       recordRepresentation={(record) => record.url}
       icon={ArticleIcon}
     />
