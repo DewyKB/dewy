@@ -43,6 +43,7 @@ jobs:
 
   # Deploy job
   deploy:
+    name: Deploy Site
     # Deploy docs on push to main.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
