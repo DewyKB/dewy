@@ -6,9 +6,11 @@ on:
       - main
     paths:
         - 'docs/**'
+        - '.github/workflows/site.yml'
   pull_request:
     paths:
         - 'docs/**'
+        - '.github/workflows/site.yml'
 
 permissions:
   contents: write
