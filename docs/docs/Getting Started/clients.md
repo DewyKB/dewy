@@ -12,12 +12,12 @@ import TabItem from '@theme/TabItem';
 ## Install the API client library
 
 <Tabs groupId="language">
-    <TabItem value="node" label="node" default>
+    <TabItem value="typescript" label="typescript" default>
     ```sh
     npm install dewy-ts
     ```
     </TabItem>
-    <TabItem value="python" label="python" default>
+    <TabItem value="python" label="python">
     ```sh
     pip install dewy-py
     ```
@@ -27,7 +27,7 @@ import TabItem from '@theme/TabItem';
 ## Connect to an instance of Dewy
 
 <Tabs groupId="language">
-    <TabItem value="node">
+    <TabItem value="typescript">
     ```typescript
     import { Dewy } from 'dewy_ts';
     const dewy = new Dewy()
@@ -46,7 +46,7 @@ import TabItem from '@theme/TabItem';
 ## Retrieve document chunks for LLM prompting
 
 <Tabs groupId="language">
-    <TabItem value="node">
+    <TabItem value="typescript">
     ```typescript
     const context = await dewy.default.retrieveChunks({
       collection_id: 1,

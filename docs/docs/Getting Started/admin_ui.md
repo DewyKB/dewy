@@ -1,9 +1,9 @@
 ---
-title: Using the Console
+title: Using the Admin UI
 sidebar_position: 3
 --- 
 
-# Using the Console
+# Using the Admin UI
 
 Fire up Dewy
 
