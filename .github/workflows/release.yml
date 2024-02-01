@@ -69,7 +69,7 @@ jobs:
           path: dist/
 
   publish-dewy-to-test-pypi:
-    name: Publish dewy
+    name: Publish dewy to test-pypi
     # Only publish to PyPi on releases.
     # if: github.event_name == 'release' && github.event.action == 'published'
     needs: build-dewy
@@ -90,7 +90,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
 
   publish-dewy-client-to-test-pypi:
-    name: Publish dewy
+    name: Publish dewy-client to test-pypi
     # Only publish to PyPi on releases.
     # if: github.event_name == 'release' && github.event.action == 'published'
     needs: build-dewy
