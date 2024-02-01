@@ -8,36 +8,22 @@ info:
     Knowledge comes in a variety of forms -- text, image, tables, etc. and
 
     from a variety of sources -- documents, web pages, audio, etc.'
-  version: 0.1.1
+  version: 0.1.2
 servers:
 - url: http://localhost:8000
   description: Local server
 paths:
   /api/collections/:
-    get:
-      summary: List Collections
-      description: List collections.
-      operationId: listCollections
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: '#/components/schemas/Collection'
-                type: array
-                title: Response Listcollections
     put:
       summary: Add Collection
       description: Create a collection.
       operationId: addCollection
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/CollectionCreate'
-        required: true
       responses:
         '200':
           description: Successful Response
@@ -45,6 +31,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Collection'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Collections
+      description: List collections.
+      operationId: listCollections
+      parameters:
+      - name: name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Find collections by name.
+          title: Name
+        description: Find collections by name.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collection'
+                title: Response Listcollections
         '422':
           description: Validation Error
           content:

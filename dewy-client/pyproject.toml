@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dewy-client"
-version = "0.1.1"
+version = "0.1.2"
 description = "A client library for accessing Dewy Knowledge Base API"
 authors = []
 readme = "README.md"
