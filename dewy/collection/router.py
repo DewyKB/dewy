@@ -1,6 +1,6 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Path, Query
 from loguru import logger
 
 from dewy.collection.models import Collection, CollectionCreate
@@ -51,9 +51,16 @@ async def add_collection(
 
 
 @router.get("/")
-async def list_collections(conn: PgConnectionDep) -> List[Collection]:
+async def list_collections(conn: PgConnectionDep,
+                           name: Annotated[str | None, Query(description="Find collections by name.")] = None) -> List[Collection]:
     """List collections."""
-    results = await conn.fetch("SELECT id, name, text_embedding_model FROM collection")
+    results = await conn.fetch(
+        """
+        SELECT id, name, text_embedding_model
+        FROM collection
+        WHERE name = coalesce($1, name)
+        """,
+        name)
     return [Collection.model_validate(dict(result)) for result in results]
 
 

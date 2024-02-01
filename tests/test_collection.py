@@ -28,3 +28,16 @@ async def test_create_collection(client):
     get_response = await get_collection.asyncio(collection_id, client=client)
 
     assert get_response.name == name
+
+async def test_find_collection(client):
+    name = "".join(random.choices(string.ascii_lowercase, k=5))
+    collection1 = await add_collection.asyncio(
+        client=client, body=CollectionCreate(name=f"{name}")
+    )
+    _collection2 = await add_collection.asyncio(
+        client=client, body=CollectionCreate(name=f"{name}-1")
+    )
+
+    list_response = await list_collections.asyncio(name=f"{name}", client=client)
+    assert len(list_response) == 1
+    assert list_response[0].id == collection1.id
