@@ -51,8 +51,10 @@ async def add_collection(
 
 
 @router.get("/")
-async def list_collections(conn: PgConnectionDep,
-                           name: Annotated[str | None, Query(description="Find collections by name.")] = None) -> List[Collection]:
+async def list_collections(
+    conn: PgConnectionDep,
+    name: Annotated[str | None, Query(description="Find collections by name.")] = None,
+) -> List[Collection]:
     """List collections."""
     results = await conn.fetch(
         """
@@ -60,7 +62,8 @@ async def list_collections(conn: PgConnectionDep,
         FROM collection
         WHERE name = coalesce($1, name)
         """,
-        name)
+        name,
+    )
     return [Collection.model_validate(dict(result)) for result in results]
 
 

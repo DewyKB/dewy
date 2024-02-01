@@ -29,6 +29,7 @@ async def test_create_collection(client):
 
     assert get_response.name == name
 
+
 async def test_find_collection(client):
     name = "".join(random.choices(string.ascii_lowercase, k=5))
     collection1 = await add_collection.asyncio(

@@ -66,7 +66,7 @@ from a variety of sources -- documents, web pages, audio, etc."""
 
 app_configs: dict[str, Any] = {
     "title": "Dewy Knowledge Base API",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "summary": "Knowledge curation for Retrieval Augmented Generation",
     "description": API_DESCRIPTION,
     "servers": [
