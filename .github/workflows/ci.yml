@@ -62,3 +62,9 @@ jobs:
         uses: chartboost/ruff-action@v1
         with:
             args: format --check
+
+  verify_clean_notebooks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ResearchSoftwareActions/EnsureCleanNotebooksAction@1.1
