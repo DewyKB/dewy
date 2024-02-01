@@ -46,11 +46,9 @@ jobs:
           python-version: "3.11"
       - name: Install poetry
         uses: abatilo/actions-poetry@v2
-      - name: Install the project dependencies
-        run: poetry install --with=dev
       - name: Build dewy
         run: |
-          poetry install --with-=dev
+          poetry install --with=dev
           poetry build
       - name: Store the dewy distribution packages
         uses: actions/upload-artifact@v3
