@@ -63,8 +63,8 @@ jobs:
       - name: Store the dewy-client distribution packages
         uses: actions/upload-artifact@v3
         with:
-          name: dewy-distributions
-          path: dist/
+          name: dewy-client-distributions
+          path: dewy-client/dist/
 
   publish-dewy-to-test-pypi:
     name: Publish dewy to test-pypi
