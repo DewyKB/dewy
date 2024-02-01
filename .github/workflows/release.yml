@@ -2,7 +2,7 @@ name: Release
 
 # Only one release job at a time.
 concurrency:
-    group: ${{ github.workflow }}
+    group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 
 # Triggered when a release is published.defaults:
@@ -168,7 +168,8 @@ jobs:
         gh release upload
         '${{ github.ref_name }}' dewy-client/dist/**
         --repo '${{ github.repository }}'
-
+    # We need to checkout the repository in order to edit the release.
+    - uses: actions/checkout@v4
     - name: Publish release
       # TODO: Add --discussion-category "Announcements" to create a release discussion?
       run: |
