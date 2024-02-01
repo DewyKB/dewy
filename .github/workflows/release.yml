@@ -20,8 +20,6 @@ on:
   push:
     branches:
       - main
-  # DO NOT MERGE
-  pull_request:
   release:
     types:
     - published
@@ -66,15 +64,17 @@ jobs:
           name: dewy-client-distributions
           path: dewy-client/dist/
 
-  publish-dewy-to-test-pypi:
-    name: Publish dewy to test-pypi
+  publish-dewy-to-pypi:
+    name: Publish dewy to pypi
     # Only publish to PyPi on releases.
-    # if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'release' && github.event.action == 'published'
     needs: build-dewy
     runs-on: ubuntu-latest
     environment:
-      name: test-pypi
-      url: https://test.pypi.org/p/dewy
+      # name: test-pypi
+      # url: https://test.pypi.org/p/dewy
+      name: prod-pypi
+      url: https://pypi.org/p/dewy
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
@@ -86,18 +86,20 @@ jobs:
           path: dist/
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
+        # with:
+          # repository-url: https://test.pypi.org/legacy/
 
-  publish-dewy-client-to-test-pypi:
-    name: Publish dewy-client to test-pypi
+  publish-dewy-client-to-pypi:
+    name: Publish dewy-client to pypi
     # Only publish to PyPi on releases.
-    # if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'release' && github.event.action == 'published'
     needs: build-dewy
     runs-on: ubuntu-latest
     environment:
-      name: test-pypi
-      url: https://test.pypi.org/p/dewy-client
+      # name: test-pypi
+      # url: https://test.pypi.org/p/dewy-client
+      name: prod-pypi
+      url: https://pypi.org/p/dewy-client
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
@@ -111,15 +113,15 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dewy-client/dist
-          repository-url: https://test.pypi.org/legacy/
+          # repository-url: https://test.pypi.org/legacy/
 
   github-release:
     name: Sign and finalize GitHub release
     # Only publish on release.
     if: github.event_name == 'release' && github.event.action == 'published'
     needs:
-    - publish-dewy-to-test-pypi
-    - publish-dewy-client-to-test-pypi
+    - publish-dewy-to-pypi
+    - publish-dewy-client-to-pypi
     runs-on: ubuntu-latest
 
     permissions:
