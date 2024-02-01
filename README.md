@@ -226,8 +226,9 @@ If you're in a `poetry shell`, you can omit the `poetry run`:
 1. Look at the [draft release](https://github.com/DewyKB/dewy/releases) to determine the suggested next version.
 2. Create a PR updating the following locations to that version:
   a. [`pyproject.toml`](https://github.com/DewyKB/dewy/blob/main/pyproject.toml#L3) for `dewy`
-  b. API version in [`config.py`](https://github.com/DewyKB/dewy/blob/main/dewy/config.py#L69)
-  c. `openapi.yaml` and `dewy-client` by running `poe extract-openapi` and `poe update-client`.
+  b. [`pyproject.toml`](https://github.com/DewyKB/dewy/blob/main/dewy-client/pyproject.toml#L3) for `dewy-client`
+  c. API version in [`config.py`](https://github.com/DewyKB/dewy/blob/main/dewy/config.py#L69)
+  d. `openapi.yaml` and `dewy-client` by running `poe extract-openapi` and `poe update-client`.
 3. Once that PR is in, edit the draft release, make sure the version and tag match what you selected in step 1 (and used in the PR), check "Set as a pre-release" (will be updated by the release automation) and choose to publish the release.
 4. The release automation should kick in and work through the release steps. It will need approval for the pypi deployment environment to publish the `dewy` and `dewy-client` packages.
 
