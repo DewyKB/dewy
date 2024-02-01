@@ -1,0 +1,126 @@
+---
+slug: introducing-dewy
+title: Introducing Dewy
+authors:
+  - ryan
+  - ben
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+
+Today we're releasing the first version of [Dewy](https://dewykb.github.io/dewy), a knowledge base built for the specific needs of Gen AI applications.
+Dewy makes it easy to find the right information to reduce LLM hallucinations by automating the extraction, indexing, and retrieval of your documents. 
+We believe that Dewy's document-centric design is the best way to organize the knowledge needed for the majority of killer Gen AI apps.
+
+## Why extracting the right information is so important
+
+Providing contextual information is perhaps the single most important thing you can do to improve the results of your generative AI applications. For example, Retrieval Augmented Generation (RAG) has been [shown to outperform fine-tuning for “knowledge injection”](https://arxiv.org/abs/2312.05934) – providing domain specific information to the LLM. It should come as no surprise that providing the facts reduces hallucinations!
+
+Contextual information can come from many sources. Dewy focuses on human-readable documents, such as PDFs, also known as “unstructured data”, because much of the information you already have can be treated as a document.
+
+Because LLMs are limited in how much context they accept, it is likely that rather than providing entire documents, you’ll need to provide only the most relevant chunks of the documents, and the relevant context of those chunks.
+
+Extracting the right chunks and retrieving the right related chunks is critical to success – even the most sophisticated vector database is subject to the “garbage in, garbage out” adage.
+
+![Dewy Architecture](./dewy_architecture.svg)
+
+__Our vision for Dewy is a system that automates information extraction.__
+When a document is loaded, Dewy will intelligently extract a set of chunks from the structure and content of the document.
+Each chunk captures some of the document's information and is used to provide contextual information to an LLM. Each chunk may be related to other chunks – they may be part of the same section, or there may be cross references between them, etc This structural information enables retrieving additional context to make the best use of the chunks.
+
+## A modern document store
+
+Dewy doesn't _just_ extract chunks from documents, it also stores and organizes them - we think of Dewy as a document store for the Gen AI era. 
+
+Production applications often need the ability to control which documents are used in a given query. 
+f you don't want your LLM to leak sensitive information between users you can filter your results to chunks the user is allowed to use.
+Similarly, your application may need multiple independent knowledge stores to serve different workflows or use cases.
+Finally, you may need to manage documents that change over time - this can be challenging with low-level tools like vector databases because a single document may correspond to a large number of extracted rows.
+
+<Tabs groupId="language">
+  <TabItem value="typescript" default>
+  ```typescript
+  import { Dewy } from 'dewy_ts';
+  const dewy = new Dewy();
+
+  // Dewy takes it from here
+  await dewy.addDocument({
+    collection_id: 1,
+    url: 'https://arxiv.org/abs/2005.11401',
+  });
+  ```
+  </TabItem>
+
+  <TabItem value="python" default>
+  ```python
+  from dewy_client import Client
+  from dewy_client.api.default import add_document
+
+  client = Client(base_url="http://localhost:8000")
+
+  # Dewy takes it from here
+  add_document(
+    collection_id = 1,
+    url = “https://arxiv.org/abs/2005.11401”,
+    client = client,
+  )
+  ```
+  </TabItem>
+</Tabs>
+
+__Data management in Dewy is document-centric.__ 
+Working at the level of documents (ie, as opposed to vectors) means Dewy operates at a higher level of abstraction than vector databases, and can more conveniently provide features such as access control, hybrid search, tagging, and other document organization techniques. 
+Best of all, there are no ingestion pipelines or job queues for you to build and manage - Dewy takes care of transforming your documents into relevant, usable search results.
+
+## The best query language is your language
+
+It used to be that you would get data out of a database with a query language but today (to riff on [Andrej Karpathy](https://twitter.com/karpathy/status/1617979122625712128?lang=en)) the hottest query language is English, and Dewy embraces this mindset.
+
+Generative AI lets you build open-ended applications where it's hard to know beforehand what information will be relevant to a user at any given point in time, making it practically impossible to query data using hand-coded queries (ie, SQL). 
+Complicating things further, LLM-based applications often deal with subjective topics where the relevance of the information you've stored is ambiguous. 
+
+<Tabs groupId="language">
+<TabItem value="typescript" default>
+```typescript
+// Get chunks relevant to a user's question
+const context = await dewy.retrieveChunks({
+  collection_id: 1,
+  query: 'Tell me about RAG', 
+  n: 10,
+});
+```
+</TabItem>
+
+<TabItem value="python">
+```python
+from dewy_client.api.default import retrieve_chunks
+from dewy_client.models import RetrieveRequest
+
+# Get chunks relevant to a user's question
+retrieved = await retrieve_chunks.asyncio(RetrieveRequest(
+  collection_id = 1,
+  query = "Tell me about RAG",
+  n = 10,
+), client=client)
+```
+</TabItem>
+</Tabs>
+
+__Dewy brings together several state-of-the-art technologies to find the most relevant chunks for a given query.__ 
+Chunks are prepared for extraction and embedded as high-dimensional vectors using modern embedding models.
+The resulting vectors capture the meaning / semantics of each chunk, and are stored in a vector index optimized for efficient and scalable searches. 
+When you make a query, Dewy transforms your query in the same way and looks for a set of chunk vectors that are similar to your query vector.
+Finally, Dewy may re-rank the chunks it finds or pull in additional, related chunks - this allows Dewy to take advantage of the structure and inter-relations it discovered while loading your documents.
+
+## Help us build the Dewy community!
+
+We started building Dewy because we kept seeing the same pattern – teams quickly building their first GenAI application and then losing momentum when they go to introduce RAG because of the number of interdependent decisions – how to create chunks, which embedding model to use, where to store the embeddings, etc.
+
+We saw that extracting the _right_ information, and keeping that information up-to-date as documents evolve was unnecessarily hard in many cases, so we set out to build a better knowledge management tool that lets you focus on your GenAI application
+
+Dewy is a new project: it's missing many features we want to implement and many we haven't realized are useful yet. We’ve incorporated many of the lessons we learned launching multiple production applications and we have some great ideas in the works.
+
+We'll be working to make it better and invite you to help - [try it out yourself](https://github.com/DewyKB/dewy), then [join our Discord](https://discord.gg/DCcm4JEwPT) to tell us how it went!
