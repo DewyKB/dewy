@@ -42,7 +42,7 @@ jobs:
         run: |
           poetry run poe extract-openapi
           poetry run poe update-client
-          # Record intent to add any new files in client
+          # Record intent to add any new files in `dewy-client`
           git add -N dewy-client
           # Diff, and report any changes (including any new files in dewy-client)
           git diff --exit-code
