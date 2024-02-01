@@ -86,6 +86,8 @@ jobs:
           path: dist/
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
 
   publish-dewy-client-to-test-pypi:
     name: Publish dewy-client to test-pypi
@@ -109,6 +111,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: dewy-client/dist
+          repository-url: https://test.pypi.org/legacy/
 
   github-release:
     name: Sign and finalize GitHub release
