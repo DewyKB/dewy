@@ -9,6 +9,7 @@ We currently have the following workflows:
 3. `site.yml` defines the build and deployment process for the site.
 4. `release-drafter.yml`: Generates draft release notes as PRs are merged.
 5. `sync-labels.yml`: Updates the labels in the project to match `.github/labels.yml`.
+6. `release.yml`: Release automation triggered when a release is created.
 
 ## Future Improvements
 
