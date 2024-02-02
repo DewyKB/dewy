@@ -35,7 +35,7 @@ class CollectionEmbeddings:
         self.extract_images = False
 
         # TODO: Look at a sentence window splitter?
-        self._splitter = SentenceSplitter()
+        self._splitter = SentenceSplitter(chunk_size=256)
         self._embedding = _resolve_embedding_model(self.text_embedding_model)
 
         field = f"embedding::vector({text_embedding_dimensions})"

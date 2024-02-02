@@ -1,12 +1,12 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a name="readme-top"></a>
+<a id="readme-top"></a>
 
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
   <a href="https://github.com/DewyKB/dewy">
-    <img src="images/logo.png" alt="Logo" width="160" height="160">
+    <img src="https://github.com/DewyKB/dewy/raw/main/images/logo.png" alt="Logo" width="160" height="160">
   </a>
 
 <h3 align="center">Dewy - The Knowledgebase for AI</h3>
@@ -36,7 +36,7 @@ Below is the typical architecture of an AI agent performing RAG.
 Dewy handles all of the parts shown in brown so you can focus on your application -- the parts in green.
 
 <p align="center">
-  <img src="images/app_architecture.png" alt="System architecture showing steps of RAG." width="600px">
+  <img src="https://github.com/DewyKB/dewy/raw/main/images/app_architecture.png" alt="System architecture showing steps of RAG." width="600px">
 </p>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
