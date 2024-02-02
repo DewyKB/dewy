@@ -22,8 +22,8 @@ class State(TypedDict):
 
 # Resolve paths, independent of PWD
 current_file_path = Path(__file__).resolve()
-react_build_path = current_file_path.parent.parent / "frontend" / "dist"
-migrations_path = current_file_path.parent.parent / "migrations"
+react_build_path = current_file_path.parent / "frontend" / "dist"
+migrations_path = current_file_path.parent / "migrations"
 
 
 @contextlib.asynccontextmanager
@@ -40,7 +40,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[State]:
             state = State(pg_pool=pg_pool)
             yield state
     else:
-        logger.warn("No database configured. CRUD methods will fail.")
+        logger.warning("No database configured. CRUD methods will fail.")
         state = State(pg_pool=None)
         yield state
 
@@ -67,7 +67,7 @@ async def healthcheck() -> dict[str, str]:
 app.include_router(api_router)
 
 if settings.SERVE_ADMIN_UI and os.path.isdir(react_build_path):
-    logger.info("Running admin UI at http://localhost/admin")
+    logger.info("Running admin UI at http://localhost:8000/admin")
     # Serve static files from the React app build directory
     app.mount(
         "/admin", StaticFiles(directory=str(react_build_path), html=True), name="static"

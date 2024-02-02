@@ -349,7 +349,7 @@ def _resolve_embedding_model(model: str) -> BaseEmbedding:
     if split[0] == "openai":
         from llama_index.embeddings import OpenAIEmbedding
 
-        return OpenAIEmbedding(model=split[1])
+        return OpenAIEmbedding(model=split[1], api_key=settings.OPENAI_API_KEY)
     elif split[0] == "hf":
         from llama_index.embeddings import HuggingFaceEmbedding
 

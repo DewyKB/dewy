@@ -6,8 +6,8 @@ authors = ["Ben Chambers <ben.chambers@datastax.com>", "Ryan Michael <ryan.micha
 readme = "README.md"
 license = "Apache-2.0"
 include = [
-    { path = "migrations" },
-    { path = "frontend/dist" },
+    { path = "dewy/migrations" },
+    { path = "dewy/frontend/dist" },
 ]
 
 [tool.poetry.scripts]
