@@ -33,7 +33,7 @@ async def ingest_document(document_id: int, pg_pool: asyncpg.Pool) -> None:
                     WHERE chunk.document_id = $1
                     AND embedding.chunk_id = chunk.id
                     """,
-                    document_id
+                    document_id,
                 )
                 logger.info("Deleting chunks for failed document {}", document_id)
                 await conn.execute(

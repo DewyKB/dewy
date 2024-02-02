@@ -19,10 +19,11 @@ from dewy_client.models import (
 
 SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
 
+
 @pytest.mark.parametrize(
     "embedding_model", ["openai:text-embedding-ada-002", "hf:BAAI/bge-small-en"]
 )
-@pytest.mark.timeout(60) # slow due to embedding
+@pytest.mark.timeout(60)  # slow due to embedding
 async def test_index_retrieval(client, embedding_model):
     name = "".join(random.choices(string.ascii_lowercase, k=5))
 
@@ -61,6 +62,7 @@ async def test_index_retrieval(client, embedding_model):
     assert retrieved.text_results[0].document_id == document.id
     assert "skeleton" in retrieved.text_results[0].text.lower()
 
+
 async def test_ingest_error(client):
     name = "".join(random.choices(string.ascii_lowercase, k=5))
 
@@ -72,9 +74,7 @@ async def test_ingest_error(client):
     MESSAGE = "expected-test-failure"
     document = await add_document.asyncio(
         client=client,
-        body=AddDocumentRequest(
-            url=f"error://{MESSAGE}", collection_id=collection.id
-        ),
+        body=AddDocumentRequest(url=f"error://{MESSAGE}", collection_id=collection.id),
     )
 
     while document.ingest_state == IngestState.PENDING:
