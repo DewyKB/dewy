@@ -2,6 +2,7 @@ from typing import Annotated, List
 
 import asyncpg
 from fastapi import APIRouter, BackgroundTasks, Path, Query
+from loguru import logger
 
 from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgConnectionDep, PgPoolDep
@@ -13,8 +14,48 @@ router = APIRouter(prefix="/documents")
 
 
 async def ingest_document(document_id: int, pg_pool: asyncpg.Pool) -> None:
-    url, embeddings = await CollectionEmbeddings.for_document_id(pg_pool, document_id)
-    await embeddings.ingest(document_id, url)
+    try:
+        url, embeddings = await CollectionEmbeddings.for_document_id(
+            pg_pool, document_id
+        )
+        if url.startswith("error://"):
+            raise RuntimeError(url.removeprefix("error://"))
+        await embeddings.ingest(document_id, url)
+    except Exception as e:
+        logger.error("Failed to ingest {}: {}", document_id, e)
+        async with pg_pool.acquire() as conn:
+            async with conn.transaction():
+                logger.info("Deleting embeddings for failed document {}", document_id)
+                await conn.execute(
+                    """
+                    DELETE FROM embedding
+                    USING chunk
+                    WHERE chunk.document_id = $1
+                    AND embedding.chunk_id = chunk.id
+                    """,
+                    document_id,
+                )
+                logger.info("Deleting chunks for failed document {}", document_id)
+                await conn.execute(
+                    """
+                    DELETE FROM chunk
+                    WHERE document_id = $1
+                    RETURNING id
+                    """,
+                    document_id,
+                )
+                logger.info("Updating status of failed document {}", document_id)
+                await conn.execute(
+                    """
+                    UPDATE document
+                    SET
+                        ingest_state = 'failed',
+                        ingest_error = $2
+                    WHERE id = $1
+                    """,
+                    document_id,
+                    str(e),
+                )
 
 
 @router.put("/")
