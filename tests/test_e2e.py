@@ -7,6 +7,7 @@ from dewy_client.api.default import (
     add_collection,
     add_document,
     get_document,
+    get_document_status,
     list_chunks,
     retrieve_chunks,
 )
@@ -39,9 +40,12 @@ async def test_index_retrieval(client, embedding_model):
         ),
     )
 
-    while document.ingest_state != IngestState.INGESTED:
+    status = None
+    while getattr(status, "ingest_state", IngestState.PENDING) == IngestState.PENDING:
         time.sleep(0.5)
-        document = await get_document.asyncio(document.id, client=client)
+        status = await get_document_status.asyncio(document.id, client=client)
+
+    document = await get_document.asyncio(document.id, client=client)
     assert document.extracted_text.startswith("Skeleton-of-Thought")
 
     chunks = await list_chunks.asyncio(
@@ -77,10 +81,15 @@ async def test_ingest_error(client):
         body=AddDocumentRequest(url=f"error://{MESSAGE}", collection_id=collection.id),
     )
 
-    while document.ingest_state == IngestState.PENDING:
+    status = None
+    while getattr(status, "ingest_state", IngestState.PENDING) == IngestState.PENDING:
         time.sleep(0.2)
-        document = await get_document.asyncio(document.id, client=client)
+        status = await get_document_status.asyncio(document.id, client=client)
 
+    assert status.ingest_state == IngestState.FAILED
+    assert status.ingest_error == MESSAGE
+
+    document = await get_document.asyncio(document.id, client=client)
     assert document.ingest_state == IngestState.FAILED
     assert document.ingest_error == MESSAGE
 

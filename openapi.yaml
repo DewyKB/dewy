@@ -176,6 +176,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/documents/{id}/status:
+    get:
+      summary: Get Document Status
+      operationId: getDocumentStatus
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: The document ID.
+          title: Id
+        description: The document ID.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentStatus'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/chunks/:
     get:
       summary: List Chunks
@@ -400,7 +426,25 @@ components:
       - collection_id
       - url
       title: Document
-      description: Schema for documents in the SQL DB.
+      description: Model for documents in Dewy.
+    DocumentStatus:
+      properties:
+        id:
+          type: integer
+          title: Id
+        ingest_state:
+          $ref: '#/components/schemas/IngestState'
+        ingest_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ingest Error
+      type: object
+      required:
+      - id
+      - ingest_state
+      title: DocumentStatus
+      description: Model for document status.
     HTTPValidationError:
       properties:
         detail:

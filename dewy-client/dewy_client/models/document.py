@@ -11,7 +11,7 @@ T = TypeVar("T", bound="Document")
 
 @_attrs_define
 class Document:
-    """Schema for documents in the SQL DB.
+    """Model for documents in Dewy.
 
     Attributes:
         collection_id (int):
