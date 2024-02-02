@@ -39,7 +39,7 @@ async def test_index_retrieval(client, embedding_model):
     )
 
     while document.ingest_state != IngestState.INGESTED:
-        time.sleep(1)
+        time.sleep(0.5)
         document = await get_document.asyncio(document.id, client=client)
     assert document.extracted_text.startswith("Skeleton-of-Thought")
 
@@ -78,8 +78,7 @@ async def test_ingest_error(client):
     )
 
     while document.ingest_state == IngestState.PENDING:
-        print(f"Document: {document}")
-        time.sleep(1)
+        time.sleep(0.2)
         document = await get_document.asyncio(document.id, client=client)
 
     assert document.ingest_state == IngestState.FAILED
