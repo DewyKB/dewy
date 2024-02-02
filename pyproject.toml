@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "dewy"
-version = "0.1.2"
+version = "0.1.3"
 description = "Knowledge base service."
 authors = ["Ben Chambers <ben.chambers@datastax.com>", "Ryan Michael <ryan.michael@datastax.com>"]
 readme = "README.md"
 license = "Apache-2.0"
 include = [
-    { path = "migrations" },
-    { path = "frontend/dist" },
+    { path = "dewy/migrations" },
+    { path = "dewy/frontend/dist" },
 ]
 
 [tool.poetry.scripts]

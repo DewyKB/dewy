@@ -51,6 +51,7 @@ MIGRATION_RE = re.compile(r"([0-9]{4})[a-zA-Z0-9_-]+\.sql")
 
 
 def _get_defined_migrations(dir: str) -> Iterable[Tuple[int, str]]:
+    logger.info(f"searching for migrations in {dir}")
     files = {}
     for file in os.listdir(dir):
         match = MIGRATION_RE.fullmatch(file)

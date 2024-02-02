@@ -1,0 +1,72 @@
+{
+  "collections": [
+    {
+      "id": 0,
+      "name": "main",
+      "embedding_model": "huggingface:BAAI/bge-small-en",
+      "llm_model": "huggingface:StabilityAI/stablelm-tuned-alpha-3b",
+      "default_chunks": {
+        "tokens": {
+          "length": 256, 
+          "overlap": 16,
+          "embed": {
+            "text": true,
+            "summary": false,
+            "associated_questions": false,
+            "statements": false
+          }
+        },
+        "sentences": {},
+        "paragraphs": {},
+        "images": {}
+      }
+    },
+    {
+      "id": 1,
+      "name": "RAG QA",
+      "embedding_model": "openai:cl100k_base",
+      "llm_model": "openai:gpt-3.5-turbo",
+      "default_chunks": {}
+    }
+  ],
+  "documents": [
+    {
+      "id": 0,
+      "collection_id": 0,
+      "url": "https://arxiv.org/pdf/2005.11401.pdf",
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "chunks": {"tokens": {"index": {"statements": true}}},
+      "kind": "PDF",
+      "indexed": false
+    },
+    {
+      "id": 1,
+      "collection_id": 1,
+      "url": "https://arxiv.org/pdf/2305.14283.pdf",
+      "title": "Query Rewriting for Retrieval-Augmented Large Language Models",
+      "chunks": null,
+      "kind": "PDF",
+      "indexed": true
+    }
+  ],
+  "chunks": [
+    {
+      "id": 0,
+      "document_id": 0,
+      "kind": "sentences",
+      "content": {
+        "text": "Large pre-trained language models have been shown to store factual knowledge in their parameters, and achieve state-of-the-art results when fine-tuned on downstream NLP tasks."
+      },
+      "embedding": "Large pre-trained language models have been shown to store factual knowledge in their parameters, and achieve state-of-the-art results when fine-tuned on downstream NLP tasks."
+    },
+    {
+      "id": 1,
+      "document_id": 0,
+      "kind": "paragraphs",
+      "content": {
+        "text": "To train the retriever and generator end-to-end, we treat the retrieved document as a latent variable. We propose two models that marginalize over the latent documents in different ways to produce a distribution over generated text. In one approach, RAG-Sequence, the model uses the same document to predict each target token. The second approach, RAG-Token, can predict each target token based on a different document. In the following, we formally introduce both models and then describe the pη and pθ components, as well as the training and decoding procedure."
+      },
+      "embedding": "To train the retriever and generator end-to-end, we treat the retrieved document as a latent variable. We propose two models that marginalize over the latent documents in different ways to produce a distribution over generated text. In one approach, RAG-Sequence, the model uses the same document to predict each target token. The second approach, RAG-Token, can predict each target token based on a different document. In the following, we formally introduce both models and then describe the pη and pθ components, as well as the training and decoding procedure."
+    }
+  ]
+}
