@@ -9,7 +9,7 @@ COPY ./pyproject.toml ./poetry.lock* /tmp/
 RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 ######
-# 2. Compile the frontend 
+# 2. Compile the frontend
 FROM node:20.9.0-alpine as frontend-stage
 WORKDIR /app
 COPY ./frontend/package.json ./package.json
@@ -31,6 +31,6 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 COPY ./dewy /code/dewy
 COPY --from=frontend-stage /app/dist /code/dewy/frontend/dist
 
-COPY ./migrations/0001_schema.sql /code/migrations/0001_schema.sql
+COPY ./migrations/*.sql /code/migrations/
 
 CMD ["uvicorn", "dewy.main:app", "--host", "0.0.0.0", "--port", "8000"]
