@@ -121,4 +121,4 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 # 10s seems to be enough locally, but CI is slower.
 # set it high enough for both
-timeout = 30
+timeout = 60
