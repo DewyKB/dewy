@@ -119,4 +119,6 @@ show_error_context = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-timeout = 10
+# 10s seems to be enough locally, but CI is slower.
+# set it high enough for both
+timeout = 30

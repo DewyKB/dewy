@@ -8,7 +8,7 @@ from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgConnectionDep, PgPoolDep
 from dewy.document.models import Document
 
-from .models import AddDocumentRequest, DocumentStatus, IngestState
+from .models import AddDocumentRequest, DocumentStatus
 
 router = APIRouter(prefix="/documents")
 
@@ -126,18 +126,19 @@ async def get_document(conn: PgConnectionDep, id: PathDocumentId) -> Document:
     )
     return Document.model_validate(dict(result))
 
+
 @router.get("/{id}/status")
-async def get_document_status(conn: PgConnectionDep, id: PathDocumentId) -> DocumentStatus:
+async def get_document_status(
+    conn: PgConnectionDep, id: PathDocumentId
+) -> DocumentStatus:
     result = await conn.fetchrow(
         """
         SELECT ingest_state, ingest_error
         FROM document
         WHERE id = $1
         """,
-        id
+        id,
     )
     return DocumentStatus(
-        id=id,
-        ingest_state = result["ingest_state"],
-        ingest_error = result["ingest_error"]
+        id=id, ingest_state=result["ingest_state"], ingest_error=result["ingest_error"]
     )

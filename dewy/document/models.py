@@ -42,8 +42,10 @@ class Document(BaseModel):
     ingest_state: Optional[IngestState] = None
     ingest_error: Optional[str] = None
 
+
 class DocumentStatus(BaseModel):
     """Model for document status."""
+
     id: int
     ingest_state: IngestState
     ingest_error: Optional[str] = None
