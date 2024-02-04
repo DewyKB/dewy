@@ -8,7 +8,7 @@ from uvicorn.importer import import_from_string
 
 parser = argparse.ArgumentParser(prog="extract-openapi.py")
 parser.add_argument(
-    "app", help='App import string. Eg. "main:app"', default="dewy.main:app"
+    "app", help='App import string. Eg. "main:app"', default="dewy.main:create_app"
 )
 parser.add_argument("--app-dir", help="Directory containing the app", default=None)
 parser.add_argument(

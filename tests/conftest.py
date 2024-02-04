@@ -5,6 +5,8 @@ from asgi_lifespan import LifespanManager
 from dewy_client import Client
 from httpx import AsyncClient
 
+from dewy.config import Config
+
 pytest_plugins = ["pytest_docker_fixtures"]
 
 from pytest_docker_fixtures.images import configure as configure_image  # noqa: E402
@@ -24,14 +26,14 @@ configure_image(
 
 @pytest.fixture(scope="session")
 async def app(pg, event_loop):
-    # Set environment variables before the application is loaded.
-    import os
-
     (pg_host, pg_port) = pg
-    os.environ["DB"] = f"postgresql://dewydbuser:dewydbpwd@{pg_host}:{pg_port}/dewydb"
-    os.environ["APPLY_MIGRATIONS"] = "true"
+    config = Config(
+        DB = f"postgresql://dewydbuser:dewydbpwd@{pg_host}:{pg_port}/dewydb",
+        APPLY_MIGRATIONS = True,
+    )
 
-    from dewy.main import app
+    from dewy.main import create_app
+    app = create_app(config)
 
     async with LifespanManager(app) as manager:
         yield manager.app
