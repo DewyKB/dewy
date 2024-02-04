@@ -36,7 +36,7 @@ CREATE TABLE document(
     -- The state of the most recent ingestion of this document.
     -- TODO: Should we have a separate `ingestion` table and associate
     -- many ingestions with each document ID?
-    ingest_state ingest_state,
+    ingest_state ingest_state NOT NULL,
     -- The error (if any) resulting from the most recent ingestion.
     ingest_error VARCHAR,
 

@@ -38,7 +38,7 @@ async def apply_migrations(
             applied += 1
 
     if applied_migrations:
-        logger.warn("Unrecognized migrations applied: {}", applied_migrations)
+        logger.warning("Unrecognized migrations applied: {}", applied_migrations)
 
     logger.info(
         "Migrations complete. {} total, {} newly applied",

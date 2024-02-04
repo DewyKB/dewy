@@ -24,7 +24,7 @@ class IngestState(Enum):
 
 
 class Document(BaseModel):
-    """Schema for documents in the SQL DB."""
+    """Model for documents in Dewy."""
 
     id: Optional[int] = None
     collection_id: int
@@ -40,4 +40,12 @@ class Document(BaseModel):
     url: str
 
     ingest_state: Optional[IngestState] = None
+    ingest_error: Optional[str] = None
+
+
+class DocumentStatus(BaseModel):
+    """Model for document status."""
+
+    id: int
+    ingest_state: IngestState
     ingest_error: Optional[str] = None

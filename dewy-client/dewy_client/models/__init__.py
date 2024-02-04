@@ -5,6 +5,7 @@ from .collection import Collection
 from .collection_create import CollectionCreate
 from .distance_metric import DistanceMetric
 from .document import Document
+from .document_status import DocumentStatus
 from .http_validation_error import HTTPValidationError
 from .image_chunk import ImageChunk
 from .image_result import ImageResult
@@ -21,6 +22,7 @@ __all__ = (
     "CollectionCreate",
     "DistanceMetric",
     "Document",
+    "DocumentStatus",
     "HTTPValidationError",
     "ImageChunk",
     "ImageResult",
