@@ -8,7 +8,7 @@ from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgConnectionDep, PgPoolDep
 from dewy.document.models import Document
 
-from .models import AddDocumentRequest, DocumentStatus
+from .models import AddDocumentContentRequest, AddDocumentRequest, AddDocumentUrlRequest, DocumentStatus
 
 router = APIRouter(prefix="/documents")
 
@@ -58,14 +58,13 @@ async def ingest_document(document_id: int, pg_pool: asyncpg.Pool) -> None:
                 )
 
 
-@router.put("/")
-async def add_document(
+@router.post("/url")
+async def add_document_from_url(
     pg_pool: PgPoolDep,
     background: BackgroundTasks,
-    req: AddDocumentRequest,
+    req: AddDocumentUrlRequest
 ) -> Document:
-    """Add a document."""
-
+    """Add a document from a URL."""
     async with pg_pool.acquire() as conn:
         row = None
         row = await conn.fetchrow(
@@ -82,6 +81,14 @@ async def add_document(
     background.add_task(ingest_document, document.id, pg_pool)
     return document
 
+@router.post("/content")
+async def add_document_from_content(
+    pg_pool: PgPoolDep,
+    background: BackgroundTasks,
+    req: AddDocumentContentRequest
+) -> Document:
+    """Add a document from specific content."""
+    pass
 
 PathDocumentId = Annotated[int, Path(..., description="The document ID.")]
 

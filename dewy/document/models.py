@@ -1,15 +1,31 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
+from fastapi import UploadFile
 
 from pydantic import BaseModel
 
-
-class AddDocumentRequest(BaseModel):
-    collection_id: Optional[int] = None
+class AddDocumentUrlRequest(BaseModel):
+    collection_id: int
     """The id of the collection the document should be added to."""
 
     url: str
     """The URL of the document to add."""
+
+class AddDocumentContentRequest(BaseModel):
+    collection_id: int
+    """The id of the collection the docuemnt should be added to."""
+
+    content: Union[str, UploadFile]
+    """The content to use for the document."""
+
+    content_type: Optional[str] = None
+    """The mime-type of the content.
+
+    If set, this will override the mime-type of the uploaded file.
+
+    If unset, the mime-type of the uploaded file will be used and
+    strings will be assumed to be Markdown.
+    """
 
 
 class IngestState(Enum):
