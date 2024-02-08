@@ -10,7 +10,7 @@ from dewy.chunk.models import TextResult
 from dewy.collection.models import DistanceMetric
 from dewy.config import settings
 
-from .extract import extract
+from .extract import extract_url
 
 
 class CollectionEmbeddings:
@@ -189,7 +189,7 @@ class CollectionEmbeddings:
 
     async def ingest(self, document_id: int, url: str) -> None:
         logger.info("Loading content for document {} from '{}'", document_id, url)
-        extracted = await extract(
+        extracted = await extract_url(
             url, extract_tables=self.extract_tables, extract_images=self.extract_images
         )
         if extracted.is_empty():

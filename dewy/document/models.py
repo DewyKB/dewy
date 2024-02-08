@@ -18,15 +18,6 @@ class AddDocumentContentRequest(BaseModel):
     content: Union[str, UploadFile]
     """The content to use for the document."""
 
-    content_type: Optional[str] = None
-    """The mime-type of the content.
-
-    If set, this will override the mime-type of the uploaded file.
-
-    If unset, the mime-type of the uploaded file will be used and
-    strings will be assumed to be Markdown.
-    """
-
 
 class IngestState(Enum):
     PENDING = "pending"

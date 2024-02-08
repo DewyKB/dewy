@@ -1,67 +1,53 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-T = TypeVar("T", bound="AddDocumentRequest")
+T = TypeVar("T", bound="AddDocumentUrlRequest")
 
 
 @_attrs_define
-class AddDocumentRequest:
+class AddDocumentUrlRequest:
     """
     Attributes:
+        collection_id (int):
         url (str):
-        collection_id (Union[None, Unset, int]):
     """
 
+    collection_id: int
     url: str
-    collection_id: Union[None, Unset, int] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        url = self.url
+        collection_id = self.collection_id
 
-        collection_id: Union[None, Unset, int]
-        if isinstance(self.collection_id, Unset):
-            collection_id = UNSET
-        else:
-            collection_id = self.collection_id
+        url = self.url
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "collection_id": collection_id,
                 "url": url,
             }
         )
-        if collection_id is not UNSET:
-            field_dict["collection_id"] = collection_id
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        collection_id = d.pop("collection_id")
+
         url = d.pop("url")
 
-        def _parse_collection_id(data: object) -> Union[None, Unset, int]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, int], data)
-
-        collection_id = _parse_collection_id(d.pop("collection_id", UNSET))
-
-        add_document_request = cls(
-            url=url,
+        add_document_url_request = cls(
             collection_id=collection_id,
+            url=url,
         )
 
-        add_document_request.additional_properties = d
-        return add_document_request
+        add_document_url_request.additional_properties = d
+        return add_document_url_request
 
     @property
     def additional_keys(self) -> List[str]:

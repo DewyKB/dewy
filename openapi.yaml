@@ -14,7 +14,7 @@ servers:
   description: Local server
 paths:
   /api/collections/:
-    put:
+    post:
       summary: Add Collection
       description: Create a collection.
       operationId: addCollection
@@ -95,17 +95,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/documents/:
-    put:
-      summary: Add Document
-      description: Add a document.
-      operationId: addDocument
+  /api/documents/url:
+    post:
+      summary: Add Document From Url
+      description: Add a document from a URL.
+      operationId: addDocumentFromUrl
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddDocumentRequest'
+              $ref: '#/components/schemas/AddDocumentUrlRequest'
+        required: true
       responses:
         '200':
           description: Successful Response
@@ -119,6 +119,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/documents/content:
+    post:
+      summary: Add Document From Content
+      description: Add a document from specific content.
+      operationId: addDocumentFromContent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddDocumentContentRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/documents/:
     get:
       summary: List Documents
       description: List documents.
@@ -329,20 +354,35 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AddDocumentRequest:
+    AddDocumentContentRequest:
       properties:
         collection_id:
+          type: integer
+          title: Collection Id
+        content:
           anyOf:
-          - type: integer
-          - type: 'null'
+          - type: string
+          - type: string
+            format: binary
+          title: Content
+      type: object
+      required:
+      - collection_id
+      - content
+      title: AddDocumentContentRequest
+    AddDocumentUrlRequest:
+      properties:
+        collection_id:
+          type: integer
           title: Collection Id
         url:
           type: string
           title: Url
       type: object
       required:
+      - collection_id
       - url
-      title: AddDocumentRequest
+      title: AddDocumentUrlRequest
     Collection:
       properties:
         id:

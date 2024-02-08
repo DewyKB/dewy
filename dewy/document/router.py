@@ -8,7 +8,7 @@ from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgConnectionDep, PgPoolDep
 from dewy.document.models import Document
 
-from .models import AddDocumentContentRequest, AddDocumentRequest, AddDocumentUrlRequest, DocumentStatus
+from .models import AddDocumentContentRequest, AddDocumentUrlRequest, DocumentStatus
 
 router = APIRouter(prefix="/documents")
 

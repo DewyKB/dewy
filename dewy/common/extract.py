@@ -1,4 +1,8 @@
 from dataclasses import dataclass
+import io
+from math import e
+from tempfile import NamedTemporaryFile, SpooledTemporaryFile
+from typing import Optional
 
 from fastapi import HTTPException, status
 from loguru import logger
@@ -17,17 +21,26 @@ class ExtractResult:
 
 
 def extract_from_pdf(
-    local_path: str, *, extract_tables: bool = False, extract_images: bool = False
+    file: SpooledTemporaryFile, *, extract_tables: bool = False, extract_images: bool = False
 ) -> ExtractResult:
     """Extract documents from a PDF."""
 
-    logger.debug("Extracting from PDF '{}'", local_path)
+    logger.debug("Extracting from PDF")
 
     texts = []
     tables = []
     import fitz
 
-    doc = fitz.open(local_path)
+
+    if file._rolled:
+        # This is annoying. The SpooledTemporaryFile implements the necessary
+        # buffered reader interfaces, but `fitz` doesn't accept those types.
+        # So, we need to poke at the internals of SpooledTemporaryFile to make
+        # fitz (PyMuPDF) happy.
+        raise NotImplementedError("Extracting from large PDFs not yet supported")
+
+    doc = fitz.open(stream=file._file, filetype='pdf')
+    logger.info("Extracting content from {} pages", doc.page_count)
     for page in doc.pages():
         texts.append(page.get_text(sort=True))
 
@@ -54,12 +67,31 @@ def extract_from_pdf(
     text = "".join(texts)
     return ExtractResult(text=text)
 
-
-async def extract(
-    url: str, *, extract_tables: bool = False, extract_images: bool = False
+async def extract_file(
+        file: SpooledTemporaryFile,
+        *,
+        extract_tables: bool = False,
+        extract_images: bool = False
 ) -> ExtractResult:
-    """Extract documents from a local or remote URL."""
+    import filetype
+    mime = filetype.guess(file).mime
+    logger.debug("Inferred mime type: {}", mime)
+    match mime:
+        case "application/pdf":
+            return extract_from_pdf(file, extract_tables=extract_tables, extract_images=extract_images)
+        case unrecognized:
+            raise HTTPException(
+                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                detail=f"Cannot add document from unrecognized mimetype '{unrecognized}'",
+            )
+
+async def extract_url(
+    url: str, *, extract_tables: bool = False, extract_images: bool = False,
+) -> ExtractResult:
+    """Extract documents from a local or remote URL.
+    """
     import httpx
+    from tempfile import SpooledTemporaryFile
 
     async with httpx.AsyncClient(follow_redirects=True) as client:
         # Determine the extension by requesting the headers.
@@ -68,23 +100,14 @@ async def extract(
         content_type = response.headers["content-type"]
         logger.debug("Content type of {} is {}", url, content_type)
 
-        # Load the content.
-        if content_type.startswith("application/pdf"):
-            from tempfile import NamedTemporaryFile
+        with SpooledTemporaryFile() as temp_file:
+            logger.debug("Downloading {}", url)
+            response = await client.get(url)
+            response.raise_for_status()
+            temp_file.write(response.content)
 
-            with NamedTemporaryFile(suffix=".pdf") as temp_file:
-                logger.debug("Downloading {} to {}", url, temp_file.name)
-                response = await client.get(url)
-                response.raise_for_status()
-                temp_file.write(response.content)
-
-                return extract_from_pdf(
-                    temp_file.name,
-                    extract_tables=extract_tables,
-                    extract_images=extract_images,
-                )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail=f"Cannot add document from content-type '{content_type}'",
+            return await extract_file(
+                temp_file,
+                extract_tables=extract_tables,
+                extract_images=extract_images,
             )

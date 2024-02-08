@@ -10,7 +10,7 @@ from dewy.common.db import PgConnectionDep
 router = APIRouter(prefix="/collections")
 
 
-@router.put("/")
+@router.post("/")
 async def add_collection(
     conn: PgConnectionDep, collection: CollectionCreate
 ) -> Collection:

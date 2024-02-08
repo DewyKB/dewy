@@ -1,3 +1,5 @@
+from io import BytesIO
+import os
 import asyncio
 
 import pytest
@@ -21,6 +23,17 @@ configure_image(
     },
 )
 
+TEST_DATA_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "test_data"
+)
+NEARLY_EMPTY_PATH = os.path.join(TEST_DATA_DIR, "nearly_empty.pdf")
+assert os.path.isfile(NEARLY_EMPTY_PATH)
+NEARLY_EMPTY_TEXT = "This is a nearly empty PDF to test extraction and embedding.\n"
+
+NEARLY_EMPTY_BYTES = None
+with open(NEARLY_EMPTY_PATH, "rb") as file:
+    NEARLY_EMTPY_BYTES = BytesIO(file.read())
 
 @pytest.fixture(scope="session")
 async def app(pg, event_loop):

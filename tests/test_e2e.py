@@ -1,22 +1,28 @@
 import random
 import string
 import time
+from typing import BinaryIO
 
 import pytest
 from dewy_client.api.default import (
     add_collection,
-    add_document,
+    add_document_from_content,
+    add_document_from_url,
     get_document,
     get_document_status,
     list_chunks,
     retrieve_chunks,
 )
 from dewy_client.models import (
-    AddDocumentRequest,
+    AddDocumentContentRequest,
+    AddDocumentUrlRequest,
     CollectionCreate,
     IngestState,
     RetrieveRequest,
 )
+from dewy_client.types import File
+
+from tests.conftest import NEARLY_EMPTY_BYTES, NEARLY_EMPTY_PATH
 
 SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
 
@@ -33,10 +39,12 @@ async def test_index_retrieval(client, embedding_model):
         body=CollectionCreate(name=name, text_embedding_model=embedding_model),
     )
 
-    document = await add_document.asyncio(
+    document = await add_document_from_content.asyncio(
         client=client,
-        body=AddDocumentRequest(
-            url=SKELETON_OF_THOUGHT_PDF, collection_id=collection.id
+        body=AddDocumentContentRequest(
+            content = File(payload=NEARLY_EMPTY_BYTES,
+                           file_name = "nearly_empty.pdf"),
+            collection_id=collection.id
         ),
     )
 
@@ -76,9 +84,9 @@ async def test_ingest_error(client):
     )
 
     MESSAGE = "expected-test-failure"
-    document = await add_document.asyncio(
+    document = await add_document_from_url.asyncio(
         client=client,
-        body=AddDocumentRequest(url=f"error://{MESSAGE}", collection_id=collection.id),
+        body=AddDocumentUrlRequest(url=f"error://{MESSAGE}", collection_id=collection.id),
     )
 
     status = None

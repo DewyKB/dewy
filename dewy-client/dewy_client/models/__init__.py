@@ -1,6 +1,7 @@
 """ Contains all the data models used in inputs/outputs """
 
-from .add_document_request import AddDocumentRequest
+from .add_document_content_request import AddDocumentContentRequest
+from .add_document_url_request import AddDocumentUrlRequest
 from .collection import Collection
 from .collection_create import CollectionCreate
 from .distance_metric import DistanceMetric
@@ -17,7 +18,8 @@ from .text_result import TextResult
 from .validation_error import ValidationError
 
 __all__ = (
-    "AddDocumentRequest",
+    "AddDocumentContentRequest",
+    "AddDocumentUrlRequest",
     "Collection",
     "CollectionCreate",
     "DistanceMetric",
