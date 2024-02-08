@@ -1,26 +1,26 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
 import asyncpg
-from fastapi import APIRouter, BackgroundTasks, Path, Query
+from fastapi import APIRouter, BackgroundTasks, Body, File, Path, Query, UploadFile
 from loguru import logger
 
 from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgConnectionDep, PgPoolDep
 from dewy.document.models import Document
 
-from .models import AddDocumentContentRequest, AddDocumentUrlRequest, DocumentStatus
+from .models import AddDocumentUrlRequest, DocumentStatus
 
 router = APIRouter(prefix="/documents")
 
 
-async def ingest_document(document_id: int, pg_pool: asyncpg.Pool) -> None:
+async def ingest_document(document_id: int, pg_pool: asyncpg.Pool, content: Optional[UploadFile] = None) -> None:
     try:
         url, embeddings = await CollectionEmbeddings.for_document_id(
             pg_pool, document_id
         )
         if url.startswith("error://"):
             raise RuntimeError(url.removeprefix("error://"))
-        await embeddings.ingest(document_id, url)
+        await embeddings.ingest(document_id, url, content)
     except Exception as e:
         logger.error("Failed to ingest {}: {}", document_id, e)
         async with pg_pool.acquire() as conn:
@@ -85,10 +85,28 @@ async def add_document_from_url(
 async def add_document_from_content(
     pg_pool: PgPoolDep,
     background: BackgroundTasks,
-    req: AddDocumentContentRequest
+    collection_id: Annotated[int, Body(description = "The collection to add the document to.")],
+    content: Annotated[UploadFile, File(description = "The content containing the document.")],
 ) -> Document:
     """Add a document from specific content."""
-    pass
+
+    print("HI")
+    logger.info("Adding document to collection")
+    async with pg_pool.acquire() as conn:
+        row = None
+        row = await conn.fetchrow(
+            """
+            INSERT INTO document (collection_id, ingest_state)
+            VALUES ($1, 'pending')
+            RETURNING id, collection_id, url, ingest_state, ingest_error
+            """,
+            collection_id,
+        )
+
+    document = Document.model_validate(dict(row))
+    background.add_task(ingest_document, document.id, pg_pool, content)
+    logger.info("Returning document {}", document)
+    return document
 
 PathDocumentId = Annotated[int, Path(..., description="The document ID.")]
 

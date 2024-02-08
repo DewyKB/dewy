@@ -1,6 +1,7 @@
-from typing import List, Self, Tuple
+from typing import List, Optional, Self, Tuple
 
 import asyncpg
+from fastapi import UploadFile
 from llama_index.embeddings import BaseEmbedding
 from llama_index.node_parser import SentenceSplitter
 from llama_index.schema import TextNode
@@ -10,7 +11,7 @@ from dewy.chunk.models import TextResult
 from dewy.collection.models import DistanceMetric
 from dewy.config import settings
 
-from .extract import extract_url
+from .extract import extract_file, extract_url
 
 
 class CollectionEmbeddings:
@@ -187,11 +188,18 @@ class CollectionEmbeddings:
             ]
             return embeddings
 
-    async def ingest(self, document_id: int, url: str) -> None:
+    async def ingest(self, document_id: int, url: str, content: Optional[UploadFile]) -> None:
         logger.info("Loading content for document {} from '{}'", document_id, url)
-        extracted = await extract_url(
-            url, extract_tables=self.extract_tables, extract_images=self.extract_images
-        )
+        extracted = None
+        if isinstance(content, UploadFile):
+            extracted = await extract_file(content.file,
+                                           extract_tables=self.extract_tables,
+                                           extract_images=self.extract_images)
+        else:
+            extracted = await extract_url(
+                url, extract_tables=self.extract_tables, extract_images=self.extract_images
+            )
+
         if extracted.is_empty():
             logger.error(
                 "No content retrieved from for document {} from '{}'", document_id, url

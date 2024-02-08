@@ -2,6 +2,7 @@ import random
 import string
 import time
 from typing import BinaryIO
+from dewy_client.models.body_add_document_from_content import BodyAddDocumentFromContent
 
 import pytest
 from dewy_client.api.default import (
@@ -14,7 +15,6 @@ from dewy_client.api.default import (
     retrieve_chunks,
 )
 from dewy_client.models import (
-    AddDocumentContentRequest,
     AddDocumentUrlRequest,
     CollectionCreate,
     IngestState,
@@ -41,10 +41,10 @@ async def test_index_retrieval(client, embedding_model):
 
     document = await add_document_from_content.asyncio(
         client=client,
-        body=AddDocumentContentRequest(
+        body=BodyAddDocumentFromContent(
+            collection_id=collection.id,
             content = File(payload=NEARLY_EMPTY_BYTES,
                            file_name = "nearly_empty.pdf"),
-            collection_id=collection.id
         ),
     )
 

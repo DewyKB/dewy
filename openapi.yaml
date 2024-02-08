@@ -126,9 +126,9 @@ paths:
       operationId: addDocumentFromContent
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/AddDocumentContentRequest'
+              $ref: '#/components/schemas/Body_addDocumentFromContent'
         required: true
       responses:
         '200':
@@ -354,22 +354,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AddDocumentContentRequest:
-      properties:
-        collection_id:
-          type: integer
-          title: Collection Id
-        content:
-          anyOf:
-          - type: string
-          - type: string
-            format: binary
-          title: Content
-      type: object
-      required:
-      - collection_id
-      - content
-      title: AddDocumentContentRequest
     AddDocumentUrlRequest:
       properties:
         collection_id:
@@ -383,6 +367,22 @@ components:
       - collection_id
       - url
       title: AddDocumentUrlRequest
+    Body_addDocumentFromContent:
+      properties:
+        collection_id:
+          type: integer
+          title: Collection Id
+          description: The collection to add the document to.
+        content:
+          type: string
+          format: binary
+          title: Content
+          description: The content containing the document.
+      type: object
+      required:
+      - collection_id
+      - content
+      title: Body_addDocumentFromContent
     Collection:
       properties:
         id:

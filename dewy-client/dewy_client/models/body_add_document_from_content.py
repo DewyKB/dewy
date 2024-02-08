@@ -1,38 +1,55 @@
 from io import BytesIO
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import File, FileJsonType
+from ..types import File, Unset
 
-T = TypeVar("T", bound="AddDocumentContentRequest")
+T = TypeVar("T", bound="BodyAddDocumentFromContent")
 
 
 @_attrs_define
-class AddDocumentContentRequest:
+class BodyAddDocumentFromContent:
     """
     Attributes:
-        collection_id (int):
-        content (Union[File, str]):
+        collection_id (int): The collection to add the document to.
+        content (File): The content containing the document.
     """
 
     collection_id: int
-    content: Union[File, str]
+    content: File
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         collection_id = self.collection_id
 
-        content: Union[FileJsonType, str]
-        if isinstance(self.content, File):
-            content = self.content.to_tuple()
-
-        else:
-            content = self.content
+        content = self.content.to_tuple()
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
+        field_dict.update(
+            {
+                "collection_id": collection_id,
+                "content": content,
+            }
+        )
+
+        return field_dict
+
+    def to_multipart(self) -> Dict[str, Any]:
+        collection_id = (
+            self.collection_id
+            if isinstance(self.collection_id, Unset)
+            else (None, str(self.collection_id).encode(), "text/plain")
+        )
+
+        content = self.content.to_tuple()
+
+        field_dict: Dict[str, Any] = {}
+        field_dict.update(
+            {key: (None, str(value).encode(), "text/plain") for key, value in self.additional_properties.items()}
+        )
         field_dict.update(
             {
                 "collection_id": collection_id,
@@ -47,26 +64,15 @@ class AddDocumentContentRequest:
         d = src_dict.copy()
         collection_id = d.pop("collection_id")
 
-        def _parse_content(data: object) -> Union[File, str]:
-            try:
-                if not isinstance(data, bytes):
-                    raise TypeError()
-                content_type_1 = File(payload=BytesIO(data))
+        content = File(payload=BytesIO(d.pop("content")))
 
-                return content_type_1
-            except:  # noqa: E722
-                pass
-            return cast(Union[File, str], data)
-
-        content = _parse_content(d.pop("content"))
-
-        add_document_content_request = cls(
+        body_add_document_from_content = cls(
             collection_id=collection_id,
             content=content,
         )
 
-        add_document_content_request.additional_properties = d
-        return add_document_content_request
+        body_add_document_from_content.additional_properties = d
+        return body_add_document_from_content
 
     @property
     def additional_keys(self) -> List[str]:

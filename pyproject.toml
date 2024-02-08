@@ -65,6 +65,7 @@ pgvector = "^0.2.4"
 numpy = "^1.26.3"
 transformers = "^4.37.1"
 filetype = "^1.2.0"
+python-multipart = "^0.0.7"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.11"

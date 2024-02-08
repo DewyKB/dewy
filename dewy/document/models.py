@@ -11,13 +11,6 @@ class AddDocumentUrlRequest(BaseModel):
     url: str
     """The URL of the document to add."""
 
-class AddDocumentContentRequest(BaseModel):
-    collection_id: int
-    """The id of the collection the docuemnt should be added to."""
-
-    content: Union[str, UploadFile]
-    """The content to use for the document."""
-
 
 class IngestState(Enum):
     PENDING = "pending"

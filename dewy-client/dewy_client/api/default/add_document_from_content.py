@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.add_document_content_request import AddDocumentContentRequest
+from ...models.body_add_document_from_content import BodyAddDocumentFromContent
 from ...models.document import Document
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
@@ -13,7 +13,7 @@ from ...types import Response
 
 def _get_kwargs(
     *,
-    body: AddDocumentContentRequest,
+    body: BodyAddDocumentFromContent,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
 
@@ -22,10 +22,9 @@ def _get_kwargs(
         "url": "/api/documents/content",
     }
 
-    _body = body.to_dict()
+    _body = body.to_multipart()
 
-    _kwargs["json"] = _body
-    headers["Content-Type"] = "application/json"
+    _kwargs["files"] = _body
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -62,14 +61,14 @@ def _build_response(
 def sync_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: AddDocumentContentRequest,
+    body: BodyAddDocumentFromContent,
 ) -> Response[Union[Document, HTTPValidationError]]:
     """Add Document From Content
 
      Add a document from specific content.
 
     Args:
-        body (AddDocumentContentRequest):
+        body (BodyAddDocumentFromContent):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -93,14 +92,14 @@ def sync_detailed(
 def sync(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: AddDocumentContentRequest,
+    body: BodyAddDocumentFromContent,
 ) -> Optional[Union[Document, HTTPValidationError]]:
     """Add Document From Content
 
      Add a document from specific content.
 
     Args:
-        body (AddDocumentContentRequest):
+        body (BodyAddDocumentFromContent):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -119,14 +118,14 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: AddDocumentContentRequest,
+    body: BodyAddDocumentFromContent,
 ) -> Response[Union[Document, HTTPValidationError]]:
     """Add Document From Content
 
      Add a document from specific content.
 
     Args:
-        body (AddDocumentContentRequest):
+        body (BodyAddDocumentFromContent):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -148,14 +147,14 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: AddDocumentContentRequest,
+    body: BodyAddDocumentFromContent,
 ) -> Optional[Union[Document, HTTPValidationError]]:
     """Add Document From Content
 
      Add a document from specific content.
 
     Args:
-        body (AddDocumentContentRequest):
+        body (BodyAddDocumentFromContent):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
