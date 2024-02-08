@@ -30,7 +30,6 @@ migrations_path = current_file_path.parent / "migrations"
 async def lifespan(app: FastAPI) -> AsyncIterator[State]:
     """Function creating instances used during the lifespan of the service."""
 
-
     if app.config.DB is not None:
         async with db.create_pool(app.config.DB.unicode_string()) as pg_pool:
             if app.config.APPLY_MIGRATIONS:
@@ -45,7 +44,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[State]:
         state = State(pg_pool=None)
         yield state
 
+
 root_router = APIRouter()
+
 
 @root_router.get("/healthcheck", include_in_schema=False)
 async def healthcheck() -> dict[str, str]:
@@ -64,6 +65,7 @@ def install_middleware(app: FastAPI) -> None:
         allow_headers=["*"],
     )
 
+
 def create_app(config: Optional[Config] = None) -> FastAPI:
     config = config or Config()
     app = FastAPI(lifespan=lifespan, **config.app_configs())
@@ -78,7 +80,9 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
         logger.info("Running admin UI at http://localhost:8000/admin")
         # Serve static files from the React app build directory
         app.mount(
-            "/admin", StaticFiles(directory=str(react_build_path), html=True), name="static"
+            "/admin",
+            StaticFiles(directory=str(react_build_path), html=True),
+            name="static",
         )
 
     return app

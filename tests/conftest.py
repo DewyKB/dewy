@@ -28,11 +28,12 @@ configure_image(
 async def app(pg, event_loop):
     (pg_host, pg_port) = pg
     config = Config(
-        DB = f"postgresql://dewydbuser:dewydbpwd@{pg_host}:{pg_port}/dewydb",
-        APPLY_MIGRATIONS = True,
+        DB=f"postgresql://dewydbuser:dewydbpwd@{pg_host}:{pg_port}/dewydb",
+        APPLY_MIGRATIONS=True,
     )
 
     from dewy.main import create_app
+
     app = create_app(config)
 
     async with LifespanManager(app) as manager:

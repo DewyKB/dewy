@@ -74,9 +74,9 @@ class CollectionEmbeddings:
         """
 
     @staticmethod
-    async def for_collection_id(                                pg_pool: asyncpg.Pool,
-                                config: Config,
-                                collection_id: int) -> Self:
+    async def for_collection_id(
+        pg_pool: asyncpg.Pool, config: Config, collection_id: int
+    ) -> Self:
         """Retrieve the collection embeddings of the given collection."""
         async with pg_pool.acquire() as conn:
             result = await conn.fetchrow(
@@ -104,8 +104,9 @@ class CollectionEmbeddings:
             )
 
     @staticmethod
-    async def for_document_id(pg_pool: asyncpg.Pool,
-                              config: Config, document_id: int) -> (str, Self):
+    async def for_document_id(
+        pg_pool: asyncpg.Pool, config: Config, document_id: int
+    ) -> (str, Self):
         """Retrieve the collection embeddings and the URL of the given document."""
 
         # TODO: Ideally the collection embeddings would be cached, and this

@@ -1,6 +1,6 @@
 from typing import Annotated, Any, Optional
-from fastapi import Depends, Request
 
+from fastapi import Depends, Request
 from fastapi.routing import APIRoute
 from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -65,6 +65,7 @@ class Config(BaseSettings):
 
         return app_configs
 
+
 def convert_snake_case_to_camel_case(string: str) -> str:
     """Convert snake case to camel case"""
 
@@ -77,7 +78,9 @@ def custom_generate_unique_id_function(route: APIRoute) -> str:
 
     return convert_snake_case_to_camel_case(route.name)
 
+
 def _get_config(request: Request) -> Config:
     return request.app.config
+
 
 ConfigDep = Annotated[Config, Depends(_get_config)]

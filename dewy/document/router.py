@@ -14,7 +14,9 @@ from .models import AddDocumentRequest, DocumentStatus
 router = APIRouter(prefix="/documents")
 
 
-async def ingest_document(document_id: int, pg_pool: asyncpg.Pool, config: Config) -> None:
+async def ingest_document(
+    document_id: int, pg_pool: asyncpg.Pool, config: Config
+) -> None:
     try:
         url, embeddings = await CollectionEmbeddings.for_document_id(
             pg_pool, config, document_id
