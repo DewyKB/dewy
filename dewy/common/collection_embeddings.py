@@ -8,7 +8,7 @@ from loguru import logger
 
 from dewy.chunk.models import TextResult
 from dewy.collection.models import DistanceMetric
-from dewy.config import settings
+from dewy.config import Config
 
 from .extract import extract
 
@@ -19,6 +19,7 @@ class CollectionEmbeddings:
     def __init__(
         self,
         pg_pool: asyncpg.Pool,
+        config: Config,
         *,
         collection_id: int,
         text_embedding_model: str,
@@ -36,7 +37,7 @@ class CollectionEmbeddings:
 
         # TODO: Look at a sentence window splitter?
         self._splitter = SentenceSplitter(chunk_size=256)
-        self._embedding = _resolve_embedding_model(self.text_embedding_model)
+        self._embedding = _resolve_embedding_model(config, self.text_embedding_model)
 
         field = f"embedding::vector({text_embedding_dimensions})"
 
@@ -73,7 +74,9 @@ class CollectionEmbeddings:
         """
 
     @staticmethod
-    async def for_collection_id(pg_pool: asyncpg.Pool, collection_id: int) -> Self:
+    async def for_collection_id(
+        pg_pool: asyncpg.Pool, config: Config, collection_id: int
+    ) -> Self:
         """Retrieve the collection embeddings of the given collection."""
         async with pg_pool.acquire() as conn:
             result = await conn.fetchrow(
@@ -93,6 +96,7 @@ class CollectionEmbeddings:
 
             return CollectionEmbeddings(
                 pg_pool,
+                config,
                 collection_id=result["id"],
                 text_embedding_model=result["text_embedding_model"],
                 text_embedding_dimensions=result["text_embedding_dimensions"],
@@ -100,7 +104,9 @@ class CollectionEmbeddings:
             )
 
     @staticmethod
-    async def for_document_id(pg_pool: asyncpg.Pool, document_id: int) -> (str, Self):
+    async def for_document_id(
+        pg_pool: asyncpg.Pool, config: Config, document_id: int
+    ) -> (str, Self):
         """Retrieve the collection embeddings and the URL of the given document."""
 
         # TODO: Ideally the collection embeddings would be cached, and this
@@ -127,6 +133,7 @@ class CollectionEmbeddings:
             # TODO: Cache the configured ingestions, and only recreate when needed?
             configured_ingestion = CollectionEmbeddings(
                 pg_pool,
+                config,
                 collection_id=result["id"],
                 text_embedding_model=result["text_embedding_model"],
                 text_embedding_dimensions=result["text_embedding_dimensions"],
@@ -338,9 +345,9 @@ async def get_dimensions(conn: asyncpg.Connection, model_name: str) -> int:
     return dimensions
 
 
-def _resolve_embedding_model(model: str) -> BaseEmbedding:
+def _resolve_embedding_model(config: Config, model: str) -> BaseEmbedding:
     if not model:
-        if settings.OPENAI_API_KEY:
+        if config.OPENAI_API_KEY:
             model = DEFAULT_OPENAI_EMBEDDING_MODEL
         else:
             model = DEFAULT_HF_EMBEDDING_MODEL
@@ -349,7 +356,7 @@ def _resolve_embedding_model(model: str) -> BaseEmbedding:
     if split[0] == "openai":
         from llama_index.embeddings import OpenAIEmbedding
 
-        return OpenAIEmbedding(model=split[1], api_key=settings.OPENAI_API_KEY)
+        return OpenAIEmbedding(model=split[1], api_key=config.OPENAI_API_KEY)
     elif split[0] == "hf":
         from llama_index.embeddings import HuggingFaceEmbedding
 

@@ -6,6 +6,7 @@ from loguru import logger
 
 from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgConnectionDep, PgPoolDep
+from dewy.config import Config, ConfigDep
 from dewy.document.models import Document
 
 from .models import AddDocumentRequest, DocumentStatus
@@ -13,10 +14,12 @@ from .models import AddDocumentRequest, DocumentStatus
 router = APIRouter(prefix="/documents")
 
 
-async def ingest_document(document_id: int, pg_pool: asyncpg.Pool) -> None:
+async def ingest_document(
+    document_id: int, pg_pool: asyncpg.Pool, config: Config
+) -> None:
     try:
         url, embeddings = await CollectionEmbeddings.for_document_id(
-            pg_pool, document_id
+            pg_pool, config, document_id
         )
         if url.startswith("error://"):
             raise RuntimeError(url.removeprefix("error://"))
@@ -61,6 +64,7 @@ async def ingest_document(document_id: int, pg_pool: asyncpg.Pool) -> None:
 @router.put("/")
 async def add_document(
     pg_pool: PgPoolDep,
+    config: ConfigDep,
     background: BackgroundTasks,
     req: AddDocumentRequest,
 ) -> Document:
@@ -79,7 +83,7 @@ async def add_document(
         )
 
     document = Document.model_validate(dict(row))
-    background.add_task(ingest_document, document.id, pg_pool)
+    background.add_task(ingest_document, document.id, pg_pool, config)
     return document
 
 

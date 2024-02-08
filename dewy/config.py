@@ -1,5 +1,6 @@
-from typing import Any, Optional
+from typing import Annotated, Any, Optional
 
+from fastapi import Depends, Request
 from fastapi.routing import APIRoute
 from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -42,8 +43,27 @@ class Config(BaseSettings):
     This is required for using openai models.
     """
 
+    def app_configs(self) -> dict[str, Any]:
+        API_DESCRIPTION: str = """This API allows ingesting and retrieving knowledge.
 
-settings = Config()
+        Knowledge comes in a variety of forms -- text, image, tables, etc. and
+        from a variety of sources -- documents, web pages, audio, etc."""
+
+        app_configs: dict[str, Any] = {
+            "title": "Dewy Knowledge Base API",
+            "version": "0.1.3",
+            "summary": "Knowledge curation for Retrieval Augmented Generation",
+            "description": API_DESCRIPTION,
+            "servers": [
+                {"url": "http://localhost:8000", "description": "Local server"},
+            ],
+            "generate_unique_id_function": custom_generate_unique_id_function,
+        }
+
+        if not self.ENVIRONMENT.is_debug:
+            app_configs["openapi_url"] = None  # hide docs
+
+        return app_configs
 
 
 def convert_snake_case_to_camel_case(string: str) -> str:
@@ -59,21 +79,8 @@ def custom_generate_unique_id_function(route: APIRoute) -> str:
     return convert_snake_case_to_camel_case(route.name)
 
 
-API_DESCRIPTION: str = """This API allows ingesting and retrieving knowledge.
+def _get_config(request: Request) -> Config:
+    return request.app.config
 
-Knowledge comes in a variety of forms -- text, image, tables, etc. and
-from a variety of sources -- documents, web pages, audio, etc."""
 
-app_configs: dict[str, Any] = {
-    "title": "Dewy Knowledge Base API",
-    "version": "0.1.3",
-    "summary": "Knowledge curation for Retrieval Augmented Generation",
-    "description": API_DESCRIPTION,
-    "servers": [
-        {"url": "http://localhost:8000", "description": "Local server"},
-    ],
-    "generate_unique_id_function": custom_generate_unique_id_function,
-}
-
-if not settings.ENVIRONMENT.is_debug:
-    app_configs["openapi_url"] = None  # hide docs
+ConfigDep = Annotated[Config, Depends(_get_config)]
