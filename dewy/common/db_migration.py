@@ -7,9 +7,7 @@ import asyncpg
 from loguru import logger
 
 
-async def apply_migrations(
-    conn: asyncpg.Connection, *, migration_dir: str = "migrations"
-):
+async def apply_migrations(conn: asyncpg.Connection, *, migration_dir: str = "migrations"):
     """Applies the migrations to the database."""
 
     # TODO: For deployments, we may wish to make this a script that
@@ -108,9 +106,7 @@ async def _apply_migration(
                 )
                 return False
             elif applied_sha256 is not None:
-                raise ValueError(
-                    f"'{migration_path}' applied with different SHA. Recreate DB."
-                )
+                raise ValueError(f"'{migration_path}' applied with different SHA. Recreate DB.")
             else:
                 logger.info("Applying migration '{}'", migration_path)
 

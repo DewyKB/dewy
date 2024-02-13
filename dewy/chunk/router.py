@@ -1,6 +1,7 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, Path, Query
+from loguru import logger
 
 from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgPoolDep
@@ -20,12 +21,17 @@ async def list_chunks(
     document_id: Annotated[
         int | None, Query(description="Limit to chunks associated with this document")
     ] = None,
-    page: int | None = 1,
+    page: int | None = 0,
     perPage: int | None = 10,
 ) -> List[Chunk]:
     """List chunks."""
 
     # TODO: handle collection & document ID
+    perPage = perPage or 10
+    page = page or 0
+    limit = perPage
+    offset = page * perPage
+    print(f"PerPage: {perPage}, Page: {page}, Limit: {limit}, Offset {offset}")
     results = await pg_pool.fetch(
         """
         SELECT chunk.id, chunk.document_id, chunk.kind, TRUE as raw, chunk.text
@@ -34,14 +40,15 @@ async def list_chunks(
         WHERE document.collection_id = coalesce($1, document.collection_id)
         AND chunk.document_id = coalesce($2, chunk.document_id)
         ORDER BY chunk.id
-        OFFSET $4
-        LIMIT $3
+        OFFSET $3
+        LIMIT $4
         """,
         collection_id,
         document_id,
-        perPage,
-        page,
+        offset,
+        limit
     )
+    logger.info("Retrieved {} chunks", len(results))
     return [TextChunk.model_validate(dict(result)) for result in results]
 
 
@@ -75,9 +82,7 @@ async def retrieve_chunks(
     collection = await CollectionEmbeddings.for_collection_id(
         pg_pool, config, request.collection_id
     )
-    text_results = await collection.retrieve_text_chunks(
-        query=request.query, n=request.n
-    )
+    text_results = await collection.retrieve_text_chunks(query=request.query, n=request.n)
 
     return RetrieveResponse(
         summary=None,

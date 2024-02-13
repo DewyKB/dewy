@@ -11,9 +11,7 @@ parser.add_argument(
     "app", help='App import string. Eg. "main:app"', default="dewy.main:create_app"
 )
 parser.add_argument("--app-dir", help="Directory containing the app", default=None)
-parser.add_argument(
-    "--out", help="Output file ending in .json or .yaml", default="openapi.yaml"
-)
+parser.add_argument("--out", help="Output file ending in .json or .yaml", default="openapi.yaml")
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -23,7 +21,7 @@ if __name__ == "__main__":
         sys.path.insert(0, args.app_dir)
 
     print(f"importing app from {args.app}")
-    app = import_from_string(args.app)
+    app = import_from_string(args.app)()
     openapi = app.openapi()
     version = openapi.get("openapi", "unknown version")
 

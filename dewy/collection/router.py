@@ -10,10 +10,8 @@ from dewy.common.db import PgConnectionDep
 router = APIRouter(prefix="/collections")
 
 
-@router.put("/")
-async def add_collection(
-    conn: PgConnectionDep, collection: CollectionCreate
-) -> Collection:
+@router.post("/")
+async def add_collection(conn: PgConnectionDep, collection: CollectionCreate) -> Collection:
     """Create a collection."""
     dimensions = await get_dimensions(conn, collection.text_embedding_model)
     logger.info("Dimensions: {}", dimensions)

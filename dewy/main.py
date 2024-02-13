@@ -5,7 +5,7 @@ from typing import AsyncIterator, Optional, TypedDict
 
 import asyncpg
 import uvicorn
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
@@ -66,6 +66,10 @@ def install_middleware(app: FastAPI) -> None:
     )
 
 
+async def handle_postgres_error(request: Request, exception: asyncpg.PostgresError):
+    print("Error: {exception}")
+
+
 def create_app(config: Optional[Config] = None) -> FastAPI:
     config = config or Config()
     app = FastAPI(lifespan=lifespan, **config.app_configs())
@@ -84,6 +88,8 @@ def create_app(config: Optional[Config] = None) -> FastAPI:
             StaticFiles(directory=str(react_build_path), html=True),
             name="static",
         )
+
+    app.add_exception_handler(asyncpg.PostgresError, handle_postgres_error)
 
     return app
 

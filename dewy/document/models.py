@@ -5,11 +5,14 @@ from pydantic import BaseModel
 
 
 class AddDocumentRequest(BaseModel):
-    collection_id: Optional[int] = None
+    collection_id: int
     """The id of the collection the document should be added to."""
 
-    url: str
-    """The URL of the document to add."""
+    url: Optional[str] = None
+    """The URL of the document to add.
+
+    If not specified, content may be uploaded later.
+    """
 
 
 class IngestState(Enum):
@@ -37,7 +40,7 @@ class Document(BaseModel):
     Will not be set until after the document is ingested.
     """
 
-    url: str
+    url: Optional[str] = None
 
     ingest_state: Optional[IngestState] = None
     ingest_error: Optional[str] = None

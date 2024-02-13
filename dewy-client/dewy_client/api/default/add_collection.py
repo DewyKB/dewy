@@ -18,7 +18,7 @@ def _get_kwargs(
     headers: Dict[str, Any] = {}
 
     _kwargs: Dict[str, Any] = {
-        "method": "put",
+        "method": "post",
         "url": "/api/collections/",
     }
 

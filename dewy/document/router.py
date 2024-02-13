@@ -1,29 +1,44 @@
-from typing import Annotated, List
+from typing import Annotated, List, Union
 
 import asyncpg
-from fastapi import APIRouter, BackgroundTasks, Path, Query
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Body,
+    File,
+    HTTPException,
+    Path,
+    Query,
+    UploadFile,
+    status,
+)
 from loguru import logger
 
-from dewy.common.collection_embeddings import CollectionEmbeddings
+from dewy.common.collection_embeddings import (
+    CollectionEmbeddings,
+    IngestContent,
+    IngestURL,
+)
 from dewy.common.db import PgConnectionDep, PgPoolDep
 from dewy.config import Config, ConfigDep
 from dewy.document.models import Document
 
-from .models import AddDocumentRequest, DocumentStatus
+from .models import AddDocumentRequest, DocumentStatus, IngestState
 
 router = APIRouter(prefix="/documents")
 
 
 async def ingest_document(
-    document_id: int, pg_pool: asyncpg.Pool, config: Config
+    document_id: int,
+    pg_pool: asyncpg.Pool,
+    config: Config,
+    request: Union[IngestContent, IngestURL],
 ) -> None:
     try:
-        url, embeddings = await CollectionEmbeddings.for_document_id(
-            pg_pool, config, document_id
-        )
-        if url.startswith("error://"):
-            raise RuntimeError(url.removeprefix("error://"))
-        await embeddings.ingest(document_id, url)
+        if isinstance(request, IngestURL) and request.url.startswith("error://"):
+            raise RuntimeError(request.url.removeprefix("error://"))
+        embeddings = await CollectionEmbeddings.for_document_id(pg_pool, config, document_id)
+        await embeddings.ingest(document_id, request)
     except Exception as e:
         logger.error("Failed to ingest {}: {}", document_id, e)
         async with pg_pool.acquire() as conn:
@@ -61,15 +76,14 @@ async def ingest_document(
                 )
 
 
-@router.put("/")
+@router.post("/")
 async def add_document(
     pg_pool: PgPoolDep,
     config: ConfigDep,
     background: BackgroundTasks,
     req: AddDocumentRequest,
 ) -> Document:
-    """Add a document."""
-
+    """Add a document from a URL."""
     async with pg_pool.acquire() as conn:
         row = None
         row = await conn.fetchrow(
@@ -83,7 +97,56 @@ async def add_document(
         )
 
     document = Document.model_validate(dict(row))
-    background.add_task(ingest_document, document.id, pg_pool, config)
+
+    if req.url:
+        background.add_task(ingest_document, document.id, pg_pool, config, IngestURL(url=req.url))
+    return document
+
+# We can't accept the collection ID in a body parameter, since it conflicts with
+# the content payload and breaks in at least the Python client generator.
+@router.post("/{document_id}/content")
+async def upload_document_content(
+    pg_pool: PgPoolDep,
+    config: ConfigDep,
+    background: BackgroundTasks,
+    document_id: Annotated[int, Path(description="The collection to add the document to.")],
+    content: Annotated[UploadFile, File(description="The document content.")],
+) -> Document:
+    """Add a document from specific content."""
+
+    # The upload file is in a spooled tepmorary file. This means it is in memory
+    # if it is a small file, and on disk if it was larger. However, the upload file
+    # we receive will also be closed at the end of the request handler, so we need
+    # to either read it into memory or copy it to a file.
+    #
+    # See https://github.com/tiangolo/fastapi/discussions/10936
+
+    if not content.size:
+        raise HTTPException(status.HTTP_412_PRECONDITION_FAILED, "Missing content size")
+    SIZE_LIMIT = 50_000_000
+    if content.size > SIZE_LIMIT:
+        raise HTTPException(
+            status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            f"Content size {content.size} exceeds limit of {SIZE_LIMIT} bytes",
+        )
+
+    document = None
+    async with pg_pool.acquire() as conn:
+        document = await get_document(conn, document_id)
+
+    content_bytes = await content.read()
+    background.add_task(
+        ingest_document,
+        document.id,
+        pg_pool,
+        config,
+        IngestContent(
+            filename=content.filename,
+            content_type=content.content_type,
+            size=content.size,
+            content_bytes=content_bytes,
+        ),
+    )
     return document
 
 
@@ -132,9 +195,7 @@ async def get_document(conn: PgConnectionDep, id: PathDocumentId) -> Document:
 
 
 @router.get("/{id}/status")
-async def get_document_status(
-    conn: PgConnectionDep, id: PathDocumentId
-) -> DocumentStatus:
+async def get_document_status(conn: PgConnectionDep, id: PathDocumentId) -> DocumentStatus:
     result = await conn.fetchrow(
         """
         SELECT ingest_state, ingest_error

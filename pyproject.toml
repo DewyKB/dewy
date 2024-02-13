@@ -64,6 +64,8 @@ asyncpg = "^0.29.0"
 pgvector = "^0.2.4"
 numpy = "^1.26.3"
 transformers = "^4.37.1"
+filetype = "^1.2.0"
+python-multipart = "^0.0.7"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.11"
@@ -85,7 +87,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
-line-length = 88
+line-length = 98
 
 # Enable Pyflakes `E` and `F` codes by default.
 select = [

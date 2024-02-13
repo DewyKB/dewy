@@ -2,19 +2,16 @@ openapi: 3.1.0
 info:
   title: Dewy Knowledge Base API
   summary: Knowledge curation for Retrieval Augmented Generation
-  description: 'This API allows ingesting and retrieving knowledge.
-
-
-    Knowledge comes in a variety of forms -- text, image, tables, etc. and
-
-    from a variety of sources -- documents, web pages, audio, etc.'
+  description: "This API allows ingesting and retrieving knowledge.\n\n        Knowledge\
+    \ comes in a variety of forms -- text, image, tables, etc. and\n        from a\
+    \ variety of sources -- documents, web pages, audio, etc."
   version: 0.1.3
 servers:
 - url: http://localhost:8000
   description: Local server
 paths:
   /api/collections/:
-    put:
+    post:
       summary: Add Collection
       description: Create a collection.
       operationId: addCollection
@@ -96,9 +93,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/documents/:
-    put:
+    post:
       summary: Add Document
-      description: Add a document.
+      description: Add a document from a URL.
       operationId: addDocument
       requestBody:
         required: true
@@ -144,6 +141,39 @@ paths:
                 items:
                   $ref: '#/components/schemas/Document'
                 title: Response Listdocuments
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/documents/{document_id}/content:
+    post:
+      summary: Upload Document Content
+      description: Add a document from specific content.
+      operationId: uploadDocumentContent
+      parameters:
+      - name: document_id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: The collection to add the document to.
+          title: Document Id
+        description: The collection to add the document to.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_uploadDocumentContent'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
         '422':
           description: Validation Error
           content:
@@ -235,7 +265,7 @@ paths:
           anyOf:
           - type: integer
           - type: 'null'
-          default: 1
+          default: 0
           title: Page
       - name: perPage
         in: query
@@ -332,17 +362,28 @@ components:
     AddDocumentRequest:
       properties:
         collection_id:
-          anyOf:
-          - type: integer
-          - type: 'null'
+          type: integer
           title: Collection Id
         url:
-          type: string
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Url
       type: object
       required:
-      - url
+      - collection_id
       title: AddDocumentRequest
+    Body_uploadDocumentContent:
+      properties:
+        content:
+          type: string
+          format: binary
+          title: Content
+          description: The document content.
+      type: object
+      required:
+      - content
+      title: Body_uploadDocumentContent
     Collection:
       properties:
         id:
@@ -410,7 +451,9 @@ components:
           - type: 'null'
           title: Extracted Text
         url:
-          type: string
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Url
         ingest_state:
           anyOf:
@@ -424,7 +467,6 @@ components:
       type: object
       required:
       - collection_id
-      - url
       title: Document
       description: Model for documents in Dewy.
     DocumentStatus:
