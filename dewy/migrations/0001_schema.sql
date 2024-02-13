@@ -31,7 +31,7 @@ CREATE TYPE ingest_state AS ENUM ('pending', 'ingested', 'failed');
 CREATE TABLE document(
     id SERIAL NOT NULL,
     collection_id INTEGER,
-    url VARCHAR NOT NULL,
+    url VARCHAR,
 
     -- The state of the most recent ingestion of this document.
     -- TODO: Should we have a separate `ingestion` table and associate
@@ -41,7 +41,6 @@ CREATE TABLE document(
     ingest_error VARCHAR,
 
     PRIMARY KEY (id),
-    UNIQUE (collection_id, url),
     FOREIGN KEY(collection_id) REFERENCES collection (id)
 );
 

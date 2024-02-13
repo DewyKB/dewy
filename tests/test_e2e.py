@@ -1,8 +1,6 @@
 import random
 import string
 import time
-from typing import BinaryIO
-from dewy_client.models.body_add_document_from_content import BodyAddDocumentFromContent
 
 import pytest
 from dewy_client.api.default import (
@@ -20,9 +18,10 @@ from dewy_client.models import (
     IngestState,
     RetrieveRequest,
 )
+from dewy_client.models.body_add_document_from_content import BodyAddDocumentFromContent
 from dewy_client.types import File
 
-from tests.conftest import NEARLY_EMPTY_BYTES, NEARLY_EMPTY_PATH
+from tests.conftest import NEARLY_EMPTY_BYTES
 
 SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
 
@@ -43,8 +42,7 @@ async def test_index_retrieval(client, embedding_model):
         client=client,
         body=BodyAddDocumentFromContent(
             collection_id=collection.id,
-            content = File(payload=NEARLY_EMPTY_BYTES,
-                           file_name = "nearly_empty.pdf"),
+            content=File(payload=NEARLY_EMPTY_BYTES, file_name="nearly_empty.pdf"),
         ),
     )
 

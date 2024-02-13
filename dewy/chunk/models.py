@@ -14,9 +14,7 @@ class TextChunk(BaseModel):
     start_char_idx: Optional[int] = Field(
         default=None, description="Start char index of the chunk."
     )
-    end_char_idx: Optional[int] = Field(
-        default=None, description="End char index of the chunk."
-    )
+    end_char_idx: Optional[int] = Field(default=None, description="End char index of the chunk.")
 
 
 class ImageChunk(BaseModel):
@@ -84,9 +82,7 @@ class TextResult(BaseModel):
     start_char_idx: Optional[int] = Field(
         default=None, description="Start char index of the chunk."
     )
-    end_char_idx: Optional[int] = Field(
-        default=None, description="End char index of the chunk."
-    )
+    end_char_idx: Optional[int] = Field(default=None, description="End char index of the chunk.")
 
 
 class ImageResult(BaseModel):

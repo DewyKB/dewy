@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import Optional, Union
-from fastapi import UploadFile
+from typing import Optional
 
 from pydantic import BaseModel
+
 
 class AddDocumentUrlRequest(BaseModel):
     collection_id: int
@@ -37,7 +37,7 @@ class Document(BaseModel):
     Will not be set until after the document is ingested.
     """
 
-    url: str
+    url: Optional[str] = None
 
     ingest_state: Optional[IngestState] = None
     ingest_error: Optional[str] = None

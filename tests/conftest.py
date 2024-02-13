@@ -1,11 +1,13 @@
-from io import BytesIO
-import os
 import asyncio
+import os
+from io import BytesIO
 
 import pytest
 from asgi_lifespan import LifespanManager
 from dewy_client import Client
 from httpx import AsyncClient
+
+from dewy.config import Config
 
 pytest_plugins = ["pytest_docker_fixtures"]
 
@@ -24,8 +26,7 @@ configure_image(
 )
 
 TEST_DATA_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "test_data"
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "test_data"
 )
 NEARLY_EMPTY_PATH = os.path.join(TEST_DATA_DIR, "nearly_empty.pdf")
 assert os.path.isfile(NEARLY_EMPTY_PATH)
@@ -35,16 +36,18 @@ NEARLY_EMPTY_BYTES = None
 with open(NEARLY_EMPTY_PATH, "rb") as file:
     NEARLY_EMTPY_BYTES = BytesIO(file.read())
 
+
 @pytest.fixture(scope="session")
 async def app(pg, event_loop):
-    # Set environment variables before the application is loaded.
-    import os
-
     (pg_host, pg_port) = pg
-    os.environ["DB"] = f"postgresql://dewydbuser:dewydbpwd@{pg_host}:{pg_port}/dewydb"
-    os.environ["APPLY_MIGRATIONS"] = "true"
+    config = Config(
+        DB=f"postgresql://dewydbuser:dewydbpwd@{pg_host}:{pg_port}/dewydb",
+        APPLY_MIGRATIONS=True,
+    )
 
-    from dewy.main import app
+    from dewy.main import create_app
+
+    app = create_app(config)
 
     async with LifespanManager(app) as manager:
         yield manager.app

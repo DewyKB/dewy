@@ -39,7 +39,7 @@ cmd  = "pytest"
 
 [tool.poe.tasks.extract-openapi]
 help = "Update openapi.toml from the swagger docs"
-cmd = "python scripts/extract_openapi.py dewy.main:app"
+cmd = "python scripts/extract_openapi.py dewy.main:create_app"
 
 [tool.poe.tasks.generate-client]
 help = "Generate the openapi client"
@@ -87,7 +87,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
-line-length = 88
+line-length = 98
 
 # Enable Pyflakes `E` and `F` codes by default.
 select = [

@@ -1,7 +1,7 @@
-from typing import List, Optional, Self, Tuple
+import dataclasses
+from typing import List, Optional, Self, Tuple, Union
 
 import asyncpg
-from fastapi import UploadFile
 from llama_index.embeddings import BaseEmbedding
 from llama_index.node_parser import SentenceSplitter
 from llama_index.schema import TextNode
@@ -9,9 +9,22 @@ from loguru import logger
 
 from dewy.chunk.models import TextResult
 from dewy.collection.models import DistanceMetric
-from dewy.config import settings
+from dewy.config import Config
 
-from .extract import extract_file, extract_url
+from .extract import extract_content, extract_url
+
+
+@dataclasses.dataclass
+class IngestContent:
+    filename: Optional[str]
+    content_type: Optional[str]
+    size: Optional[int]
+    content_bytes: bytes = dataclasses.field(repr=False)
+
+
+@dataclasses.dataclass
+class IngestURL:
+    url: str
 
 
 class CollectionEmbeddings:
@@ -20,6 +33,7 @@ class CollectionEmbeddings:
     def __init__(
         self,
         pg_pool: asyncpg.Pool,
+        config: Config,
         *,
         collection_id: int,
         text_embedding_model: str,
@@ -37,7 +51,7 @@ class CollectionEmbeddings:
 
         # TODO: Look at a sentence window splitter?
         self._splitter = SentenceSplitter(chunk_size=256)
-        self._embedding = _resolve_embedding_model(self.text_embedding_model)
+        self._embedding = _resolve_embedding_model(config, self.text_embedding_model)
 
         field = f"embedding::vector({text_embedding_dimensions})"
 
@@ -74,7 +88,9 @@ class CollectionEmbeddings:
         """
 
     @staticmethod
-    async def for_collection_id(pg_pool: asyncpg.Pool, collection_id: int) -> Self:
+    async def for_collection_id(
+        pg_pool: asyncpg.Pool, config: Config, collection_id: int
+    ) -> Self:
         """Retrieve the collection embeddings of the given collection."""
         async with pg_pool.acquire() as conn:
             result = await conn.fetchrow(
@@ -94,6 +110,7 @@ class CollectionEmbeddings:
 
             return CollectionEmbeddings(
                 pg_pool,
+                config,
                 collection_id=result["id"],
                 text_embedding_model=result["text_embedding_model"],
                 text_embedding_dimensions=result["text_embedding_dimensions"],
@@ -101,7 +118,7 @@ class CollectionEmbeddings:
             )
 
     @staticmethod
-    async def for_document_id(pg_pool: asyncpg.Pool, document_id: int) -> (str, Self):
+    async def for_document_id(pg_pool: asyncpg.Pool, config: Config, document_id: int) -> Self:
         """Retrieve the collection embeddings and the URL of the given document."""
 
         # TODO: Ideally the collection embeddings would be cached, and this
@@ -110,7 +127,6 @@ class CollectionEmbeddings:
             result = await conn.fetchrow(
                 """
                 SELECT
-                    document.url as url,
                     collection.name,
                     collection.id as id,
                     collection.text_embedding_model,
@@ -128,16 +144,15 @@ class CollectionEmbeddings:
             # TODO: Cache the configured ingestions, and only recreate when needed?
             configured_ingestion = CollectionEmbeddings(
                 pg_pool,
+                config,
                 collection_id=result["id"],
                 text_embedding_model=result["text_embedding_model"],
                 text_embedding_dimensions=result["text_embedding_dimensions"],
                 text_distance_metric=DistanceMetric(result["text_distance_metric"]),
             )
-            return (result["url"], configured_ingestion)
+            return configured_ingestion
 
-    async def retrieve_text_embeddings(
-        self, query: str, n: int = 10
-    ) -> List[Tuple[int, float]]:
+    async def retrieve_text_embeddings(self, query: str, n: int = 10) -> List[Tuple[int, float]]:
         """Retrieve embeddings related to the given query.
 
         Parameters:
@@ -188,27 +203,38 @@ class CollectionEmbeddings:
             ]
             return embeddings
 
-    async def ingest(self, document_id: int, url: str, content: Optional[UploadFile]) -> None:
-        logger.info("Loading content for document {} from '{}'", document_id, url)
+    async def ingest(self, document_id: int, request: Union[IngestURL, IngestContent]) -> None:
         extracted = None
-        if isinstance(content, UploadFile):
-            extracted = await extract_file(content.file,
-                                           extract_tables=self.extract_tables,
-                                           extract_images=self.extract_images)
-        else:
-            extracted = await extract_url(
-                url, extract_tables=self.extract_tables, extract_images=self.extract_images
+        if isinstance(request, IngestContent):
+            logger.info("Loading content for document {} from content {}", document_id, request)
+            extracted = await extract_content(
+                request.content_bytes,
+                extract_tables=self.extract_tables,
+                extract_images=self.extract_images,
             )
+        elif isinstance(request, IngestURL):
+            logger.info(
+                "Loading content for document {} from url '{}'",
+                document_id,
+                request.url,
+            )
+            extracted = await extract_url(
+                request.url,
+                extract_tables=self.extract_tables,
+                extract_images=self.extract_images,
+            )
+        else:
+            raise ValueError(f"Ingest expected URL or Content, but was {request}")
 
         if extracted.is_empty():
             logger.error(
-                "No content retrieved from for document {} from '{}'", document_id, url
+                "No content retrieved from for document {} from '{}'",
+                document_id,
+                request,
             )
             return
 
-        logger.info(
-            "Chunking text of length {} for {}", len(extracted.text), document_id
-        )
+        logger.info("Chunking text of length {} for {}", len(extracted.text), document_id)
 
         # Extract chunks (snippets) and perform the direct embedding.
         text_chunks = await self._chunk_sentences(extracted.text)
@@ -256,14 +282,10 @@ class CollectionEmbeddings:
                 #
                 # Ideally, we could take a chunk of embeddings, embed them, and then
                 # start writing that to the DB asynchronously.
-                embedding_chunks = [
-                    (chunk["id"], chunk["text"]) async for chunk in chunks
-                ]
+                embedding_chunks = [(chunk["id"], chunk["text"]) async for chunk in chunks]
 
                 # Extract just the text and embed it.
-                logger.info(
-                    "Computing {} embeddings for {}", len(embedding_chunks), document_id
-                )
+                logger.info("Computing {} embeddings for {}", len(embedding_chunks), document_id)
                 embeddings = await self._embedding.aget_text_embedding_batch(
                     [item[1] for item in embedding_chunks]
                 )
@@ -271,14 +293,10 @@ class CollectionEmbeddings:
                 # Change the shape to a list of triples (for writing to the DB)
                 embeddings = [
                     (self.collection_id, chunk_id, chunk_text, embedding)
-                    for (chunk_id, chunk_text), embedding in zip(
-                        embedding_chunks, embeddings
-                    )
+                    for (chunk_id, chunk_text), embedding in zip(embedding_chunks, embeddings)
                 ]
 
-                logger.info(
-                    "Writing {} embeddings for {}", len(embeddings), document_id
-                )
+                logger.info("Writing {} embeddings for {}", len(embeddings), document_id)
                 await conn.executemany(
                     """
                     INSERT INTO embedding (collection_id, chunk_id, key_text, embedding)
@@ -346,9 +364,9 @@ async def get_dimensions(conn: asyncpg.Connection, model_name: str) -> int:
     return dimensions
 
 
-def _resolve_embedding_model(model: str) -> BaseEmbedding:
+def _resolve_embedding_model(config: Config, model: str) -> BaseEmbedding:
     if not model:
-        if settings.OPENAI_API_KEY:
+        if config.OPENAI_API_KEY:
             model = DEFAULT_OPENAI_EMBEDDING_MODEL
         else:
             model = DEFAULT_HF_EMBEDDING_MODEL
@@ -357,7 +375,7 @@ def _resolve_embedding_model(model: str) -> BaseEmbedding:
     if split[0] == "openai":
         from llama_index.embeddings import OpenAIEmbedding
 
-        return OpenAIEmbedding(model=split[1], api_key=settings.OPENAI_API_KEY)
+        return OpenAIEmbedding(model=split[1], api_key=config.OPENAI_API_KEY)
     elif split[0] == "hf":
         from llama_index.embeddings import HuggingFaceEmbedding
 

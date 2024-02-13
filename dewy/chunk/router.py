@@ -4,6 +4,7 @@ from fastapi import APIRouter, Path, Query
 
 from dewy.common.collection_embeddings import CollectionEmbeddings
 from dewy.common.db import PgPoolDep
+from dewy.config import ConfigDep
 
 from .models import Chunk, RetrieveRequest, RetrieveResponse, TextChunk
 
@@ -65,18 +66,16 @@ async def get_chunk(
 
 @router.post("/retrieve")
 async def retrieve_chunks(
-    pg_pool: PgPoolDep, request: RetrieveRequest
+    pg_pool: PgPoolDep, config: ConfigDep, request: RetrieveRequest
 ) -> RetrieveResponse:
     """Retrieve chunks based on a given query."""
 
     # TODO: Revisit response synthesis and hierarchical fetching.
 
     collection = await CollectionEmbeddings.for_collection_id(
-        pg_pool, request.collection_id
+        pg_pool, config, request.collection_id
     )
-    text_results = await collection.retrieve_text_chunks(
-        query=request.query, n=request.n
-    )
+    text_results = await collection.retrieve_text_chunks(query=request.query, n=request.n)
 
     return RetrieveResponse(
         summary=None,
