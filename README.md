@@ -143,9 +143,47 @@ To get a local copy up and running follow these steps.
 
 ### Using Dewy in Python
 
-Notebook `example_notebook.ipynb` uses the REST API from Python.
+1. Install the API client library
+    ```sh
+    pip install dewy-client
+    ```
 
-(TODO: document the Python client more better)
+1. Connect to an instance of Dewy
+    ```python
+    from dewy_client import Client
+    dewy = Client(base_url="http://localhost:8000")
+    ```
+
+1. Add documents
+    ```python
+    from dewy_client.api.kb import add_document
+    from dewy_client.models import AddDocumentRequest
+    await add_document.asyncio(client=dewy, body=AddDocumentRequest(
+      collection_id = 1,
+      url = “https://arxiv.org/abs/2005.11401”,
+    ))
+    ```
+
+1. Retrieve document chunks for LLM prompting
+    ```python
+    from dewy_client.api.kb import retrieve_chunks
+    from dewy_client.modles import RetrieveRequest
+    chunks = await retrieve_chunks.asyncio(client=dewy, body=RetrieveRequest(
+      collection_id = 1,
+      query = "tell me about RAG",
+      n = 10,
+    ))
+
+    # Minimal prompt example
+    prompt = f"""
+    You will take into account any CONTEXT BLOCK that is provided in a conversation.
+      START CONTEXT BLOCK
+      {"\n".join([chunk.text for chunk in chunks.text_results])}
+      END OF CONTEXT BLOCK
+    """
+    ```
+
+See [`python-langchain.ipynb'](demos/python-langchain-notebook/python-langchain.ipynb) for an example using Dewy in LangChain, including an implementation of LangChain's `BaseRetriever` backed by Dewy.
 
 ## Roadmap
 
