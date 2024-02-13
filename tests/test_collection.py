@@ -1,7 +1,7 @@
 import random
 import string
 
-from dewy_client.api.default import add_collection, get_collection, list_collections
+from dewy_client.api.kb import add_collection, get_collection, list_collections
 from dewy_client.models import CollectionCreate
 
 

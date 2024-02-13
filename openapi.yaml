@@ -12,6 +12,8 @@ servers:
 paths:
   /api/collections/:
     post:
+      tags:
+      - kb
       summary: Add Collection
       description: Create a collection.
       operationId: addCollection
@@ -35,6 +37,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     get:
+      tags:
+      - kb
       summary: List Collections
       description: List collections.
       operationId: listCollections
@@ -67,6 +71,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/collections/{id}:
     get:
+      tags:
+      - kb
       summary: Get Collection
       description: Get a specific collection.
       operationId: getCollection
@@ -94,6 +100,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/documents/:
     post:
+      tags:
+      - kb
       summary: Add Document
       description: Add a document from a URL.
       operationId: addDocument
@@ -117,6 +125,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
     get:
+      tags:
+      - kb
       summary: List Documents
       description: List documents.
       operationId: listDocuments
@@ -149,6 +159,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/documents/{document_id}/content:
     post:
+      tags:
+      - kb
       summary: Upload Document Content
       description: Add a document from specific content.
       operationId: uploadDocumentContent
@@ -182,6 +194,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/documents/{id}:
     get:
+      tags:
+      - kb
       summary: Get Document
       operationId: getDocument
       parameters:
@@ -208,6 +222,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/documents/{id}/status:
     get:
+      tags:
+      - kb
       summary: Get Document Status
       operationId: getDocumentStatus
       parameters:
@@ -234,6 +250,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/chunks/:
     get:
+      tags:
+      - kb
       summary: List Chunks
       description: List chunks.
       operationId: listChunks
@@ -301,6 +319,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/chunks/{id}:
     get:
+      tags:
+      - kb
       summary: Get Chunk
       operationId: getChunk
       parameters:
@@ -335,6 +355,8 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
   /api/chunks/retrieve:
     post:
+      tags:
+      - kb
       summary: Retrieve Chunks
       description: Retrieve chunks based on a given query.
       operationId: retrieveChunks

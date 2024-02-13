@@ -6,6 +6,6 @@ from dewy.document.router import router as documents_router
 
 api_router = APIRouter(prefix="/api")
 
-api_router.include_router(collections_router)
-api_router.include_router(documents_router)
-api_router.include_router(chunks_router)
+api_router.include_router(collections_router, tags=["kb"])
+api_router.include_router(documents_router, tags=["kb"])
+api_router.include_router(chunks_router, tags=["kb"])

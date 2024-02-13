@@ -101,12 +101,12 @@ To get a local copy up and running follow these steps.
 1. Connect to an instance of Dewy
     ```typescript
     import { Dewy } from 'dewy_ts';
-    const dewy = new Dewy()
+    const dewy_kb = new Dewy().kb
     ```
 
 1. Add documents
     ```typescript
-    await dewy.default.addDocument({
+    await dewy_kb.addDocument({
       collection_id: 1,
       url: “https://arxiv.org/abs/2005.11401”,
     })
@@ -114,7 +114,7 @@ To get a local copy up and running follow these steps.
 
 1. Retrieve document chunks for LLM prompting
     ```typescript
-    const context = await dewy.default.retrieveChunks({
+    const context = await dewy_kb.retrieveChunks({
       collection_id: 1,
       query: "tell me about RAG",
       n: 10,

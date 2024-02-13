@@ -3,7 +3,7 @@ import string
 import time
 
 import pytest
-from dewy_client.api.default import (
+from dewy_client.api.kb import (
     add_collection,
     add_document,
     get_document,
