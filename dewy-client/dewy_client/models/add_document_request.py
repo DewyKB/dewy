@@ -12,52 +12,52 @@ T = TypeVar("T", bound="AddDocumentRequest")
 class AddDocumentRequest:
     """
     Attributes:
-        url (str):
-        collection_id (Union[None, Unset, int]):
+        collection_id (int):
+        url (Union[None, Unset, str]):
     """
 
-    url: str
-    collection_id: Union[None, Unset, int] = UNSET
+    collection_id: int
+    url: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        url = self.url
+        collection_id = self.collection_id
 
-        collection_id: Union[None, Unset, int]
-        if isinstance(self.collection_id, Unset):
-            collection_id = UNSET
+        url: Union[None, Unset, str]
+        if isinstance(self.url, Unset):
+            url = UNSET
         else:
-            collection_id = self.collection_id
+            url = self.url
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "url": url,
+                "collection_id": collection_id,
             }
         )
-        if collection_id is not UNSET:
-            field_dict["collection_id"] = collection_id
+        if url is not UNSET:
+            field_dict["url"] = url
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        url = d.pop("url")
+        collection_id = d.pop("collection_id")
 
-        def _parse_collection_id(data: object) -> Union[None, Unset, int]:
+        def _parse_url(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(Union[None, Unset, str], data)
 
-        collection_id = _parse_collection_id(d.pop("collection_id", UNSET))
+        url = _parse_url(d.pop("url", UNSET))
 
         add_document_request = cls(
-            url=url,
             collection_id=collection_id,
+            url=url,
         )
 
         add_document_request.additional_properties = d

@@ -15,25 +15,23 @@ class Document:
 
     Attributes:
         collection_id (int):
-        url (str):
         id (Union[None, Unset, int]):
         extracted_text (Union[None, Unset, str]):
+        url (Union[None, Unset, str]):
         ingest_state (Union[IngestState, None, Unset]):
         ingest_error (Union[None, Unset, str]):
     """
 
     collection_id: int
-    url: str
     id: Union[None, Unset, int] = UNSET
     extracted_text: Union[None, Unset, str] = UNSET
+    url: Union[None, Unset, str] = UNSET
     ingest_state: Union[IngestState, None, Unset] = UNSET
     ingest_error: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         collection_id = self.collection_id
-
-        url = self.url
 
         id: Union[None, Unset, int]
         if isinstance(self.id, Unset):
@@ -46,6 +44,12 @@ class Document:
             extracted_text = UNSET
         else:
             extracted_text = self.extracted_text
+
+        url: Union[None, Unset, str]
+        if isinstance(self.url, Unset):
+            url = UNSET
+        else:
+            url = self.url
 
         ingest_state: Union[None, Unset, str]
         if isinstance(self.ingest_state, Unset):
@@ -66,13 +70,14 @@ class Document:
         field_dict.update(
             {
                 "collection_id": collection_id,
-                "url": url,
             }
         )
         if id is not UNSET:
             field_dict["id"] = id
         if extracted_text is not UNSET:
             field_dict["extracted_text"] = extracted_text
+        if url is not UNSET:
+            field_dict["url"] = url
         if ingest_state is not UNSET:
             field_dict["ingest_state"] = ingest_state
         if ingest_error is not UNSET:
@@ -84,8 +89,6 @@ class Document:
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
         collection_id = d.pop("collection_id")
-
-        url = d.pop("url")
 
         def _parse_id(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -104,6 +107,15 @@ class Document:
             return cast(Union[None, Unset, str], data)
 
         extracted_text = _parse_extracted_text(d.pop("extracted_text", UNSET))
+
+        def _parse_url(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        url = _parse_url(d.pop("url", UNSET))
 
         def _parse_ingest_state(data: object) -> Union[IngestState, None, Unset]:
             if data is None:
@@ -133,9 +145,9 @@ class Document:
 
         document = cls(
             collection_id=collection_id,
-            url=url,
             id=id,
             extracted_text=extracted_text,
+            url=url,
             ingest_state=ingest_state,
             ingest_error=ingest_error,
         )

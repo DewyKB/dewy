@@ -17,17 +17,18 @@ class ExtractResult:
 
 
 def extract_from_pdf(
-    local_path: str, *, extract_tables: bool = False, extract_images: bool = False
+    content: bytes, *, extract_tables: bool = False, extract_images: bool = False
 ) -> ExtractResult:
     """Extract documents from a PDF."""
 
-    logger.debug("Extracting from PDF '{}'", local_path)
+    logger.debug("Extracting from PDF")
 
     texts = []
     tables = []
     import fitz
 
-    doc = fitz.open(local_path)
+    doc = fitz.open(stream=content, filetype="pdf")
+    logger.info("Extracting content from {} pages", doc.page_count)
     for page in doc.pages():
         texts.append(page.get_text(sort=True))
 
@@ -55,8 +56,31 @@ def extract_from_pdf(
     return ExtractResult(text=text)
 
 
-async def extract(
-    url: str, *, extract_tables: bool = False, extract_images: bool = False
+async def extract_content(
+    content: bytes, *, extract_tables: bool = False, extract_images: bool = False
+) -> ExtractResult:
+    logger.info("Extracting content from {} bytes", len(content))
+    import filetype
+
+    mime = filetype.guess(content).mime
+    logger.debug("Inferred mime type: {}", mime)
+    match mime:
+        case "application/pdf":
+            return extract_from_pdf(
+                content, extract_tables=extract_tables, extract_images=extract_images
+            )
+        case unrecognized:
+            raise HTTPException(
+                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                detail=f"Cannot add document from unrecognized mimetype '{unrecognized}'",
+            )
+
+
+async def extract_url(
+    url: str,
+    *,
+    extract_tables: bool = False,
+    extract_images: bool = False,
 ) -> ExtractResult:
     """Extract documents from a local or remote URL."""
     import httpx
@@ -68,23 +92,10 @@ async def extract(
         content_type = response.headers["content-type"]
         logger.debug("Content type of {} is {}", url, content_type)
 
-        # Load the content.
-        if content_type.startswith("application/pdf"):
-            from tempfile import NamedTemporaryFile
-
-            with NamedTemporaryFile(suffix=".pdf") as temp_file:
-                logger.debug("Downloading {} to {}", url, temp_file.name)
-                response = await client.get(url)
-                response.raise_for_status()
-                temp_file.write(response.content)
-
-                return extract_from_pdf(
-                    temp_file.name,
-                    extract_tables=extract_tables,
-                    extract_images=extract_images,
-                )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail=f"Cannot add document from content-type '{content_type}'",
-            )
+        logger.debug("Downloading {}", url)
+        response = await client.get(url)
+        return await extract_content(
+            response.content,
+            extract_tables=extract_tables,
+            extract_images=extract_images,
+        )
