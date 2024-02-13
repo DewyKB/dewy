@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-from fastapi import HTTPException, status
 from loguru import logger
 
 
@@ -70,10 +69,7 @@ async def extract_content(
                 content, extract_tables=extract_tables, extract_images=extract_images
             )
         case unrecognized:
-            raise HTTPException(
-                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail=f"Cannot add document from unrecognized mimetype '{unrecognized}'",
-            )
+            raise ValueError(f"Cannot extract from unrecognized type '{unrecognized}'")
 
 
 async def extract_url(
