@@ -1,6 +1,5 @@
 import asyncio
 import os
-from io import BytesIO
 
 import pytest
 from asgi_lifespan import LifespanManager

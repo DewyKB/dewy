@@ -1,23 +1,23 @@
 import random
 import string
 import time
-from dewy_client.models.add_document_request import AddDocumentRequest
 
 import pytest
 from dewy_client.api.default import (
     add_collection,
     add_document,
-    upload_document_content,
     get_document,
     get_document_status,
     list_chunks,
     retrieve_chunks,
+    upload_document_content,
 )
 from dewy_client.models import (
     CollectionCreate,
     IngestState,
     RetrieveRequest,
 )
+from dewy_client.models.add_document_request import AddDocumentRequest
 from dewy_client.models.body_upload_document_content import BodyUploadDocumentContent
 from dewy_client.types import File
 
@@ -38,17 +38,20 @@ async def test_index_retrieval(client, embedding_model):
         body=CollectionCreate(name=name, text_embedding_model=embedding_model),
     )
 
-    assert(NEARLY_EMPTY_BYTES)
+    assert NEARLY_EMPTY_BYTES
 
-    document = await add_document.asyncio(client=client,
-                                          body=AddDocumentRequest(collection_id=collection.id))
+    document = await add_document.asyncio(
+        client=client, body=AddDocumentRequest(collection_id=collection.id)
+    )
     document = await upload_document_content.asyncio(
         document.id,
         client=client,
         body=BodyUploadDocumentContent(
-            content=File(payload=NEARLY_EMPTY_BYTES,
-                         file_name="nearly_empty.pdf",
-                         mime_type="application/pdf"),
+            content=File(
+                payload=NEARLY_EMPTY_BYTES,
+                file_name="nearly_empty.pdf",
+                mime_type="application/pdf",
+            ),
         ),
     )
 

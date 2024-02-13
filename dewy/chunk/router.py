@@ -46,7 +46,7 @@ async def list_chunks(
         collection_id,
         document_id,
         offset,
-        limit
+        limit,
     )
     logger.info("Retrieved {} chunks", len(results))
     return [TextChunk.model_validate(dict(result)) for result in results]

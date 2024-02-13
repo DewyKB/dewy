@@ -4,7 +4,6 @@ import asyncpg
 from fastapi import (
     APIRouter,
     BackgroundTasks,
-    Body,
     File,
     HTTPException,
     Path,
@@ -23,7 +22,7 @@ from dewy.common.db import PgConnectionDep, PgPoolDep
 from dewy.config import Config, ConfigDep
 from dewy.document.models import Document
 
-from .models import AddDocumentRequest, DocumentStatus, IngestState
+from .models import AddDocumentRequest, DocumentStatus
 
 router = APIRouter(prefix="/documents")
 
@@ -101,6 +100,7 @@ async def add_document(
     if req.url:
         background.add_task(ingest_document, document.id, pg_pool, config, IngestURL(url=req.url))
     return document
+
 
 # We can't accept the collection ID in a body parameter, since it conflicts with
 # the content payload and breaks in at least the Python client generator.

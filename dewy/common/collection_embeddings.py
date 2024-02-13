@@ -246,9 +246,13 @@ class CollectionEmbeddings:
         # TODO: support indirect embeddings
         async with self._pg_pool.acquire() as conn:
             async with conn.transaction():
-                status = await conn.fetchval("SELECT ingest_state FROM document WHERE id = $1", document_id)
-                if status != 'pending':
-                    raise NotImplementedError(f"Updating content of ingested document not supported.")
+                status = await conn.fetchval(
+                    "SELECT ingest_state FROM document WHERE id = $1", document_id
+                )
+                if status != "pending":
+                    raise NotImplementedError(
+                        "Updating content of ingested document not supported."
+                    )
 
                 def encode_chunk(c: str) -> str:
                     # We believe that either invalid unicode or the occurrence
