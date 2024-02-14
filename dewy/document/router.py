@@ -85,15 +85,24 @@ async def add_document(
     """Add a document from a URL."""
     async with pg_pool.acquire() as conn:
         row = None
-        row = await conn.fetchrow(
-            """
-            INSERT INTO document (collection_id, url, ingest_state)
-            VALUES ((SELECT id FROM collection WHERE name = $1), $2, 'pending')
-            RETURNING id, collection_id, url, ingest_state, ingest_error, $1 AS collection
-            """,
-            req.collection,
-            req.url,
-        )
+        try:
+            row = await conn.fetchrow(
+                """
+                INSERT INTO document (collection_id, url, ingest_state)
+                VALUES ((SELECT id FROM collection WHERE lower(name) = lower($1)), $2, 'pending')
+                RETURNING id, collection_id, url, ingest_state, ingest_error, $1 AS collection
+                """,
+                req.collection,
+                req.url,
+            )
+        except asyncpg.NotNullViolationError as e:
+            if e.column_name == 'collection_id':
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail = f"No collection named '{req.collection}'"
+                )
+            else:
+                raise e from None
 
     document = Document.model_validate(dict(row))
 
@@ -167,7 +176,7 @@ async def list_documents(
         """
         SELECT d.id, c.name AS collection, d.url, d.ingest_state, d.ingest_error
         FROM document d
-        JOIN collection c ON c.id == d.collection_id
+        JOIN collection c ON c.id = d.collection_id
         WHERE lower(c.name) = coalesce(lower($1), lower(c.name))
         """,
         collection,
@@ -187,7 +196,10 @@ async def get_document(conn: PgConnectionDep, id: PathDocumentId) -> Document:
         """,
         id,
     )
-    print(f"Result: {result}")
+
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"No document with ID {id}")
     return Document.model_validate(dict(result))
 
 
@@ -201,6 +213,10 @@ async def get_document_status(conn: PgConnectionDep, id: PathDocumentId) -> Docu
         """,
         id,
     )
+
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"No document with ID {id}")
     return DocumentStatus(
         id=id, ingest_state=result["ingest_state"], ingest_error=result["ingest_error"]
     )

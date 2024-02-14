@@ -1,6 +1,6 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, HTTPException, Path, status
 from loguru import logger
 
 from dewy.collection.models import Collection, CollectionCreate
@@ -76,4 +76,11 @@ async def get_collection(name: PathCollection, conn: PgConnectionDep) -> Collect
         """,
         name,
     )
+
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No collection named '{name}'"
+        )
+
     return Collection.model_validate(dict(result))

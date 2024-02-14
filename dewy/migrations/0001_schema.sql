@@ -32,7 +32,7 @@ VALUES ('hf:BAAI/bge-small-en', 384);
 CREATE TYPE ingest_state AS ENUM ('pending', 'ingested', 'failed');
 CREATE TABLE document(
     id SERIAL NOT NULL,
-    collection_id INTEGER,
+    collection_id INTEGER NOT NULL,
     url VARCHAR,
 
     -- The state of the most recent ingestion of this document.

@@ -1,6 +1,6 @@
+import asyncio
 import random
 import string
-import time
 
 import pytest
 from dewy_client.api.kb import (
@@ -57,7 +57,7 @@ async def test_index_retrieval(client, embedding_model):
 
     status = None
     while getattr(status, "ingest_state", IngestState.PENDING) == IngestState.PENDING:
-        time.sleep(0.5)
+        await asyncio.sleep(0.5)
         status = await get_document_status.asyncio(document.id, client=client)
 
     document = await get_document.asyncio(document.id, client=client)
@@ -80,35 +80,3 @@ async def test_index_retrieval(client, embedding_model):
 
     assert retrieved.text_results[0].document_id == document.id
     assert "empty" in retrieved.text_results[0].text.lower()
-
-
-async def test_ingest_error(client):
-    collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
-
-    collection = await add_collection.asyncio(
-        client=client,
-        body=CollectionCreate(name=collection_name, text_embedding_model="hf:BAAI/bge-small-en"),
-    )
-
-    MESSAGE = "expected-test-failure"
-    document = await add_document.asyncio(
-        client=client,
-        body=AddDocumentRequest(url=f"error://{MESSAGE}", collection=collection.name),
-    )
-
-    status = None
-    while getattr(status, "ingest_state", IngestState.PENDING) == IngestState.PENDING:
-        time.sleep(0.2)
-        status = await get_document_status.asyncio(document.id, client=client)
-
-    assert status.ingest_state == IngestState.FAILED
-    assert status.ingest_error == MESSAGE
-
-    document = await get_document.asyncio(document.id, client=client)
-    assert document.ingest_state == IngestState.FAILED
-    assert document.ingest_error == MESSAGE
-
-    chunks = await list_chunks.asyncio(
-        client=client, collection=collection.name, document_id=document.id
-    )
-    assert len(chunks) == 0

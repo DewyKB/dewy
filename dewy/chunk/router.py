@@ -31,7 +31,6 @@ async def list_chunks(
     page = page or 0
     limit = perPage
     offset = page * perPage
-    print(f"PerPage: {perPage}, Page: {page}, Limit: {limit}, Offset {offset}")
     results = await pg_pool.fetch(
         """
         SELECT k.id, k.document_id, k.kind, TRUE as raw, k.text
