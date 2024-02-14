@@ -87,16 +87,11 @@ async def add_document(
         row = None
         row = await conn.fetchrow(
             """
-            WITH inserted_document AS (
-                INSERT INTO document (collection_id, url, ingest_state)
-                VALUES ($1, $2, 'pending')
-                RETURNING id, collection_id, url, ingest_state, ingest_error
-            )
-            SELECT d.id, d.collection_id, d.url, d.ingest_state, d.ingest_error, c.name
-            FROM inserted_document d
-            JOIN collection c ON c.id = d.collection_id
+            INSERT INTO document (collection_id, url, ingest_state)
+            VALUES ((SELECT id FROM collection WHERE name = $1), $2, 'pending')
+            RETURNING id, collection_id, url, ingest_state, ingest_error, $1 AS collection
             """,
-            req.collection_id,
+            req.collection,
             req.url,
         )
 
@@ -192,6 +187,7 @@ async def get_document(conn: PgConnectionDep, id: PathDocumentId) -> Document:
         """,
         id,
     )
+    print(f"Result: {result}")
     return Document.model_validate(dict(result))
 
 

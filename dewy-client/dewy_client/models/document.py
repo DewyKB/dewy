@@ -14,7 +14,7 @@ class Document:
     """Model for documents in Dewy.
 
     Attributes:
-        collection_id (int):
+        collection (str):
         id (Union[None, Unset, int]):
         extracted_text (Union[None, Unset, str]):
         url (Union[None, Unset, str]):
@@ -22,7 +22,7 @@ class Document:
         ingest_error (Union[None, Unset, str]):
     """
 
-    collection_id: int
+    collection: str
     id: Union[None, Unset, int] = UNSET
     extracted_text: Union[None, Unset, str] = UNSET
     url: Union[None, Unset, str] = UNSET
@@ -31,7 +31,7 @@ class Document:
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        collection_id = self.collection_id
+        collection = self.collection
 
         id: Union[None, Unset, int]
         if isinstance(self.id, Unset):
@@ -69,7 +69,7 @@ class Document:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "collection_id": collection_id,
+                "collection": collection,
             }
         )
         if id is not UNSET:
@@ -88,7 +88,7 @@ class Document:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        collection_id = d.pop("collection_id")
+        collection = d.pop("collection")
 
         def _parse_id(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -144,7 +144,7 @@ class Document:
         ingest_error = _parse_ingest_error(d.pop("ingest_error", UNSET))
 
         document = cls(
-            collection_id=collection_id,
+            collection=collection,
             id=id,
             extracted_text=extracted_text,
             url=url,

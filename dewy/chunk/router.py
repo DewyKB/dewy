@@ -40,7 +40,7 @@ async def list_chunks(
         JOIN collection c ON d.collection_id = c.id
         WHERE lower(c.name) = coalesce(lower($1), lower(c.name))
         AND k.document_id = coalesce($2, k.document_id)
-        ORDER BY chunk.id
+        ORDER BY k.id
         OFFSET $3
         LIMIT $4
         """,

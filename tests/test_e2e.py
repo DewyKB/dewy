@@ -31,17 +31,17 @@ SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
 )
 @pytest.mark.timeout(120)  # slow due to embedding (especially in CI)
 async def test_index_retrieval(client, embedding_model):
-    id = "".join(random.choices(string.ascii_lowercase, k=5))
+    collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
 
     collection = await add_collection.asyncio(
         client=client,
-        body=CollectionCreate(id=id, text_embedding_model=embedding_model),
+        body=CollectionCreate(name=collection_name, text_embedding_model=embedding_model),
     )
 
     assert NEARLY_EMPTY_BYTES
 
     document = await add_document.asyncio(
-        client=client, body=AddDocumentRequest(collection_id=collection.id)
+        client=client, body=AddDocumentRequest(collection=collection.name)
     )
     document = await upload_document_content.asyncio(
         document.id,
@@ -64,7 +64,7 @@ async def test_index_retrieval(client, embedding_model):
     assert document.extracted_text.startswith(NEARLY_EMPTY_TEXT)
 
     chunks = await list_chunks.asyncio(
-        client=client, collection_id=collection.id, document_id=document.id
+        client=client, collection=collection.name, document_id=document.id
     )
     assert len(chunks) > 0
     assert chunks[0].document_id == document.id
@@ -72,7 +72,7 @@ async def test_index_retrieval(client, embedding_model):
     retrieved = await retrieve_chunks.asyncio(
         client=client,
         body=RetrieveRequest(
-            collection_id=collection.id,
+            collection=collection.name,
             query="extraction",
         ),
     )
@@ -83,17 +83,17 @@ async def test_index_retrieval(client, embedding_model):
 
 
 async def test_ingest_error(client):
-    id = "".join(random.choices(string.ascii_lowercase, k=5))
+    collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
 
     collection = await add_collection.asyncio(
         client=client,
-        body=CollectionCreate(id=id, text_embedding_model="hf:BAAI/bge-small-en"),
+        body=CollectionCreate(name=collection_name, text_embedding_model="hf:BAAI/bge-small-en"),
     )
 
     MESSAGE = "expected-test-failure"
     document = await add_document.asyncio(
         client=client,
-        body=AddDocumentRequest(url=f"error://{MESSAGE}", collection_id=collection.id),
+        body=AddDocumentRequest(url=f"error://{MESSAGE}", collection=collection.name),
     )
 
     status = None
@@ -109,6 +109,6 @@ async def test_ingest_error(client):
     assert document.ingest_error == MESSAGE
 
     chunks = await list_chunks.asyncio(
-        client=client, collection_id=collection.id, document_id=document.id
+        client=client, collection=collection.name, document_id=document.id
     )
     assert len(chunks) == 0

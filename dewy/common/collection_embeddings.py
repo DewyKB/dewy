@@ -131,7 +131,7 @@ class CollectionEmbeddings:
                     c.text_distance_metric,
                     t.dimensions AS text_embedding_dimensions
                 FROM document d
-                JOIN c ON d.collection_id = c.id
+                JOIN collection c ON d.collection_id = c.id
                 JOIN text_embedding_dimensions t ON t.name = c.text_embedding_model
                 WHERE d.id = $1;
                 """,

@@ -13,7 +13,7 @@ class RetrieveRequest:
     """A request for retrieving chunks from a collection.
 
     Attributes:
-        collection_id (int):
+        collection (str):
         query (str):
         n (Union[Unset, int]):  Default: 10.
         include_text_chunks (Union[Unset, bool]):  Default: True.
@@ -21,7 +21,7 @@ class RetrieveRequest:
         include_summary (Union[Unset, bool]):  Default: False.
     """
 
-    collection_id: int
+    collection: str
     query: str
     n: Union[Unset, int] = 10
     include_text_chunks: Union[Unset, bool] = True
@@ -30,7 +30,7 @@ class RetrieveRequest:
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        collection_id = self.collection_id
+        collection = self.collection
 
         query = self.query
 
@@ -46,7 +46,7 @@ class RetrieveRequest:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "collection_id": collection_id,
+                "collection": collection,
                 "query": query,
             }
         )
@@ -64,7 +64,7 @@ class RetrieveRequest:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        collection_id = d.pop("collection_id")
+        collection = d.pop("collection")
 
         query = d.pop("query")
 
@@ -77,7 +77,7 @@ class RetrieveRequest:
         include_summary = d.pop("include_summary", UNSET)
 
         retrieve_request = cls(
-            collection_id=collection_id,
+            collection=collection,
             query=query,
             n=n,
             include_text_chunks=include_text_chunks,

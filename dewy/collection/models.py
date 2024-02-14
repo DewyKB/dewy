@@ -40,8 +40,9 @@ class Collection(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     """A collection of indexed documents."""
-    id: int
-    """The ID of the collection."""
+
+    name: str
+    """The name of the collection."""
 
     text_embedding_model: str
     """The name of the embedding model.
