@@ -79,8 +79,7 @@ async def get_collection(name: PathCollection, conn: PgConnectionDep) -> Collect
 
     if not result:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No collection named '{name}'"
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"No collection named '{name}'"
         )
 
     return Collection.model_validate(dict(result))

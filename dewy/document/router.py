@@ -96,10 +96,10 @@ async def add_document(
                 req.url,
             )
         except asyncpg.NotNullViolationError as e:
-            if e.column_name == 'collection_id':
+            if e.column_name == "collection_id":
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail = f"No collection named '{req.collection}'"
+                    detail=f"No collection named '{req.collection}'",
                 )
             else:
                 raise e from None
@@ -198,8 +198,9 @@ async def get_document(conn: PgConnectionDep, id: PathDocumentId) -> Document:
     )
 
     if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"No document with ID {id}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"No document with ID {id}"
+        )
     return Document.model_validate(dict(result))
 
 
@@ -215,8 +216,9 @@ async def get_document_status(conn: PgConnectionDep, id: PathDocumentId) -> Docu
     )
 
     if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"No document with ID {id}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"No document with ID {id}"
+        )
     return DocumentStatus(
         id=id, ingest_state=result["ingest_state"], ingest_error=result["ingest_error"]
     )

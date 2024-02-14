@@ -15,9 +15,12 @@ async def test_get_collection(client):
     assert get_response.text_embedding_model == "openai:text-embedding-ada-002"
     assert get_response.text_distance_metric == "cosine"
 
+
 async def test_get_collection_case_insensitive(client):
     lower_name = "".join(random.choices(string.ascii_lowercase, k=5))
-    collection = await add_collection.asyncio(client=client, body=CollectionCreate(name=lower_name))
+    await add_collection.asyncio(
+        client=client, body=CollectionCreate(name=lower_name)
+    )
 
     upper_name = lower_name.upper()
     assert lower_name != upper_name
@@ -27,11 +30,13 @@ async def test_get_collection_case_insensitive(client):
     assert get_response.text_embedding_model == "openai:text-embedding-ada-002"
     assert get_response.text_distance_metric == "cosine"
 
+
 async def test_get_collection_invalid(client):
     response = await get_collection.asyncio_detailed("invalid collection", client=client)
     assert response.status_code == 404
     response_content = json.loads(response.content)
-    assert(response_content == {"detail": "No collection named 'invalid collection'"})
+    assert response_content == {"detail": "No collection named 'invalid collection'"}
+
 
 async def test_list_collection(client):
     name = "".join(random.choices(string.ascii_lowercase, k=5))
