@@ -18,9 +18,7 @@ async def test_get_collection(client):
 
 async def test_get_collection_case_insensitive(client):
     lower_name = "".join(random.choices(string.ascii_lowercase, k=5))
-    await add_collection.asyncio(
-        client=client, body=CollectionCreate(name=lower_name)
-    )
+    await add_collection.asyncio(client=client, body=CollectionCreate(name=lower_name))
 
     upper_name = lower_name.upper()
     assert lower_name != upper_name
