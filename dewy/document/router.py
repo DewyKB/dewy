@@ -157,7 +157,7 @@ PathDocumentId = Annotated[int, Path(..., description="The document ID.")]
 async def list_documents(
     conn: PgConnectionDep,
     collection_id: Annotated[
-        int | None,
+        str | None,
         Query(description="Limit to documents associated with this collection"),
     ] = None,
 ) -> List[Document]:

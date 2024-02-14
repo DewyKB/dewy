@@ -31,11 +31,11 @@ SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
 )
 @pytest.mark.timeout(120)  # slow due to embedding (especially in CI)
 async def test_index_retrieval(client, embedding_model):
-    name = "".join(random.choices(string.ascii_lowercase, k=5))
+    id = "".join(random.choices(string.ascii_lowercase, k=5))
 
     collection = await add_collection.asyncio(
         client=client,
-        body=CollectionCreate(name=name, text_embedding_model=embedding_model),
+        body=CollectionCreate(id=id, text_embedding_model=embedding_model),
     )
 
     assert NEARLY_EMPTY_BYTES
@@ -83,11 +83,11 @@ async def test_index_retrieval(client, embedding_model):
 
 
 async def test_ingest_error(client):
-    name = "".join(random.choices(string.ascii_lowercase, k=5))
+    id = "".join(random.choices(string.ascii_lowercase, k=5))
 
     collection = await add_collection.asyncio(
         client=client,
-        body=CollectionCreate(name=name, text_embedding_model="hf:BAAI/bge-small-en"),
+        body=CollectionCreate(id=id, text_embedding_model="hf:BAAI/bge-small-en"),
     )
 
     MESSAGE = "expected-test-failure"
