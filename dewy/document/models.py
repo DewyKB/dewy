@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class AddDocumentRequest(BaseModel):
-    collection_id: str
+    collection: str
     """The id of the collection the document should be added to."""
 
     url: Optional[str] = None
@@ -30,7 +30,7 @@ class Document(BaseModel):
     """Model for documents in Dewy."""
 
     id: Optional[int] = None
-    collection_id: str
+    collection: str
 
     extracted_text: Optional[str] = None
     """The text that was extracted for this document.

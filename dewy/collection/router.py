@@ -58,7 +58,6 @@ async def list_collections(
         SELECT id, text_embedding_model
         FROM collection
         """,
-        name,
     )
     return [Collection.model_validate(dict(result)) for result in results]
 
@@ -73,7 +72,7 @@ async def get_collection(id: PathCollectionId, conn: PgConnectionDep) -> Collect
         """
         SELECT id, text_embedding_model
         FROM collection
-        WHERE id = $1
+        WHERE lower(name) = lower($1)
         """,
         id,
     )

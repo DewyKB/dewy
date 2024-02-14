@@ -87,10 +87,15 @@ async def add_document(
         row = None
         row = await conn.fetchrow(
             """
-        INSERT INTO document (collection_id, url, ingest_state)
-        VALUES ($1, $2, 'pending')
-        RETURNING id, collection_id, url, ingest_state, ingest_error
-        """,
+            WITH inserted_document AS (
+                INSERT INTO document (collection_id, url, ingest_state)
+                VALUES ($1, $2, 'pending')
+                RETURNING id, collection_id, url, ingest_state, ingest_error
+            )
+            SELECT d.id, d.collection_id, d.url, d.ingest_state, d.ingest_error, c.name
+            FROM inserted_document d
+            JOIN collection c ON c.id = d.collection_id
+            """,
             req.collection_id,
             req.url,
         )
@@ -156,38 +161,34 @@ PathDocumentId = Annotated[int, Path(..., description="The document ID.")]
 @router.get("/")
 async def list_documents(
     conn: PgConnectionDep,
-    collection_id: Annotated[
+    collection: Annotated[
         str | None,
         Query(description="Limit to documents associated with this collection"),
     ] = None,
 ) -> List[Document]:
     """List documents."""
     # TODO: Test
-    if collection_id is None:
-        results = await conn.fetch(
-            """
-            SELECT id, collection_id, url, ingest_state, ingest_error
-            FROM document
+    results = await conn.fetch(
         """
-        )
-    else:
-        results = await conn.fetch(
-            """
-            SELECT id, collection_id, url, ingest_state, ingest_error
-            FROM document WHERE collection_id = $1
+        SELECT d.id, c.name AS collection, d.url, d.ingest_state, d.ingest_error
+        FROM document d
+        JOIN collection c ON c.id == d.collection_id
+        WHERE lower(c.name) = coalesce(lower($1), lower(c.name))
         """,
-            collection_id,
-        )
+        collection
+    )
+
     return [Document.model_validate(dict(result)) for result in results]
 
 
 @router.get("/{id}")
 async def get_document(conn: PgConnectionDep, id: PathDocumentId) -> Document:
-    # TODO: Test / return not found?
     result = await conn.fetchrow(
         """
-        SELECT id, collection_id, url, ingest_state, ingest_error, extracted_text
-        FROM document WHERE id = $1
+        SELECT d.id, c.name AS collection, d.url, d.ingest_state, d.ingest_error, d.extracted_text
+        FROM document d
+        JOIN collection c ON d.collection_id = c.id
+        WHERE d.id = $1
         """,
         id,
     )
