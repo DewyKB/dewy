@@ -88,30 +88,27 @@ class CollectionEmbeddings:
         """
 
     @staticmethod
-    async def for_collection_id(
-        pg_pool: asyncpg.Pool, config: Config, collection_id: int
-    ) -> Self:
+    async def for_collection(pg_pool: asyncpg.Pool, config: Config, collection: str) -> Self:
         """Retrieve the collection embeddings of the given collection."""
         async with pg_pool.acquire() as conn:
             result = await conn.fetchrow(
                 """
                 SELECT
-                    collection.id as id,
-                    text_embedding_model,
-                    text_distance_metric,
-                    text_embedding_dimensions.dimensions AS text_embedding_dimensions
-                FROM collection
-                JOIN text_embedding_dimensions
-                    ON text_embedding_dimensions.name = collection.text_embedding_model
-                WHERE collection.id = $1;
+                    c.id as collection_id,
+                    c.text_embedding_model,
+                    c.text_distance_metric,
+                    t.dimensions AS text_embedding_dimensions
+                FROM collection c
+                JOIN text_embedding_dimensions t ON t.name = c.text_embedding_model
+                WHERE lower(c.name) = lower($1);
                 """,
-                collection_id,
+                collection,
             )
 
             return CollectionEmbeddings(
                 pg_pool,
                 config,
-                collection_id=result["id"],
+                collection_id=result["collection_id"],
                 text_embedding_model=result["text_embedding_model"],
                 text_embedding_dimensions=result["text_embedding_dimensions"],
                 text_distance_metric=DistanceMetric(result["text_distance_metric"]),
@@ -127,16 +124,14 @@ class CollectionEmbeddings:
             result = await conn.fetchrow(
                 """
                 SELECT
-                    collection.name,
-                    collection.id as id,
-                    collection.text_embedding_model,
-                    collection.text_distance_metric,
-                    text_embedding_dimensions.dimensions AS text_embedding_dimensions
-                FROM document
-                JOIN collection ON document.collection_id = collection.id
-                JOIN text_embedding_dimensions
-                    ON text_embedding_dimensions.name = collection.text_embedding_model
-                WHERE document.id = $1;
+                    c.id as collection_id,
+                    c.text_embedding_model,
+                    c.text_distance_metric,
+                    t.dimensions AS text_embedding_dimensions
+                FROM document d
+                JOIN collection c ON d.collection_id = c.id
+                JOIN text_embedding_dimensions t ON t.name = c.text_embedding_model
+                WHERE d.id = $1;
                 """,
                 document_id,
             )
@@ -145,7 +140,7 @@ class CollectionEmbeddings:
             configured_ingestion = CollectionEmbeddings(
                 pg_pool,
                 config,
-                collection_id=result["id"],
+                collection_id=result["collection_id"],
                 text_embedding_model=result["text_embedding_model"],
                 text_embedding_dimensions=result["text_embedding_dimensions"],
                 text_distance_metric=DistanceMetric(result["text_distance_metric"]),

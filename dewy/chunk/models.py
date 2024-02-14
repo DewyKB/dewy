@@ -34,7 +34,7 @@ Chunk = Annotated[Union[TextChunk, ImageChunk], Field(discriminator="kind")]
 class RetrieveRequest(BaseModel):
     """A request for retrieving chunks from a collection."""
 
-    collection_id: int
+    collection: str
     """The collection to retrieve chunks from."""
 
     query: str

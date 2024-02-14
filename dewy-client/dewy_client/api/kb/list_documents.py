@@ -12,16 +12,16 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     params: Dict[str, Any] = {}
 
-    json_collection_id: Union[None, Unset, int]
-    if isinstance(collection_id, Unset):
-        json_collection_id = UNSET
+    json_collection: Union[None, Unset, str]
+    if isinstance(collection, Unset):
+        json_collection = UNSET
     else:
-        json_collection_id = collection_id
-    params["collection_id"] = json_collection_id
+        json_collection = collection
+    params["collection"] = json_collection
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -70,15 +70,14 @@ def _build_response(
 def sync_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[HTTPValidationError, List["Document"]]]:
     """List Documents
 
      List documents.
 
     Args:
-        collection_id (Union[None, Unset, int]): Limit to documents associated with this
-            collection
+        collection (Union[None, Unset, str]): Limit to documents associated with this collection
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -89,7 +88,7 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        collection_id=collection_id,
+        collection=collection,
     )
 
     response = client.get_httpx_client().request(
@@ -102,15 +101,14 @@ def sync_detailed(
 def sync(
     *,
     client: Union[AuthenticatedClient, Client],
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[HTTPValidationError, List["Document"]]]:
     """List Documents
 
      List documents.
 
     Args:
-        collection_id (Union[None, Unset, int]): Limit to documents associated with this
-            collection
+        collection (Union[None, Unset, str]): Limit to documents associated with this collection
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -122,22 +120,21 @@ def sync(
 
     return sync_detailed(
         client=client,
-        collection_id=collection_id,
+        collection=collection,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[HTTPValidationError, List["Document"]]]:
     """List Documents
 
      List documents.
 
     Args:
-        collection_id (Union[None, Unset, int]): Limit to documents associated with this
-            collection
+        collection (Union[None, Unset, str]): Limit to documents associated with this collection
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -148,7 +145,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        collection_id=collection_id,
+        collection=collection,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -159,15 +156,14 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Union[AuthenticatedClient, Client],
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[HTTPValidationError, List["Document"]]]:
     """List Documents
 
      List documents.
 
     Args:
-        collection_id (Union[None, Unset, int]): Limit to documents associated with this
-            collection
+        collection (Union[None, Unset, str]): Limit to documents associated with this collection
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -180,6 +176,6 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
-            collection_id=collection_id,
+            collection=collection,
         )
     ).parsed

@@ -8,18 +8,20 @@ CREATE TABLE collection (
     text_embedding_model VARCHAR NOT NULL,
     text_distance_metric distance_metric NOT NULL,
 
-    PRIMARY KEY (id),
-    UNIQUE (name)
+    PRIMARY KEY (id)
 );
+
+CREATE UNIQUE INDEX ON collection ((lower(name)));
 
 CREATE TABLE text_embedding_dimensions (
     id SERIAL NOT NULL,
     name VARCHAR NOT NULL,
     dimensions INTEGER NOT NULL,
 
-    PRIMARY KEY (id),
-    UNIQUE (name)
+    PRIMARY KEY (id)
 );
+
+CREATE UNIQUE INDEX ON text_embedding_dimensions (name);
 
 INSERT INTO text_embedding_dimensions (name, dimensions)
 VALUES ('openai:text-embedding-ada-002', 1536);
@@ -30,7 +32,7 @@ VALUES ('hf:BAAI/bge-small-en', 384);
 CREATE TYPE ingest_state AS ENUM ('pending', 'ingested', 'failed');
 CREATE TABLE document(
     id SERIAL NOT NULL,
-    collection_id INTEGER,
+    collection_id INTEGER NOT NULL,
     url VARCHAR,
 
     -- The state of the most recent ingestion of this document.

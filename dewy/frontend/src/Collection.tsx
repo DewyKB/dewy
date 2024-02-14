@@ -1,4 +1,4 @@
-import { 
+import {
     List,
     Datagrid,
     TextField,
@@ -7,12 +7,12 @@ import {
     SearchInput,
     EditButton,
     CreateButton,
-    Create, 
+    Create,
     Edit,
-    SimpleForm, 
+    SimpleForm,
     CheckboxGroupInput,
-    TextInput, 
-    SelectInput, 
+    TextInput,
+    SelectInput,
     required
 } from 'react-admin';
 

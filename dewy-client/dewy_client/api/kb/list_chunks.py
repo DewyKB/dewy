@@ -13,19 +13,19 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
     page: Union[None, Unset, int] = 0,
     per_page: Union[None, Unset, int] = 10,
 ) -> Dict[str, Any]:
     params: Dict[str, Any] = {}
 
-    json_collection_id: Union[None, Unset, int]
-    if isinstance(collection_id, Unset):
-        json_collection_id = UNSET
+    json_collection: Union[None, Unset, str]
+    if isinstance(collection, Unset):
+        json_collection = UNSET
     else:
-        json_collection_id = collection_id
-    params["collection_id"] = json_collection_id
+        json_collection = collection
+    params["collection"] = json_collection
 
     json_document_id: Union[None, Unset, int]
     if isinstance(document_id, Unset):
@@ -111,7 +111,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
     page: Union[None, Unset, int] = 0,
     per_page: Union[None, Unset, int] = 10,
@@ -121,7 +121,7 @@ def sync_detailed(
      List chunks.
 
     Args:
-        collection_id (Union[None, Unset, int]): Limit to chunks associated with this collection
+        collection (Union[None, Unset, str]): Limit to chunks associated with this collection
         document_id (Union[None, Unset, int]): Limit to chunks associated with this document
         page (Union[None, Unset, int]):  Default: 0.
         per_page (Union[None, Unset, int]):  Default: 10.
@@ -135,7 +135,7 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        collection_id=collection_id,
+        collection=collection,
         document_id=document_id,
         page=page,
         per_page=per_page,
@@ -151,7 +151,7 @@ def sync_detailed(
 def sync(
     *,
     client: Union[AuthenticatedClient, Client],
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
     page: Union[None, Unset, int] = 0,
     per_page: Union[None, Unset, int] = 10,
@@ -161,7 +161,7 @@ def sync(
      List chunks.
 
     Args:
-        collection_id (Union[None, Unset, int]): Limit to chunks associated with this collection
+        collection (Union[None, Unset, str]): Limit to chunks associated with this collection
         document_id (Union[None, Unset, int]): Limit to chunks associated with this document
         page (Union[None, Unset, int]):  Default: 0.
         per_page (Union[None, Unset, int]):  Default: 10.
@@ -176,7 +176,7 @@ def sync(
 
     return sync_detailed(
         client=client,
-        collection_id=collection_id,
+        collection=collection,
         document_id=document_id,
         page=page,
         per_page=per_page,
@@ -186,7 +186,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
     page: Union[None, Unset, int] = 0,
     per_page: Union[None, Unset, int] = 10,
@@ -196,7 +196,7 @@ async def asyncio_detailed(
      List chunks.
 
     Args:
-        collection_id (Union[None, Unset, int]): Limit to chunks associated with this collection
+        collection (Union[None, Unset, str]): Limit to chunks associated with this collection
         document_id (Union[None, Unset, int]): Limit to chunks associated with this document
         page (Union[None, Unset, int]):  Default: 0.
         per_page (Union[None, Unset, int]):  Default: 10.
@@ -210,7 +210,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        collection_id=collection_id,
+        collection=collection,
         document_id=document_id,
         page=page,
         per_page=per_page,
@@ -224,7 +224,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Union[AuthenticatedClient, Client],
-    collection_id: Union[None, Unset, int] = UNSET,
+    collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
     page: Union[None, Unset, int] = 0,
     per_page: Union[None, Unset, int] = 10,
@@ -234,7 +234,7 @@ async def asyncio(
      List chunks.
 
     Args:
-        collection_id (Union[None, Unset, int]): Limit to chunks associated with this collection
+        collection (Union[None, Unset, str]): Limit to chunks associated with this collection
         document_id (Union[None, Unset, int]): Limit to chunks associated with this document
         page (Union[None, Unset, int]):  Default: 0.
         per_page (Union[None, Unset, int]):  Default: 10.
@@ -250,7 +250,7 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
-            collection_id=collection_id,
+            collection=collection,
             document_id=document_id,
             page=page,
             per_page=per_page,

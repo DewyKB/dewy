@@ -11,6 +11,22 @@ servers:
   description: Local server
 paths:
   /api/collections/:
+    get:
+      tags:
+      - kb
+      summary: List Collections
+      description: List collections.
+      operationId: listCollections
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Collection'
+                type: array
+                title: Response Listcollections
     post:
       tags:
       - kb
@@ -18,11 +34,11 @@ paths:
       description: Create a collection.
       operationId: addCollection
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/CollectionCreate'
+        required: true
       responses:
         '200':
           description: Successful Response
@@ -36,40 +52,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-    get:
-      tags:
-      - kb
-      summary: List Collections
-      description: List collections.
-      operationId: listCollections
-      parameters:
-      - name: name
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Find collections by name.
-          title: Name
-        description: Find collections by name.
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Collection'
-                title: Response Listcollections
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/collections/{id}:
+  /api/collections/{name}:
     get:
       tags:
       - kb
@@ -77,14 +60,14 @@ paths:
       description: Get a specific collection.
       operationId: getCollection
       parameters:
-      - name: id
+      - name: name
         in: path
         required: true
         schema:
-          type: integer
-          description: The collection ID.
-          title: Id
-        description: The collection ID.
+          type: string
+          description: The collection name.
+          title: Name
+        description: The collection name.
       responses:
         '200':
           description: Successful Response
@@ -131,15 +114,15 @@ paths:
       description: List documents.
       operationId: listDocuments
       parameters:
-      - name: collection_id
+      - name: collection
         in: query
         required: false
         schema:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
           description: Limit to documents associated with this collection
-          title: Collection Id
+          title: Collection
         description: Limit to documents associated with this collection
       responses:
         '200':
@@ -256,15 +239,15 @@ paths:
       description: List chunks.
       operationId: listChunks
       parameters:
-      - name: collection_id
+      - name: collection
         in: query
         required: false
         schema:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
           description: Limit to chunks associated with this collection
-          title: Collection Id
+          title: Collection
         description: Limit to chunks associated with this collection
       - name: document_id
         in: query
@@ -383,9 +366,9 @@ components:
   schemas:
     AddDocumentRequest:
       properties:
-        collection_id:
-          type: integer
-          title: Collection Id
+        collection:
+          type: string
+          title: Collection
         url:
           anyOf:
           - type: string
@@ -393,7 +376,7 @@ components:
           title: Url
       type: object
       required:
-      - collection_id
+      - collection
       title: AddDocumentRequest
     Body_uploadDocumentContent:
       properties:
@@ -408,9 +391,6 @@ components:
       title: Body_uploadDocumentContent
     Collection:
       properties:
-        id:
-          type: integer
-          title: Id
         name:
           type: string
           title: Name
@@ -423,7 +403,6 @@ components:
           default: cosine
       type: object
       required:
-      - id
       - name
       - text_embedding_model
       title: Collection
@@ -464,9 +443,9 @@ components:
           - type: integer
           - type: 'null'
           title: Id
-        collection_id:
-          type: integer
-          title: Collection Id
+        collection:
+          type: string
+          title: Collection
         extracted_text:
           anyOf:
           - type: string
@@ -488,7 +467,7 @@ components:
           title: Ingest Error
       type: object
       required:
-      - collection_id
+      - collection
       title: Document
       description: Model for documents in Dewy.
     DocumentStatus:
@@ -617,9 +596,9 @@ components:
       title: IngestState
     RetrieveRequest:
       properties:
-        collection_id:
-          type: integer
-          title: Collection Id
+        collection:
+          type: string
+          title: Collection
         query:
           type: string
           title: Query
@@ -641,7 +620,7 @@ components:
           default: false
       type: object
       required:
-      - collection_id
+      - collection
       - query
       title: RetrieveRequest
       description: A request for retrieving chunks from a collection.

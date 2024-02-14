@@ -11,11 +11,11 @@ from ...types import Response
 
 
 def _get_kwargs(
-    id: int,
+    name: str,
 ) -> Dict[str, Any]:
     _kwargs: Dict[str, Any] = {
         "method": "get",
-        "url": f"/api/collections/{id}",
+        "url": f"/api/collections/{name}",
     }
 
     return _kwargs
@@ -50,7 +50,7 @@ def _build_response(
 
 
 def sync_detailed(
-    id: int,
+    name: str,
     *,
     client: Union[AuthenticatedClient, Client],
 ) -> Response[Union[Collection, HTTPValidationError]]:
@@ -59,7 +59,7 @@ def sync_detailed(
      Get a specific collection.
 
     Args:
-        id (int): The collection ID.
+        name (str): The collection name.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -70,7 +70,7 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        id=id,
+        name=name,
     )
 
     response = client.get_httpx_client().request(
@@ -81,7 +81,7 @@ def sync_detailed(
 
 
 def sync(
-    id: int,
+    name: str,
     *,
     client: Union[AuthenticatedClient, Client],
 ) -> Optional[Union[Collection, HTTPValidationError]]:
@@ -90,7 +90,7 @@ def sync(
      Get a specific collection.
 
     Args:
-        id (int): The collection ID.
+        name (str): The collection name.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -101,13 +101,13 @@ def sync(
     """
 
     return sync_detailed(
-        id=id,
+        name=name,
         client=client,
     ).parsed
 
 
 async def asyncio_detailed(
-    id: int,
+    name: str,
     *,
     client: Union[AuthenticatedClient, Client],
 ) -> Response[Union[Collection, HTTPValidationError]]:
@@ -116,7 +116,7 @@ async def asyncio_detailed(
      Get a specific collection.
 
     Args:
-        id (int): The collection ID.
+        name (str): The collection name.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -127,7 +127,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        id=id,
+        name=name,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -136,7 +136,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    id: int,
+    name: str,
     *,
     client: Union[AuthenticatedClient, Client],
 ) -> Optional[Union[Collection, HTTPValidationError]]:
@@ -145,7 +145,7 @@ async def asyncio(
      Get a specific collection.
 
     Args:
-        id (int): The collection ID.
+        name (str): The collection name.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -157,7 +157,7 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            id=id,
+            name=name,
             client=client,
         )
     ).parsed

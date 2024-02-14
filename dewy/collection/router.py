@@ -1,6 +1,6 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, HTTPException, Path, status
 from loguru import logger
 
 from dewy.collection.models import Collection, CollectionCreate
@@ -51,32 +51,35 @@ async def add_collection(conn: PgConnectionDep, collection: CollectionCreate) ->
 @router.get("/")
 async def list_collections(
     conn: PgConnectionDep,
-    name: Annotated[str | None, Query(description="Find collections by name.")] = None,
 ) -> List[Collection]:
     """List collections."""
     results = await conn.fetch(
         """
-        SELECT id, name, text_embedding_model
+        SELECT name, text_embedding_model
         FROM collection
-        WHERE name = coalesce($1, name)
         """,
-        name,
     )
     return [Collection.model_validate(dict(result)) for result in results]
 
 
-PathCollectionId = Annotated[int, Path(..., description="The collection ID.")]
+PathCollection = Annotated[str, Path(..., description="The collection name.")]
 
 
-@router.get("/{id}")
-async def get_collection(id: PathCollectionId, conn: PgConnectionDep) -> Collection:
+@router.get("/{name}")
+async def get_collection(name: PathCollection, conn: PgConnectionDep) -> Collection:
     """Get a specific collection."""
     result = await conn.fetchrow(
         """
-        SELECT id, name, text_embedding_model
+        SELECT name, text_embedding_model
         FROM collection
-        WHERE id = $1
+        WHERE lower(name) = lower($1)
         """,
-        id,
+        name,
     )
+
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"No collection named '{name}'"
+        )
+
     return Collection.model_validate(dict(result))

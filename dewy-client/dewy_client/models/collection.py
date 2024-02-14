@@ -13,21 +13,17 @@ T = TypeVar("T", bound="Collection")
 class Collection:
     """
     Attributes:
-        id (int):
         name (str):
         text_embedding_model (str):
         text_distance_metric (Union[Unset, DistanceMetric]):  Default: DistanceMetric.COSINE.
     """
 
-    id: int
     name: str
     text_embedding_model: str
     text_distance_metric: Union[Unset, DistanceMetric] = DistanceMetric.COSINE
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        id = self.id
-
         name = self.name
 
         text_embedding_model = self.text_embedding_model
@@ -40,7 +36,6 @@ class Collection:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "id": id,
                 "name": name,
                 "text_embedding_model": text_embedding_model,
             }
@@ -53,8 +48,6 @@ class Collection:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        id = d.pop("id")
-
         name = d.pop("name")
 
         text_embedding_model = d.pop("text_embedding_model")
@@ -67,7 +60,6 @@ class Collection:
             text_distance_metric = DistanceMetric(_text_distance_metric)
 
         collection = cls(
-            id=id,
             name=name,
             text_embedding_model=text_embedding_model,
             text_distance_metric=text_distance_metric,

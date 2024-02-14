@@ -15,8 +15,8 @@ router = APIRouter(prefix="/chunks")
 @router.get("/")
 async def list_chunks(
     pg_pool: PgPoolDep,
-    collection_id: Annotated[
-        int | None, Query(description="Limit to chunks associated with this collection")
+    collection: Annotated[
+        str | None, Query(description="Limit to chunks associated with this collection")
     ] = None,
     document_id: Annotated[
         int | None, Query(description="Limit to chunks associated with this document")
@@ -31,19 +31,19 @@ async def list_chunks(
     page = page or 0
     limit = perPage
     offset = page * perPage
-    print(f"PerPage: {perPage}, Page: {page}, Limit: {limit}, Offset {offset}")
     results = await pg_pool.fetch(
         """
-        SELECT chunk.id, chunk.document_id, chunk.kind, TRUE as raw, chunk.text
-        FROM chunk
-        JOIN document ON document.id = chunk.document_id
-        WHERE document.collection_id = coalesce($1, document.collection_id)
-        AND chunk.document_id = coalesce($2, chunk.document_id)
-        ORDER BY chunk.id
+        SELECT k.id, k.document_id, k.kind, TRUE as raw, k.text
+        FROM chunk k
+        JOIN document d ON d.id = k.document_id
+        JOIN collection c ON d.collection_id = c.id
+        WHERE lower(c.name) = coalesce(lower($1), lower(c.name))
+        AND k.document_id = coalesce($2, k.document_id)
+        ORDER BY k.id
         OFFSET $3
         LIMIT $4
         """,
-        collection_id,
+        collection,
         document_id,
         offset,
         limit,
@@ -79,9 +79,7 @@ async def retrieve_chunks(
 
     # TODO: Revisit response synthesis and hierarchical fetching.
 
-    collection = await CollectionEmbeddings.for_collection_id(
-        pg_pool, config, request.collection_id
-    )
+    collection = await CollectionEmbeddings.for_collection(pg_pool, config, request.collection)
     text_results = await collection.retrieve_text_chunks(query=request.query, n=request.n)
 
     return RetrieveResponse(

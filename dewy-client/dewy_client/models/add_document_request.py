@@ -12,16 +12,16 @@ T = TypeVar("T", bound="AddDocumentRequest")
 class AddDocumentRequest:
     """
     Attributes:
-        collection_id (int):
+        collection (str):
         url (Union[None, Unset, str]):
     """
 
-    collection_id: int
+    collection: str
     url: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        collection_id = self.collection_id
+        collection = self.collection
 
         url: Union[None, Unset, str]
         if isinstance(self.url, Unset):
@@ -33,7 +33,7 @@ class AddDocumentRequest:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "collection_id": collection_id,
+                "collection": collection,
             }
         )
         if url is not UNSET:
@@ -44,7 +44,7 @@ class AddDocumentRequest:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        collection_id = d.pop("collection_id")
+        collection = d.pop("collection")
 
         def _parse_url(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -56,7 +56,7 @@ class AddDocumentRequest:
         url = _parse_url(d.pop("url", UNSET))
 
         add_document_request = cls(
-            collection_id=collection_id,
+            collection=collection,
             url=url,
         )
 
