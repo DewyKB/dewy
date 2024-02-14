@@ -24,7 +24,7 @@ const ListActions = () => (
 export const CollectionList = () => (
     <List actions={<ListActions/>} >
         <Datagrid>
-            <TextField source="name" />
+            <TextField source="id" />
             <TextField source="text_embedding_model" />
             <TextField source="text_distance_metric" />
             <TextField source="llm_model" />
@@ -49,7 +49,7 @@ export const ChunkingConfig = () => (
 
 const Form = () => (
     <SimpleForm>
-        <TextInput source="name" validate={[required()]} fullWidth />
+        <TextInput source="id" validate={[required()]} fullWidth />
         <SelectInput source="text_embedding_model" defaultValue="hf:BAAI/bge-small-en" choices={[
             {id: 'hf:BAAI/bge-small-en', name: 'BAAI/bge-small-en'},
             {id: 'openai:text-embedding-ada-002', name: 'OpenAI/text_embedding_ada_002'},

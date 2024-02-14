@@ -51,14 +51,12 @@ async def add_collection(conn: PgConnectionDep, collection: CollectionCreate) ->
 @router.get("/")
 async def list_collections(
     conn: PgConnectionDep,
-    name: Annotated[str | None, Query(description="Find collections by name.")] = None,
 ) -> List[Collection]:
     """List collections."""
     results = await conn.fetch(
         """
-        SELECT id, name, text_embedding_model
+        SELECT id, text_embedding_model
         FROM collection
-        WHERE name = coalesce($1, name)
         """,
         name,
     )
@@ -73,7 +71,7 @@ async def get_collection(id: PathCollectionId, conn: PgConnectionDep) -> Collect
     """Get a specific collection."""
     result = await conn.fetchrow(
         """
-        SELECT id, name, text_embedding_model
+        SELECT id, text_embedding_model
         FROM collection
         WHERE id = $1
         """,

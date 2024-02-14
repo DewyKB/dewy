@@ -3,13 +3,11 @@
 CREATE TYPE distance_metric AS ENUM ('cosine', 'l2', 'ip');
 
 CREATE TABLE collection (
-    id SERIAL NOT NULL,
-    name VARCHAR NOT NULL,
+    id VARCHAR NOT NULL,
     text_embedding_model VARCHAR NOT NULL,
     text_distance_metric distance_metric NOT NULL,
 
-    PRIMARY KEY (id),
-    UNIQUE (name)
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE text_embedding_dimensions (
@@ -112,7 +110,7 @@ CREATE TABLE embedding(
 );
 
 -- Default collection
-INSERT INTO collection (name, text_embedding_model, text_distance_metric) VALUES ('main', 'openai:text-embedding-ada-002', 'cosine');
+INSERT INTO collection (id, text_embedding_model, text_distance_metric) VALUES ('main', 'openai:text-embedding-ada-002', 'cosine');
 CREATE INDEX embedding_collection_1_index
 ON embedding
 USING hnsw ((embedding::vector(1536)) vector_cosine_ops)

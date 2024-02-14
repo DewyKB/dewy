@@ -16,7 +16,7 @@ router = APIRouter(prefix="/chunks")
 async def list_chunks(
     pg_pool: PgPoolDep,
     collection_id: Annotated[
-        int | None, Query(description="Limit to chunks associated with this collection")
+        str | None, Query(description="Limit to chunks associated with this collection")
     ] = None,
     document_id: Annotated[
         int | None, Query(description="Limit to chunks associated with this document")

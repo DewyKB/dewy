@@ -43,9 +43,6 @@ class Collection(BaseModel):
     id: int
     """The ID of the collection."""
 
-    name: str
-    """The name of the collection."""
-
     text_embedding_model: str
     """The name of the embedding model.
 

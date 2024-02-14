@@ -35,7 +35,7 @@ class CollectionEmbeddings:
         pg_pool: asyncpg.Pool,
         config: Config,
         *,
-        collection_id: int,
+        collection_id: str,
         text_embedding_model: str,
         text_embedding_dimensions: int,
         text_distance_metric: DistanceMetric,
@@ -89,7 +89,7 @@ class CollectionEmbeddings:
 
     @staticmethod
     async def for_collection_id(
-        pg_pool: asyncpg.Pool, config: Config, collection_id: int
+        pg_pool: asyncpg.Pool, config: Config, collection_id: str
     ) -> Self:
         """Retrieve the collection embeddings of the given collection."""
         async with pg_pool.acquire() as conn:
@@ -127,7 +127,6 @@ class CollectionEmbeddings:
             result = await conn.fetchrow(
                 """
                 SELECT
-                    collection.name,
                     collection.id as id,
                     collection.text_embedding_model,
                     collection.text_distance_metric,
