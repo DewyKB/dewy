@@ -1,6 +1,6 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Path
 from loguru import logger
 
 from dewy.collection.models import Collection, CollectionCreate

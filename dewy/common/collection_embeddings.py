@@ -88,9 +88,7 @@ class CollectionEmbeddings:
         """
 
     @staticmethod
-    async def for_collection(
-        pg_pool: asyncpg.Pool, config: Config, collection: str
-    ) -> Self:
+    async def for_collection(pg_pool: asyncpg.Pool, config: Config, collection: str) -> Self:
         """Retrieve the collection embeddings of the given collection."""
         async with pg_pool.acquire() as conn:
             result = await conn.fetchrow(

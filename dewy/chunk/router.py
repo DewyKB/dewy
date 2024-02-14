@@ -80,9 +80,7 @@ async def retrieve_chunks(
 
     # TODO: Revisit response synthesis and hierarchical fetching.
 
-    collection = await CollectionEmbeddings.for_collection(
-        pg_pool, config, request.collection
-    )
+    collection = await CollectionEmbeddings.for_collection(pg_pool, config, request.collection)
     text_results = await collection.retrieve_text_chunks(query=request.query, n=request.n)
 
     return RetrieveResponse(

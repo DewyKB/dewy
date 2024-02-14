@@ -170,7 +170,7 @@ async def list_documents(
         JOIN collection c ON c.id == d.collection_id
         WHERE lower(c.name) = coalesce(lower($1), lower(c.name))
         """,
-        collection
+        collection,
     )
 
     return [Document.model_validate(dict(result)) for result in results]
