@@ -10,6 +10,7 @@ from fastapi import (
     Query,
     UploadFile,
     status,
+    Response,
 )
 from loguru import logger
 
@@ -255,3 +256,51 @@ async def get_document_status(conn: PgConnectionDep, id: PathDocumentId) -> Docu
     return DocumentStatus(
         id=id, ingest_state=result["ingest_state"], ingest_error=result["ingest_error"]
     )
+
+@router.delete("/{id}")
+async def delete_document(pg_pool: PgPoolDep, id: PathDocumentId) -> Document:
+    """Delete a document."""
+
+    async with pg_pool.acquire() as conn:
+        async with conn.transaction():
+            result = await conn.fetchrow(
+                """
+                SELECT id
+                FROM document
+                WHERE id = $1
+                """,
+                id,
+            )
+
+            if not result:
+                raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=f"No document with ID {id}"
+            )
+
+            # Delete any embeddings
+            await conn.execute(
+                """
+                DELETE FROM embedding e
+                USING chunk c
+                WHERE e.chunk_id = c.id
+                AND c.document_id = $1
+                """,
+                id,
+            )
+            # Delete any chunks
+            await conn.execute(
+                """
+                DELETE from chunk c
+                WHERE c.document_id = $1
+                """,
+                id,
+            )
+            # Delete the document
+            await conn.execute(
+                """
+                DELETE from document
+                WHERE id = $1
+                """,
+                id,
+            )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

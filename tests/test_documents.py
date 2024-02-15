@@ -11,6 +11,7 @@ from dewy_client.api.kb import (
     add_document,
     get_document,
     get_document_status,
+    delete_document,
     list_chunks,
     list_documents,
     upload_document_content,
@@ -262,3 +263,8 @@ async def test_document_lifecycle(client, doc_fixture):
     original_ids = {c.id for c in chunks}
     new_ids = {c.id for c in chunks2}
     assert original_ids.isdisjoint(new_ids)
+
+    # 5. Verify the document and associated resources can be deleted
+    await delete_document.asyncio(client=client, id=doc_fixture.doc1)
+    chunks3 = await list_chunks.asyncio(client=client, document_id=doc_fixture.doc1)
+    assert not chunks3

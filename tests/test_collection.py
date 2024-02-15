@@ -1,10 +1,32 @@
 import json
 import random
 import string
+from dataclasses import dataclass
 
-from dewy_client.api.kb import add_collection, get_collection, list_collections
+import pytest
+from dewy_client.api.kb import add_collection, get_collection, list_collections, delete_collection
 from dewy_client.models import CollectionCreate
 
+
+@dataclass
+class CollectionFixture:
+    collection1: string
+    collection2: string
+
+
+@pytest.fixture(scope="module")
+async def collection_fixture(client) -> CollectionFixture:
+    """Adds two collections with random names."""
+    collection_name1 = "".join(random.choices(string.ascii_lowercase, k=5))
+    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name1))
+
+    collection_name2 = "".join(random.choices(string.ascii_lowercase, k=5))
+    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name2))
+
+    return CollectionFixture(
+        collection1=collection_name1,
+        collection2=collection_name2,
+    )
 
 async def test_get_collection(client):
     name = "".join(random.choices(string.ascii_lowercase, k=5))
@@ -46,3 +68,9 @@ async def test_list_collection(client):
     assert collection_row is not None
     assert collection_row.text_embedding_model == "openai:text-embedding-ada-002"
     assert collection_row.text_distance_metric == "cosine"
+
+async def test_delete_collection(client, collection_fixture):
+    await delete_collection.asyncio(client=client, name=collection_fixture.collection1)
+
+    collections = await list_collections.asyncio(client=client)
+    assert collection_fixture.collection1 not in [c.name for c in collections]
