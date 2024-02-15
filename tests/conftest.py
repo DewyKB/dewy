@@ -31,6 +31,10 @@ NEARLY_EMPTY_PATH = os.path.join(TEST_DATA_DIR, "nearly_empty.pdf")
 assert os.path.isfile(NEARLY_EMPTY_PATH)
 NEARLY_EMPTY_TEXT = "This is a nearly empty PDF to test extraction and embedding.\n"
 
+NEARLY_EMPTY_PATH2 = os.path.join(TEST_DATA_DIR, "nearly_empty2.pdf")
+assert os.path.isfile(NEARLY_EMPTY_PATH2)
+NEARLY_EMPTY_TEXT2 = " This is another nearly empty document. \n" 
+
 NEARLY_EMPTY_BYTES = None
 with open(NEARLY_EMPTY_PATH, "rb") as file:
     NEARLY_EMPTY_BYTES = file.read()

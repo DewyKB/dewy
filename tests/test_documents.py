@@ -2,6 +2,7 @@ import json
 import random
 import string
 import time
+import asyncio
 from dataclasses import dataclass
 
 import pytest
@@ -12,8 +13,12 @@ from dewy_client.api.kb import (
     get_document_status,
     list_chunks,
     list_documents,
+    upload_document_content,
+    list_chunks,
 )
-from dewy_client.models import AddDocumentRequest, CollectionCreate, IngestState
+from dewy_client.models import AddDocumentRequest, CollectionCreate, IngestState, BodyUploadDocumentContent
+from dewy_client.types import File
+from tests.conftest import NEARLY_EMPTY_PATH, NEARLY_EMPTY_TEXT, NEARLY_EMPTY_PATH2, NEARLY_EMPTY_TEXT2
 
 
 @dataclass
@@ -161,3 +166,101 @@ async def test_add_document_ingest_error(client):
         client=client, collection=collection.name, document_id=document.id
     )
     assert len(chunks) == 0
+
+async def test_upload_document_content_invalid(client, doc_fixture):
+    with open(NEARLY_EMPTY_PATH, 'rb') as file:
+        response = await upload_document_content.asyncio_detailed(
+            client=client,
+            document_id=1_000_000,
+            body=BodyUploadDocumentContent(
+                content=File(
+                    payload=file,
+                    file_name="file-name-1",
+                    mime_type="application/pdf",
+                ),
+            ),
+        )
+    assert response.status_code == 404
+
+async def test_document_lifecycle(client, doc_fixture):
+    # 1. Upload a PDF for one of the fixutre docs and verify the document is "pending"
+    with open(NEARLY_EMPTY_PATH, 'rb') as file:
+        document = await upload_document_content.asyncio(
+            client=client,
+            document_id=doc_fixture.doc1,
+            body=BodyUploadDocumentContent(
+                content=File(
+                    payload=file,
+                    file_name="file-name-1",
+                    mime_type="application/pdf",
+                ),
+            ),
+        )
+    assert document
+    assert document.extracted_text is None
+    assert document.url is None
+    assert document.ingest_state == IngestState.PENDING
+    assert document.ingest_error is None
+
+
+    # 2. Wait for ingestion to complete (would be nicer if we could hook into the queue somehow) 
+    # and verify the PDF has been ingested correctly
+    await asyncio.sleep(1)
+    status = await get_document_status.asyncio(document.id, client=client)
+    assert status
+    assert status.id == document.id
+    assert status.ingest_state == IngestState.INGESTED 
+    assert status.ingest_error is None
+
+    document2 = await get_document.asyncio(document.id, client=client)
+    assert document2
+    assert document2.id == doc_fixture.doc1
+    assert document2.extracted_text == NEARLY_EMPTY_TEXT
+    assert document2.url is None
+    assert document2.ingest_state == IngestState.INGESTED
+    assert document2.ingest_error is None
+
+    chunks = await list_chunks.asyncio(client=client, document_id=document.id)
+    assert chunks
+
+    # 3. Upload a revised PDF and verify the document is back into "pending" state
+    with open(NEARLY_EMPTY_PATH2, 'rb') as file:
+        document = await upload_document_content.asyncio(
+            client=client,
+            document_id=doc_fixture.doc1,
+            body=BodyUploadDocumentContent(
+                content=File(
+                    payload=file,
+                    file_name="file-name-2",
+                    mime_type="application/pdf",
+                ),
+            ),
+        )
+    assert document
+    assert document.extracted_text is None
+    assert document.url is None
+    assert document.ingest_state == IngestState.PENDING
+    assert document.ingest_error is None 
+
+    # 4. Wait for the new doc to be ingested and verify it was ingested correctly
+    await asyncio.sleep(1)
+    status2 = await get_document_status.asyncio(document.id, client=client)
+    assert status2
+    assert status2.id == document.id
+    assert status2.ingest_state == IngestState.INGESTED 
+    assert status2.ingest_error is None
+    
+    document3 = await get_document.asyncio(document.id, client=client)
+    assert document3
+    assert document3.id == doc_fixture.doc1
+    assert document3.extracted_text == NEARLY_EMPTY_TEXT2
+    assert document3.url is None
+    assert document3.ingest_state == IngestState.INGESTED
+    assert document3.ingest_error is None
+
+    chunks2 = await list_chunks.asyncio(client=client, document_id=document.id)
+    assert chunks2
+
+    original_ids = {c.id for c in chunks}
+    new_ids = {c.id for c in chunks2}
+    assert original_ids.isdisjoint(new_ids)

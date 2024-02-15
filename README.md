@@ -239,6 +239,10 @@ Don't forget to give the project a star! Thanks again!
     ```sh
     cd frontend && npm install && npm run build
     ```
+1. Build the client
+    ```sh
+    cd dewy-client && poetry install
+    ```
 1. Run the Dewy service
     ```sh
     poetry run dewy
