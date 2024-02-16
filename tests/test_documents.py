@@ -1,8 +1,8 @@
+import asyncio
 import json
 import random
 import string
 import time
-import asyncio
 from dataclasses import dataclass
 
 import pytest
@@ -14,11 +14,21 @@ from dewy_client.api.kb import (
     list_chunks,
     list_documents,
     upload_document_content,
-    list_chunks,
 )
-from dewy_client.models import AddDocumentRequest, CollectionCreate, IngestState, BodyUploadDocumentContent
+from dewy_client.models import (
+    AddDocumentRequest,
+    BodyUploadDocumentContent,
+    CollectionCreate,
+    IngestState,
+)
 from dewy_client.types import File
-from tests.conftest import NEARLY_EMPTY_BYTES, NEARLY_EMPTY_TEXT, NEARLY_EMPTY_BYTES2, NEARLY_EMPTY_TEXT2
+
+from tests.conftest import (
+    NEARLY_EMPTY_BYTES,
+    NEARLY_EMPTY_BYTES2,
+    NEARLY_EMPTY_TEXT,
+    NEARLY_EMPTY_TEXT2,
+)
 
 
 @dataclass
@@ -51,6 +61,7 @@ async def doc_fixture(client) -> DocFixture:
         doc2=doc2.id,
     )
 
+
 async def upload_test_pdf(client, document_id, payload):
     document = await upload_document_content.asyncio(
         client=client,
@@ -67,15 +78,17 @@ async def upload_test_pdf(client, document_id, payload):
     assert document.extracted_text is None
     assert document.url is None
     assert document.ingest_state == IngestState.PENDING
-    assert document.ingest_error is None 
+    assert document.ingest_error is None
+
 
 async def document_ingested(client, document_id):
     await asyncio.sleep(1)
     status2 = await get_document_status.asyncio(document_id, client=client)
     assert status2
     assert status2.id == document_id
-    assert status2.ingest_state == IngestState.INGESTED 
+    assert status2.ingest_state == IngestState.INGESTED
     assert status2.ingest_error is None
+
 
 async def test_list_documents_filtered(client, doc_fixture):
     docs = await list_documents.asyncio(client=client, collection=doc_fixture.collection_name)
@@ -192,6 +205,7 @@ async def test_add_document_ingest_error(client):
     )
     assert len(chunks) == 0
 
+
 async def test_upload_document_unknown_document_id(client, doc_fixture):
     response = await upload_document_content.asyncio_detailed(
         client=client,
@@ -206,11 +220,12 @@ async def test_upload_document_unknown_document_id(client, doc_fixture):
     )
     assert response.status_code == 404
 
+
 async def test_document_lifecycle(client, doc_fixture):
     # 1. Upload a PDF for one of the fixutre docs and verify the document is "pending"
     await upload_test_pdf(client, doc_fixture.doc1, NEARLY_EMPTY_BYTES)
 
-    # 2. Wait for ingestion to complete (would be nicer if we could hook into the queue somehow) 
+    # 2. Wait for ingestion to complete (would be nicer if we could hook into the queue somehow)
     # and verify the PDF has been ingested correctly
     await document_ingested(client, doc_fixture.doc1)
 
@@ -230,7 +245,7 @@ async def test_document_lifecycle(client, doc_fixture):
 
     # 4. Wait for the new doc to be ingested and verify it was ingested correctly
     await document_ingested(client, doc_fixture.doc1)
-    
+
     document3 = await get_document.asyncio(doc_fixture.doc1, client=client)
     assert document3
     assert document3.id == doc_fixture.doc1

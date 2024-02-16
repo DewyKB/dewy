@@ -147,10 +147,10 @@ async def upload_document_content(
                 """
                 DELETE FROM embedding e
                 USING chunk c
-                WHERE e.chunk_id = c.id 
+                WHERE e.chunk_id = c.id
                 AND c.document_id = $1
                 """,
-                document_id
+                document_id,
             )
             # Delete any existing chunks
             await conn.execute(
@@ -158,7 +158,7 @@ async def upload_document_content(
                 DELETE from chunk c
                 WHERE c.document_id = $1
                 """,
-                document_id
+                document_id,
             )
             # Update the document if it exists
             await conn.execute(
@@ -167,7 +167,7 @@ async def upload_document_content(
                 SET ingest_state = 'pending', url = NULL, ingest_error = NULL, extracted_text = NULL
                 WHERE id = $1
                 """,
-                document_id
+                document_id,
             )
 
             document = await get_document(conn, document_id)

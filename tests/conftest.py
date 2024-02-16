@@ -37,11 +37,12 @@ with open(NEARLY_EMPTY_PATH, "rb") as file:
 
 NEARLY_EMPTY_PATH2 = os.path.join(TEST_DATA_DIR, "nearly_empty2.pdf")
 assert os.path.isfile(NEARLY_EMPTY_PATH2)
-NEARLY_EMPTY_TEXT2 = " This is another nearly empty document. \n" 
+NEARLY_EMPTY_TEXT2 = " This is another nearly empty document. \n"
 
 NEARLY_EMPTY_BYTES2 = None
 with open(NEARLY_EMPTY_PATH2, "rb") as file:
     NEARLY_EMPTY_BYTES2 = file.read()
+
 
 @pytest.fixture(scope="session")
 async def app(pg, event_loop):
