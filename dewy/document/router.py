@@ -164,7 +164,11 @@ async def upload_document_content(
             await conn.execute(
                 """
                 UPDATE document
-                SET ingest_state = 'pending', url = NULL, ingest_error = NULL, extracted_text = NULL
+                SET
+                    ingest_state = 'pending',
+                    url = NULL,
+                    ingest_error = NULL,
+                    extracted_text = NULL
                 WHERE id = $1
                 """,
                 document_id,
