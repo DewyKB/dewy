@@ -82,12 +82,15 @@ async def upload_test_pdf(client, document_id, payload):
 
 
 async def document_ingested(client, document_id):
-    await asyncio.sleep(1)
-    status2 = await get_document_status.asyncio(document_id, client=client)
-    assert status2
-    assert status2.id == document_id
-    assert status2.ingest_state == IngestState.INGESTED
-    assert status2.ingest_error is None
+    status = await get_document_status.asyncio(document_id, client=client) 
+    while getattr(status, "ingest_state", IngestState.PENDING) == IngestState.PENDING:
+        await asyncio.sleep(0.1)
+        status = await get_document_status.asyncio(document_id, client=client) 
+    assert status
+    assert status.id == document_id
+    assert status.ingest_state == IngestState.INGESTED
+    assert status.ingest_error is None
+
 
 
 async def test_list_documents_filtered(client, doc_fixture):
