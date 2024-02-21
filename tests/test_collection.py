@@ -4,9 +4,17 @@ import string
 from dataclasses import dataclass
 
 import pytest
-from dewy_client.api.kb import add_collection, get_collection, list_collections, delete_collection
-from dewy_client.models import CollectionCreate
+from dewy_client.api.kb import add_collection, get_collection, list_collections, delete_collection, add_document, list_chunks, list_documents
+from dewy_client.models import CollectionCreate, AddDocumentRequest
 
+from tests.conftest import (
+    NEARLY_EMPTY_BYTES,
+    NEARLY_EMPTY_BYTES2,
+    NEARLY_EMPTY_TEXT,
+    NEARLY_EMPTY_TEXT2,
+    upload_test_pdf,
+    document_ingested,
+)
 
 @dataclass
 class CollectionFixture:
@@ -69,8 +77,44 @@ async def test_list_collection(client):
     assert collection_row.text_embedding_model == "openai:text-embedding-ada-002"
     assert collection_row.text_distance_metric == "cosine"
 
-async def test_delete_collection(client, collection_fixture):
-    await delete_collection.asyncio(client=client, name=collection_fixture.collection1)
+async def test_delete_collection(client):
+    collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
+    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name))
+
+    await delete_collection.asyncio(client=client, name=collection_name)
 
     collections = await list_collections.asyncio(client=client)
-    assert collection_fixture.collection1 not in [c.name for c in collections]
+    assert collection_name not in [c.name for c in collections]
+
+async def test_collection_lifecycle(client):
+    # 1. Create a collection
+    collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
+    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name))
+
+    # 1. Create a document in the collection
+    doc = await add_document.asyncio(
+        client=client,
+        body=AddDocumentRequest(collection=collection_name),
+    )
+
+    # 2. Upload a PDF for the doc and verify the document is "pending"
+    await upload_test_pdf(client, doc.id, NEARLY_EMPTY_BYTES)
+
+    # 3. Wait for ingestion to complete (would be nicer if we could hook into the queue somehow)
+    # and verify the PDF has been ingested correctly
+    await document_ingested(client, doc.id)
+
+    chunks = await list_chunks.asyncio(client=client, document_id=doc.id)
+    assert chunks
+
+    # 4. Delete the collection and verify it removes documents & chunks
+    await delete_collection.asyncio(client=client, name=collection_name)
+
+    collections = await list_collections.asyncio(client=client)
+    assert collection_name not in [c.name for c in collections]
+
+    documents = await list_documents.asyncio(client=client, collection=collection_name)
+    assert not documents
+
+    chunks = await list_chunks.asyncio(client=client, collection=collection_name)
+    assert not chunks

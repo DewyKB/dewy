@@ -89,7 +89,7 @@ async def delete_collection(pg_pool: PgPoolDep, name: PathCollection) -> Collect
     """Delete a collection and all documents contained within it."""
     async with pg_pool.acquire() as conn:
         async with conn.transaction():
-            result = await conn.fetchrow(
+            collection_id = await conn.fetchval(
                 """
                 SELECT id
                 FROM collection
@@ -98,11 +98,10 @@ async def delete_collection(pg_pool: PgPoolDep, name: PathCollection) -> Collect
                 name,
             )
 
-            if not result:
+            if not collection_id:
                 raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail=f"No collection with name {name}"
             )
-            collection_id = result["id"]
 
             # Delete any embeddings
             await conn.execute(

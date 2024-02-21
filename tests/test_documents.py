@@ -29,6 +29,8 @@ from tests.conftest import (
     NEARLY_EMPTY_BYTES2,
     NEARLY_EMPTY_TEXT,
     NEARLY_EMPTY_TEXT2,
+    upload_test_pdf,
+    document_ingested,
 )
 
 
@@ -61,37 +63,6 @@ async def doc_fixture(client) -> DocFixture:
         doc1=doc1.id,
         doc2=doc2.id,
     )
-
-
-async def upload_test_pdf(client, document_id, payload):
-    document = await upload_document_content.asyncio(
-        client=client,
-        document_id=document_id,
-        body=BodyUploadDocumentContent(
-            content=File(
-                payload=payload,
-                file_name=f"file-${document_id}.pdf",
-                mime_type="application/pdf",
-            ),
-        ),
-    )
-    assert document
-    assert document.extracted_text is None
-    assert document.url is None
-    assert document.ingest_state == IngestState.PENDING
-    assert document.ingest_error is None
-
-
-async def document_ingested(client, document_id):
-    status = await get_document_status.asyncio(document_id, client=client)
-    while getattr(status, "ingest_state", IngestState.PENDING) == IngestState.PENDING:
-        await asyncio.sleep(0.1)
-        status = await get_document_status.asyncio(document_id, client=client)
-    assert status
-    assert status.id == document_id
-    assert status.ingest_state == IngestState.INGESTED
-    assert status.ingest_error is None
-
 
 async def test_list_documents_filtered(client, doc_fixture):
     docs = await list_documents.asyncio(client=client, collection=doc_fixture.collection_name)
