@@ -141,22 +141,55 @@ async def upload_document_content(
 
     document = None
     async with pg_pool.acquire() as conn:
-        document = await get_document(conn, document_id)
+        async with conn.transaction():
+            # Delete any existing embeddings
+            await conn.execute(
+                """
+                DELETE FROM embedding e
+                USING chunk c
+                WHERE e.chunk_id = c.id
+                AND c.document_id = $1
+                """,
+                document_id,
+            )
+            # Delete any existing chunks
+            await conn.execute(
+                """
+                DELETE from chunk c
+                WHERE c.document_id = $1
+                """,
+                document_id,
+            )
+            # Update the document if it exists
+            await conn.execute(
+                """
+                UPDATE document
+                SET
+                    ingest_state = 'pending',
+                    url = NULL,
+                    ingest_error = NULL,
+                    extracted_text = NULL
+                WHERE id = $1
+                """,
+                document_id,
+            )
 
-    content_bytes = await content.read()
-    background.add_task(
-        ingest_document,
-        document.id,
-        pg_pool,
-        config,
-        IngestContent(
-            filename=content.filename,
-            content_type=content.content_type,
-            size=content.size,
-            content_bytes=content_bytes,
-        ),
-    )
-    return document
+            document = await get_document(conn, document_id)
+
+            content_bytes = await content.read()
+            background.add_task(
+                ingest_document,
+                document.id,
+                pg_pool,
+                config,
+                IngestContent(
+                    filename=content.filename,
+                    content_type=content.content_type,
+                    size=content.size,
+                    content_bytes=content_bytes,
+                ),
+            )
+            return document
 
 
 PathDocumentId = Annotated[int, Path(..., description="The document ID.")]
