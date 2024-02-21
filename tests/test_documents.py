@@ -92,7 +92,6 @@ async def document_ingested(client, document_id):
     assert status.ingest_error is None
 
 
-
 async def test_list_documents_filtered(client, doc_fixture):
     docs = await list_documents.asyncio(client=client, collection=doc_fixture.collection_name)
 

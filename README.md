@@ -258,7 +258,7 @@ If you're in a `poetry shell`, you can omit the `poetry run`:
 * Running tests: `poetry run pytest`
 * Linting (and formatting): `poetry run ruff check --fix`
 * Formatting: `poetry run ruff format`
-* Type Checking: `poetry run mypy app`
+* Type Checking: `poetry run mypy dewy`
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p
