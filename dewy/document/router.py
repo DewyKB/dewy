@@ -143,16 +143,6 @@ async def upload_document_content(
     document = None
     async with pg_pool.acquire() as conn:
         async with conn.transaction():
-            # Delete any existing embeddings
-            await conn.execute(
-                """
-                DELETE FROM embedding e
-                USING chunk c
-                WHERE e.chunk_id = c.id
-                AND c.document_id = $1
-                """,
-                document_id,
-            )
             # Delete any existing chunks
             await conn.execute(
                 """
@@ -262,45 +252,17 @@ async def delete_document(pg_pool: PgPoolDep, id: PathDocumentId) -> Document:
     """Delete a document."""
 
     async with pg_pool.acquire() as conn:
-        async with conn.transaction():
-            result = await conn.fetchrow(
-                """
-                SELECT id
-                FROM document
-                WHERE id = $1
-                """,
-                id,
-            )
-
-            if not result:
-                raise HTTPException(
+        deleted = await conn.execute(
+            """
+            DELETE from document
+            WHERE id = $1
+            RETURNING id
+            """,
+            id,
+        )
+        if not deleted:
+            raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail=f"No document with ID {id}"
             )
 
-            # Delete any embeddings
-            await conn.execute(
-                """
-                DELETE FROM embedding e
-                USING chunk c
-                WHERE e.chunk_id = c.id
-                AND c.document_id = $1
-                """,
-                id,
-            )
-            # Delete any chunks
-            await conn.execute(
-                """
-                DELETE from chunk c
-                WHERE c.document_id = $1
-                """,
-                id,
-            )
-            # Delete the document
-            await conn.execute(
-                """
-                DELETE from document
-                WHERE id = $1
-                """,
-                id,
-            )
     return Response(status_code=status.HTTP_204_NO_CONTENT)

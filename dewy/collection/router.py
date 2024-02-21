@@ -88,54 +88,17 @@ async def get_collection(name: PathCollection, conn: PgConnectionDep) -> Collect
 async def delete_collection(pg_pool: PgPoolDep, name: PathCollection) -> Collection:
     """Delete a collection and all documents contained within it."""
     async with pg_pool.acquire() as conn:
-        async with conn.transaction():
-            collection_id = await conn.fetchval(
-                """
-                SELECT id
-                FROM collection
-                WHERE name = $1
-                """,
-                name,
-            )
-
-            if not collection_id:
-                raise HTTPException(
+        id = await conn.execute(
+            """
+            DELETE from collection
+            WHERE name = $1
+            RETURNING id
+            """,
+            name,
+        )
+        if not id:
+            raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail=f"No collection with name {name}"
-            )
-
-            # Delete any embeddings
-            await conn.execute(
-                """
-                DELETE FROM embedding e
-                WHERE collection_id = $1
-                """,
-                collection_id,
-            )
-            # Delete any chunks
-            await conn.execute(
-                """
-                DELETE from chunk c
-                USING document d
-                WHERE c.document_id = d.id
-                AND d.collection_id = $1
-                """,
-                collection_id,
-            )
-            # Delete any documents
-            await conn.execute(
-                """
-                DELETE from document
-                WHERE collection_id = $1
-                """,
-                collection_id,
-            )
-            # Delete the collection
-            await conn.execute(
-                """
-                DELETE from collection
-                WHERE id = $1
-                """,
-                collection_id,
             )
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
