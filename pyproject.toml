@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dewy"
-version = "0.2.0"
+version = "0.2.1"
 description = "Knowledge base service."
 authors = ["Ben Chambers <ben.chambers@datastax.com>", "Ryan Michael <ryan.michael@datastax.com>"]
 readme = "README.md"

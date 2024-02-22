@@ -51,7 +51,7 @@ class Config(BaseSettings):
 
         app_configs: dict[str, Any] = {
             "title": "Dewy Knowledge Base API",
-            "version": "0.2.0",
+            "version": "0.2.1",
             "summary": "Knowledge curation for Retrieval Augmented Generation",
             "description": API_DESCRIPTION,
             "servers": [
