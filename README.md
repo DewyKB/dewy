@@ -260,6 +260,11 @@ If you're in a `poetry shell`, you can omit the `poetry run`:
 * Formatting: `poetry run ruff format`
 * Type Checking: `poetry run mypy dewy`
 
+To regenerate the OpenAPI spec and client libraries:
+```sh
+poetry poe extract-openapi
+poetry poe update-client
+```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p
 

@@ -81,6 +81,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - kb
+      summary: Delete Collection
+      description: Delete a collection and all documents contained within it.
+      operationId: deleteCollection
+      parameters:
+      - name: name
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The collection name.
+          title: Name
+        description: The collection name.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/documents/:
     post:
       tags:
@@ -181,6 +209,34 @@ paths:
       - kb
       summary: Get Document
       operationId: getDocument
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: The document ID.
+          title: Id
+        description: The document ID.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - kb
+      summary: Delete Document
+      description: Delete a document.
+      operationId: deleteDocument
       parameters:
       - name: id
         in: path

@@ -1,4 +1,3 @@
-import asyncio
 import json
 import random
 import string
@@ -9,6 +8,7 @@ import pytest
 from dewy_client.api.kb import (
     add_collection,
     add_document,
+    delete_document,
     get_document,
     get_document_status,
     list_chunks,
@@ -28,6 +28,8 @@ from tests.conftest import (
     NEARLY_EMPTY_BYTES2,
     NEARLY_EMPTY_TEXT,
     NEARLY_EMPTY_TEXT2,
+    document_ingested,
+    upload_test_pdf,
 )
 
 
@@ -60,36 +62,6 @@ async def doc_fixture(client) -> DocFixture:
         doc1=doc1.id,
         doc2=doc2.id,
     )
-
-
-async def upload_test_pdf(client, document_id, payload):
-    document = await upload_document_content.asyncio(
-        client=client,
-        document_id=document_id,
-        body=BodyUploadDocumentContent(
-            content=File(
-                payload=payload,
-                file_name=f"file-${document_id}.pdf",
-                mime_type="application/pdf",
-            ),
-        ),
-    )
-    assert document
-    assert document.extracted_text is None
-    assert document.url is None
-    assert document.ingest_state == IngestState.PENDING
-    assert document.ingest_error is None
-
-
-async def document_ingested(client, document_id):
-    status = await get_document_status.asyncio(document_id, client=client)
-    while getattr(status, "ingest_state", IngestState.PENDING) == IngestState.PENDING:
-        await asyncio.sleep(0.1)
-        status = await get_document_status.asyncio(document_id, client=client)
-    assert status
-    assert status.id == document_id
-    assert status.ingest_state == IngestState.INGESTED
-    assert status.ingest_error is None
 
 
 async def test_list_documents_filtered(client, doc_fixture):
@@ -262,3 +234,16 @@ async def test_document_lifecycle(client, doc_fixture):
     original_ids = {c.id for c in chunks}
     new_ids = {c.id for c in chunks2}
     assert original_ids.isdisjoint(new_ids)
+
+    # 5. Verify the document and associated resources can be deleted
+    await delete_document.asyncio(client=client, id=doc_fixture.doc1)
+    chunks3 = await list_chunks.asyncio(client=client, document_id=doc_fixture.doc1)
+    assert not chunks3
+
+
+async def test_delete_document_invalid(client):
+    content = await delete_document.asyncio_detailed(1_000_000, client=client)
+    assert content.status_code == 404
+
+    response_content = json.loads(content.content)
+    assert response_content == {"detail": "No document with ID 1000000"}

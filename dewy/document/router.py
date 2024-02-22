@@ -8,6 +8,7 @@ from fastapi import (
     HTTPException,
     Path,
     Query,
+    Response,
     UploadFile,
     status,
 )
@@ -142,16 +143,6 @@ async def upload_document_content(
     document = None
     async with pg_pool.acquire() as conn:
         async with conn.transaction():
-            # Delete any existing embeddings
-            await conn.execute(
-                """
-                DELETE FROM embedding e
-                USING chunk c
-                WHERE e.chunk_id = c.id
-                AND c.document_id = $1
-                """,
-                document_id,
-            )
             # Delete any existing chunks
             await conn.execute(
                 """
@@ -255,3 +246,23 @@ async def get_document_status(conn: PgConnectionDep, id: PathDocumentId) -> Docu
     return DocumentStatus(
         id=id, ingest_state=result["ingest_state"], ingest_error=result["ingest_error"]
     )
+
+
+@router.delete("/{id}")
+async def delete_document(conn: PgConnectionDep, id: PathDocumentId) -> Document:
+    """Delete a document."""
+
+    deleted = await conn.fetchval(
+        """
+        DELETE from document
+        WHERE id = $1
+        RETURNING id
+        """,
+        id,
+    )
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"No document with ID {id}"
+        )
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

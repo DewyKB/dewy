@@ -4,13 +4,21 @@ import os
 import pytest
 from asgi_lifespan import LifespanManager
 from dewy_client import Client
+from dewy_client.api.kb import (
+    get_document_status,
+    upload_document_content,
+)
+from dewy_client.models import (
+    BodyUploadDocumentContent,
+    IngestState,
+)
+from dewy_client.types import File
 from httpx import AsyncClient
+from pytest_docker_fixtures.images import configure as configure_image  # noqa: E402
 
 from dewy.config import Config
 
 pytest_plugins = ["pytest_docker_fixtures"]
-
-from pytest_docker_fixtures.images import configure as configure_image  # noqa: E402
 
 configure_image(
     "postgresql",
@@ -90,3 +98,33 @@ def event_loop():
     loop = policy.new_event_loop()
     yield loop
     loop.close()
+
+
+async def upload_test_pdf(client, document_id, payload):
+    document = await upload_document_content.asyncio(
+        client=client,
+        document_id=document_id,
+        body=BodyUploadDocumentContent(
+            content=File(
+                payload=payload,
+                file_name=f"file-${document_id}.pdf",
+                mime_type="application/pdf",
+            ),
+        ),
+    )
+    assert document
+    assert document.extracted_text is None
+    assert document.url is None
+    assert document.ingest_state == IngestState.PENDING
+    assert document.ingest_error is None
+
+
+async def document_ingested(client, document_id):
+    status = await get_document_status.asyncio(document_id, client=client)
+    while getattr(status, "ingest_state", IngestState.PENDING) == IngestState.PENDING:
+        await asyncio.sleep(0.1)
+        status = await get_document_status.asyncio(document_id, client=client)
+    assert status
+    assert status.id == document_id
+    assert status.ingest_state == IngestState.INGESTED
+    assert status.ingest_error is None
