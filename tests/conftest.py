@@ -4,14 +4,6 @@ import os
 import pytest
 from asgi_lifespan import LifespanManager
 from dewy_client import Client
-from httpx import AsyncClient
-
-from dewy.config import Config
-
-pytest_plugins = ["pytest_docker_fixtures"]
-
-from pytest_docker_fixtures.images import configure as configure_image  # noqa: E402
-
 from dewy_client.api.kb import (
     get_document_status,
     upload_document_content,
@@ -21,6 +13,12 @@ from dewy_client.models import (
     IngestState,
 )
 from dewy_client.types import File
+from httpx import AsyncClient
+from pytest_docker_fixtures.images import configure as configure_image  # noqa: E402
+
+from dewy.config import Config
+
+pytest_plugins = ["pytest_docker_fixtures"]
 
 configure_image(
     "postgresql",
@@ -100,6 +98,7 @@ def event_loop():
     loop = policy.new_event_loop()
     yield loop
     loop.close()
+
 
 async def upload_test_pdf(client, document_id, payload):
     document = await upload_document_content.asyncio(

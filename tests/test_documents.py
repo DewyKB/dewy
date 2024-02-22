@@ -1,4 +1,3 @@
-import asyncio
 import json
 import random
 import string
@@ -9,9 +8,9 @@ import pytest
 from dewy_client.api.kb import (
     add_collection,
     add_document,
+    delete_document,
     get_document,
     get_document_status,
-    delete_document,
     list_chunks,
     list_documents,
     upload_document_content,
@@ -29,8 +28,8 @@ from tests.conftest import (
     NEARLY_EMPTY_BYTES2,
     NEARLY_EMPTY_TEXT,
     NEARLY_EMPTY_TEXT2,
-    upload_test_pdf,
     document_ingested,
+    upload_test_pdf,
 )
 
 
@@ -63,6 +62,7 @@ async def doc_fixture(client) -> DocFixture:
         doc1=doc1.id,
         doc2=doc2.id,
     )
+
 
 async def test_list_documents_filtered(client, doc_fixture):
     docs = await list_documents.asyncio(client=client, collection=doc_fixture.collection_name)
@@ -239,3 +239,11 @@ async def test_document_lifecycle(client, doc_fixture):
     await delete_document.asyncio(client=client, id=doc_fixture.doc1)
     chunks3 = await list_chunks.asyncio(client=client, document_id=doc_fixture.doc1)
     assert not chunks3
+
+
+async def test_delete_document_invalid(client):
+    content = await delete_document.asyncio_detailed(1_000_000, client=client)
+    assert content.status_code == 404
+
+    response_content = json.loads(content.content)
+    assert response_content == {"detail": "No document with ID 1000000"}

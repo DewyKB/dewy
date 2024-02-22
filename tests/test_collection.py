@@ -4,17 +4,23 @@ import string
 from dataclasses import dataclass
 
 import pytest
-from dewy_client.api.kb import add_collection, get_collection, list_collections, delete_collection, add_document, list_chunks, list_documents
-from dewy_client.models import CollectionCreate, AddDocumentRequest
+from dewy_client.api.kb import (
+    add_collection,
+    add_document,
+    delete_collection,
+    get_collection,
+    list_chunks,
+    list_collections,
+    list_documents,
+)
+from dewy_client.models import AddDocumentRequest, CollectionCreate
 
 from tests.conftest import (
     NEARLY_EMPTY_BYTES,
-    NEARLY_EMPTY_BYTES2,
-    NEARLY_EMPTY_TEXT,
-    NEARLY_EMPTY_TEXT2,
-    upload_test_pdf,
     document_ingested,
+    upload_test_pdf,
 )
+
 
 @dataclass
 class CollectionFixture:
@@ -35,6 +41,7 @@ async def collection_fixture(client) -> CollectionFixture:
         collection1=collection_name1,
         collection2=collection_name2,
     )
+
 
 async def test_get_collection(client):
     name = "".join(random.choices(string.ascii_lowercase, k=5))
@@ -77,6 +84,7 @@ async def test_list_collection(client):
     assert collection_row.text_embedding_model == "openai:text-embedding-ada-002"
     assert collection_row.text_distance_metric == "cosine"
 
+
 async def test_delete_collection(client):
     collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
     await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name))
@@ -85,6 +93,14 @@ async def test_delete_collection(client):
 
     collections = await list_collections.asyncio(client=client)
     assert collection_name not in [c.name for c in collections]
+
+
+async def test_delete_unknown_collection(client):
+    response = await delete_collection.asyncio_detailed("invalid collection", client=client)
+    assert response.status_code == 404
+    response_content = json.loads(response.content)
+    assert response_content == {"detail": "No collection named 'invalid collection'"}
+
 
 async def test_collection_lifecycle(client):
     # 1. Create a collection

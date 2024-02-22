@@ -1,11 +1,11 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, HTTPException, Path, status, Response
+from fastapi import APIRouter, HTTPException, Path, Response, status
 from loguru import logger
 
 from dewy.collection.models import Collection, CollectionCreate
 from dewy.common.collection_embeddings import get_dimensions
-from dewy.common.db import PgConnectionDep, PgPoolDep
+from dewy.common.db import PgConnectionDep
 
 router = APIRouter(prefix="/collections")
 
@@ -84,21 +84,21 @@ async def get_collection(name: PathCollection, conn: PgConnectionDep) -> Collect
 
     return Collection.model_validate(dict(result))
 
+
 @router.delete("/{name}")
-async def delete_collection(pg_pool: PgPoolDep, name: PathCollection) -> Collection:
+async def delete_collection(conn: PgConnectionDep, name: PathCollection) -> Collection:
     """Delete a collection and all documents contained within it."""
-    async with pg_pool.acquire() as conn:
-        id = await conn.execute(
-            """
-            DELETE from collection
-            WHERE name = $1
-            RETURNING id
-            """,
-            name,
+    id = await conn.fetchval(
+        """
+        DELETE from collection
+        WHERE name = $1
+        RETURNING id
+        """,
+        name,
+    )
+    if not id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"No collection named '{name}'"
         )
-        if not id:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail=f"No collection with name {name}"
-            )
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
