@@ -21,8 +21,7 @@ EMBEDDINGS = {
             name="openai:text-embedding-ada-002",
             dimensions=1536,
             factory=lambda config: OpenAIEmbedding(
-                model="text-embedding-ada-002",
-                api_key=config.OPENAI_API_KEY
+                model="text-embedding-ada-002", api_key=config.OPENAI_API_KEY
             ),
         ),
         EmbeddingModel(
