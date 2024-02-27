@@ -2,8 +2,7 @@ import dataclasses
 from typing import List, Optional, Self, Tuple, Union
 
 import asyncpg
-from llama_index.node_parser import SentenceSplitter
-from llama_index.schema import TextNode
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from loguru import logger
 
 from dewy.chunk.models import TextResult
@@ -48,8 +47,9 @@ class CollectionEmbeddings:
         self.extract_tables = False
         self.extract_images = False
 
-        # TODO: Look at a sentence window splitter?
-        self._splitter = SentenceSplitter(chunk_size=256)
+        self._splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000, chunk_overlap=200, add_start_index=True
+        )
         embedding = EMBEDDINGS[self.text_embedding_model]
         self._embedding = embedding.factory(config)
 
@@ -171,7 +171,7 @@ class CollectionEmbeddings:
         Returns:
         List of chunk_ids from the embeddings.
         """
-        embedded_query = await self._embedding.aget_text_embedding(query)
+        embedded_query = await self._embedding.aembed_query(query)
 
         async with self._pg_pool.acquire() as conn:
             logger.info("Executing SQL query for chunks from {}", self.collection_id)
@@ -282,7 +282,7 @@ class CollectionEmbeddings:
 
                 # Extract just the text and embed it.
                 logger.info("Computing {} embeddings for {}", len(embedding_chunks), document_id)
-                embeddings = await self._embedding.aget_text_embedding_batch(
+                embeddings = await self._embedding.aembed_documents(
                     [item[1] for item in embedding_chunks]
                 )
 
@@ -317,9 +317,4 @@ class CollectionEmbeddings:
             logger.info("Finished updating embeddings for document {}", document_id)
 
     async def _chunk_sentences(self, text: str) -> List[str]:
-        # This uses llama index a bit oddly. Unfortunately:
-        #  - It returns `BaseNode` even though we know these are `TextNode`
-        #  - It returns a `List` rather than an `Iterator` / `Generator`, so
-        #    all resulting nodes are resident in memory.
-        #  - It uses metadata to return the "window" (if using sentence windows).
-        return [node.text for node in await self._splitter.acall([TextNode(text=text)])]
+        return self._splitter.split_text(text)

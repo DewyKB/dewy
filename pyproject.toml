@@ -66,6 +66,9 @@ numpy = "^1.26.3"
 transformers = "^4.37.1"
 filetype = "^1.2.0"
 python-multipart = "^0.0.7"
+langchain-core = "^0.1.27"
+langchain-openai = "^0.0.8"
+langchain-community = "^0.0.24"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.11"

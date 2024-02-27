@@ -1,8 +1,9 @@
 import dataclasses
 from typing import Callable
 
-from llama_index import OpenAIEmbedding
-from llama_index.embeddings import BaseEmbedding, HuggingFaceEmbedding
+from langchain_core.embeddings import Embeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_openai import OpenAIEmbeddings
 
 from dewy.config import Config
 
@@ -11,7 +12,7 @@ from dewy.config import Config
 class EmbeddingModel:
     name: str
     dimensions: int
-    factory: Callable[[Config], BaseEmbedding]
+    factory: Callable[[Config], Embeddings]
 
 
 EMBEDDINGS = {
@@ -20,19 +21,19 @@ EMBEDDINGS = {
         EmbeddingModel(
             name="openai:text-embedding-ada-002",
             dimensions=1536,
-            factory=lambda config: OpenAIEmbedding(
+            factory=lambda config: OpenAIEmbeddings(
                 model="text-embedding-ada-002", api_key=config.OPENAI_API_KEY
             ),
         ),
         EmbeddingModel(
             name="hf:BAAI/bge-small-en",
             dimensions=384,
-            factory=lambda _config: HuggingFaceEmbedding("BAAI/bge-small-en"),
+            factory=lambda _config: HuggingFaceBgeEmbeddings(model_name="BAAI/bge-small-en"),
         ),
         EmbeddingModel(
             name="hf:BAAI/bge-small-en-v1.5",
             dimensions=384,
-            factory=lambda _config: HuggingFaceEmbedding("BAAI/bge-small-en-v1.5"),
+            factory=lambda _config: HuggingFaceBgeEmbeddings(model_name="BAAI/bge-small-en-v1.5"),
         ),
     ]
 }
