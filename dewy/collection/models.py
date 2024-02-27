@@ -1,6 +1,8 @@
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationInfo, field_validator
+
+from dewy.common.embeddings import EMBEDDINGS
 
 
 class DistanceMetric(Enum):
@@ -73,6 +75,14 @@ class CollectionCreate(BaseModel):
 
     NOTE: Changing embedding models is not currently supported.
     """
+
+    @field_validator("text_embedding_model")
+    @classmethod
+    def supported_text_embedding_model(cls, v: str, info: ValidationInfo):
+        assert (
+            v in EMBEDDINGS
+        ), f"{info.field_name} must be one of [{', '.join(EMBEDDINGS.keys())}]"
+        return v
 
     text_distance_metric: DistanceMetric = DistanceMetric.cosine
     """The distance metric to use on the text embedding.

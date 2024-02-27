@@ -83,9 +83,10 @@ async def add_document(
     background: BackgroundTasks,
     req: AddDocumentRequest,
 ) -> Document:
-    """Add a document from a URL."""
+    """Add a document to a collection."""
     async with pg_pool.acquire() as conn:
         row = None
+        logger.info(f"Request: {req}")
         try:
             row = await conn.fetchrow(
                 """

@@ -2,13 +2,13 @@ import dataclasses
 from typing import List, Optional, Self, Tuple, Union
 
 import asyncpg
-from llama_index.embeddings import BaseEmbedding
 from llama_index.node_parser import SentenceSplitter
 from llama_index.schema import TextNode
 from loguru import logger
 
 from dewy.chunk.models import TextResult
 from dewy.collection.models import DistanceMetric
+from dewy.common.embeddings import EMBEDDINGS
 from dewy.config import Config
 
 from .extract import extract_content, extract_url
@@ -37,7 +37,6 @@ class CollectionEmbeddings:
         *,
         collection_id: int,
         text_embedding_model: str,
-        text_embedding_dimensions: int,
         text_distance_metric: DistanceMetric,
     ) -> None:
         """Create a new CollectionEmbeddings."""
@@ -51,9 +50,10 @@ class CollectionEmbeddings:
 
         # TODO: Look at a sentence window splitter?
         self._splitter = SentenceSplitter(chunk_size=256)
-        self._embedding = _resolve_embedding_model(config, self.text_embedding_model)
+        embedding = EMBEDDINGS[self.text_embedding_model]
+        self._embedding = embedding.factory(config)
 
-        field = f"embedding::vector({text_embedding_dimensions})"
+        field = f"embedding::vector({embedding.dimensions})"
 
         # TODO: Figure out how to limit by the number of *chunks* not the number
         # of embeddings.
@@ -96,10 +96,8 @@ class CollectionEmbeddings:
                 SELECT
                     c.id as collection_id,
                     c.text_embedding_model,
-                    c.text_distance_metric,
-                    t.dimensions AS text_embedding_dimensions
+                    c.text_distance_metric
                 FROM collection c
-                JOIN text_embedding_dimensions t ON t.name = c.text_embedding_model
                 WHERE lower(c.name) = lower($1);
                 """,
                 collection,
@@ -110,7 +108,6 @@ class CollectionEmbeddings:
                 config,
                 collection_id=result["collection_id"],
                 text_embedding_model=result["text_embedding_model"],
-                text_embedding_dimensions=result["text_embedding_dimensions"],
                 text_distance_metric=DistanceMetric(result["text_distance_metric"]),
             )
 
@@ -126,11 +123,9 @@ class CollectionEmbeddings:
                 SELECT
                     c.id as collection_id,
                     c.text_embedding_model,
-                    c.text_distance_metric,
-                    t.dimensions AS text_embedding_dimensions
+                    c.text_distance_metric
                 FROM document d
                 JOIN collection c ON d.collection_id = c.id
-                JOIN text_embedding_dimensions t ON t.name = c.text_embedding_model
                 WHERE d.id = $1;
                 """,
                 document_id,
@@ -142,7 +137,6 @@ class CollectionEmbeddings:
                 config,
                 collection_id=result["collection_id"],
                 text_embedding_model=result["text_embedding_model"],
-                text_embedding_dimensions=result["text_embedding_dimensions"],
                 text_distance_metric=DistanceMetric(result["text_distance_metric"]),
             )
             return configured_ingestion
@@ -329,59 +323,3 @@ class CollectionEmbeddings:
         #    all resulting nodes are resident in memory.
         #  - It uses metadata to return the "window" (if using sentence windows).
         return [node.text for node in await self._splitter.acall([TextNode(text=text)])]
-
-
-DEFAULT_OPENAI_EMBEDDING_MODEL: str = "openai:text-embedding-ada-002"
-DEFAULT_HF_EMBEDDING_MODEL: str = "hf:BAAI/bge-small-en"
-
-
-async def get_dimensions(conn: asyncpg.Connection, model_name: str) -> int:
-    dimensions = await conn.fetchval(
-        """
-        SELECT dimensions
-        FROM text_embedding_dimensions
-        WHERE name = $1
-        """,
-        model_name,
-    )
-
-    if dimensions is not None:
-        return dimensions
-
-    model = _resolve_embedding_model(model_name)
-    dimensions = len(await model.aget_text_embedding("test string"))
-
-    # TODO: Deal with concurrency? I suspect it is OK if this fails
-    # due to the uniqueness constraint, and we should just move on.
-    # Someone wrote the value for that name to the table, and we should
-    # have determined the same values.
-    await conn.execute(
-        """
-        INSERT INTO text_embedding_dimensions (name, dimensions)
-        VALUES ($1, $2)
-        """,
-        model_name,
-        dimensions,
-    )
-
-    return dimensions
-
-
-def _resolve_embedding_model(config: Config, model: str) -> BaseEmbedding:
-    if not model:
-        if config.OPENAI_API_KEY:
-            model = DEFAULT_OPENAI_EMBEDDING_MODEL
-        else:
-            model = DEFAULT_HF_EMBEDDING_MODEL
-
-    split = model.split(":", 2)
-    if split[0] == "openai":
-        from llama_index.embeddings import OpenAIEmbedding
-
-        return OpenAIEmbedding(model=split[1], api_key=config.OPENAI_API_KEY)
-    elif split[0] == "hf":
-        from llama_index.embeddings import HuggingFaceEmbedding
-
-        return HuggingFaceEmbedding(model_name=split[1])
-    else:
-        raise ValueError(f"Unrecognized embedding model '{model}'")
