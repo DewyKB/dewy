@@ -1,11 +1,10 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter, HTTPException, Path, Response, status
-from loguru import logger
 
 from dewy.collection.models import Collection, CollectionCreate
-from dewy.common.collection_embeddings import get_dimensions
 from dewy.common.db import PgConnectionDep
+from dewy.common.embeddings import EMBEDDINGS
 
 router = APIRouter(prefix="/collections")
 
@@ -13,8 +12,8 @@ router = APIRouter(prefix="/collections")
 @router.post("/")
 async def add_collection(conn: PgConnectionDep, collection: CollectionCreate) -> Collection:
     """Create a collection."""
-    dimensions = await get_dimensions(conn, collection.text_embedding_model)
-    logger.info("Dimensions: {}", dimensions)
+    dimensions = EMBEDDINGS[collection.text_embedding_model].dimensions
+
     async with conn.transaction():
         result = await conn.fetchrow(
             """
