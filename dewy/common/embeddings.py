@@ -1,8 +1,8 @@
 import dataclasses
 from typing import Callable
 
-from langchain_core.embeddings import Embeddings
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from langchain_core.embeddings import Embeddings
 from langchain_openai import OpenAIEmbeddings
 
 from dewy.config import Config

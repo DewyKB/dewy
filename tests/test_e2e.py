@@ -27,7 +27,8 @@ SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
 
 
 @pytest.mark.parametrize(
-    "embedding_model", ["openai:text-embedding-ada-002", "hf:BAAI/bge-small-en", "hf:BAAI/bge-small-en-v1.5"]
+    "embedding_model",
+    ["openai:text-embedding-ada-002", "hf:BAAI/bge-small-en", "hf:BAAI/bge-small-en-v1.5"],
 )
 @pytest.mark.timeout(120)  # slow due to embedding (especially in CI)
 async def test_index_retrieval(client, embedding_model):
