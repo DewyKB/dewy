@@ -5,7 +5,7 @@ info:
   description: "This API allows ingesting and retrieving knowledge.\n\n        Knowledge\
     \ comes in a variety of forms -- text, image, tables, etc. and\n        from a\
     \ variety of sources -- documents, web pages, audio, etc."
-  version: 0.2.1
+  version: 0.3.0
 servers:
 - url: http://localhost:8000
   description: Local server
