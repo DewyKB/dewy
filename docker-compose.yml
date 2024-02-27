@@ -5,7 +5,7 @@ services:
     image: dewy
     environment:
       ENVIRONMENT: LOCAL
-      LLAMA_INDEX_CACHE_DIR: "/tmp/cache/llama_index"
+      SENTENCE_TRANSFORMERS_HOME: "/tmp/cache/sentence_transformers"
       HF_HOME: "/tmp/cache/hf"
       DB: "postgresql://dewydbuser:dewydbpwd@postgres/dewydb"
       APPLY_MIGRATIONS: true
@@ -21,7 +21,7 @@ services:
     depends_on:
       - postgres
     volumes:
-      - llama-cache:/tmp/cache
+      - dewy-cache:/tmp/cache
 
   postgres:
     image: ankane/pgvector
@@ -43,7 +43,7 @@ services:
 
 volumes:
   db:
-  llama-cache:
+  dewy-cache:
 
 networks:
   kb-network:
