@@ -2,4 +2,4 @@
 __pycache__
 .env
 .vscode/
-/dewy-client/dist
+/dewy-client/dist.venv
