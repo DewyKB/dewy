@@ -20,7 +20,7 @@ from dewy.common.collection_embeddings import (
     IngestURL,
 )
 from dewy.common.db import PgConnectionDep, PgPoolDep
-from dewy.config import ServeConfig, ConfigDep
+from dewy.config import ConfigDep, ServeConfig
 from dewy.document.models import Document
 
 from .models import AddDocumentRequest, DocumentStatus

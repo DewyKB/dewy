@@ -16,6 +16,7 @@ from dewy.common.db_migration import apply_migrations
 from dewy.config import APP_CONFIGS, ServeConfig
 from dewy.routes import api_router
 
+
 class State(TypedDict):
     pg_pool: Optional[asyncpg.Pool]
 
@@ -73,7 +74,7 @@ async def handle_postgres_error(_request: Request, exception: asyncpg.PostgresEr
 def create_app(config: ServeConfig) -> FastAPI:
     app_configs = dict(APP_CONFIGS)
     if not config.serve_openapi_ui:
-        app_configs["openapi_url"] = None # hide docs
+        app_configs["openapi_url"] = None  # hide docs
 
     app = FastAPI(lifespan=lifespan, **app_configs)
 
@@ -100,38 +101,54 @@ def create_app(config: ServeConfig) -> FastAPI:
 
     return app
 
+
 @click.command()
-@click.option("-p", "--port", default=8000, type=click.IntRange(0, 49151),
-              envvar="DEWY_PORT",
-              show_envvar=True,
-              help="TCP port to run on.")
-@click.option("--admin-ui/--no-admin-ui", default=True,
-              help="If true, serve the Admin UI on `/admin`.")
-@click.option("--openapi-ui/--no-openapi-ui", default=True,
-              help="If true, serve the OpenAPI docs on `/docs`.")
-@click.option("--apply-migrations/--no-apply-migrations",
-              default=True,
-              help="If true, apply database migrations.")
-@click.option("--openai-api-key",
-              envvar="OPENAI_API_KEY",
-              show_envvar=True,
-              help="The OpenAI API key to use.")
+@click.option(
+    "-p",
+    "--port",
+    default=8000,
+    type=click.IntRange(0, 49151),
+    envvar="DEWY_PORT",
+    show_envvar=True,
+    help="TCP port to run on.",
+)
+@click.option(
+    "--admin-ui/--no-admin-ui", default=True, help="If true, serve the Admin UI on `/admin`."
+)
+@click.option(
+    "--openapi-ui/--no-openapi-ui",
+    default=True,
+    help="If true, serve the OpenAPI docs on `/docs`.",
+)
+@click.option(
+    "--apply-migrations/--no-apply-migrations",
+    default=True,
+    help="If true, apply database migrations.",
+)
+@click.option(
+    "--openai-api-key",
+    envvar="OPENAI_API_KEY",
+    show_envvar=True,
+    help="The OpenAI API key to use.",
+)
 @click.pass_context
-def serve(ctx,
-          port: int = 8000,
-          admin_ui: bool = True,
-          openapi_ui: bool = True,
-          apply_migrations: bool = True,
-          openai_api_key: Optional[str] = None):
+def serve(
+    ctx,
+    port: int = 8000,
+    admin_ui: bool = True,
+    openapi_ui: bool = True,
+    apply_migrations: bool = True,
+    openai_api_key: Optional[str] = None,
+):
     """
     Serve the Dewy API and (if configured) Admin UI.
     """
     config = ServeConfig(
-        db = ctx.obj["db"],
-        serve_admin_ui = admin_ui,
-        serve_openapi_ui = openapi_ui,
-        apply_migrations = apply_migrations,
-        openai_api_key = openai_api_key,
+        db=ctx.obj["db"],
+        serve_admin_ui=admin_ui,
+        serve_openapi_ui=openapi_ui,
+        apply_migrations=apply_migrations,
+        openai_api_key=openai_api_key,
     )
     app = create_app(config)
 

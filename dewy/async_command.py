@@ -1,6 +1,7 @@
 import asyncio
 from functools import wraps
 
+
 def async_command(f):
     """Decorator for creating async commands.
 
@@ -16,6 +17,7 @@ def async_command(f):
         async def command_name():
             pass
     """
+
     @wraps(f)
     def wrapper(*args, **kwargs):
         return asyncio.run(f(*args, **kwargs))

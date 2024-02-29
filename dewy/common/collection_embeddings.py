@@ -112,7 +112,9 @@ class CollectionEmbeddings:
             )
 
     @staticmethod
-    async def for_document_id(pg_pool: asyncpg.Pool, config: ServeConfig, document_id: int) -> Self:
+    async def for_document_id(
+        pg_pool: asyncpg.Pool, config: ServeConfig, document_id: int
+    ) -> Self:
         """Retrieve the collection embeddings and the URL of the given document."""
 
         # TODO: Ideally the collection embeddings would be cached, and this
