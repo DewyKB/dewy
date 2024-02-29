@@ -1,4 +1,5 @@
-""" A client library for accessing Dewy Knowledge Base API """
+"""A client library for accessing Dewy Knowledge Base API"""
+
 from .client import AuthenticatedClient, Client
 
 __all__ = (
