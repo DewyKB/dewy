@@ -11,7 +11,7 @@ include = [
 ]
 
 [tool.poetry.scripts]
-dewy = "dewy.main:run"
+dewy = "dewy.main:dewy"
 
 [tool.poe.tasks.check-ruff]
 help = "Check ruff formatting and checks."
@@ -70,6 +70,7 @@ langchain-core = "^0.1.27"
 langchain-openai = "^0.0.8"
 langchain-community = "^0.0.24"
 langchain = "^0.1.9"
+click = "^8.1.7"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.11"

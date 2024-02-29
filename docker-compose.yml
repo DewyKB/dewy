@@ -8,7 +8,6 @@ services:
       SENTENCE_TRANSFORMERS_HOME: "/tmp/cache/sentence_transformers"
       HF_HOME: "/tmp/cache/hf"
       DB: "postgresql://dewydbuser:dewydbpwd@postgres/dewydb"
-      APPLY_MIGRATIONS: true
     env_file:
       - .env
     build:

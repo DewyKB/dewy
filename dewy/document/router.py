@@ -20,7 +20,7 @@ from dewy.common.collection_embeddings import (
     IngestURL,
 )
 from dewy.common.db import PgConnectionDep, PgPoolDep
-from dewy.config import Config, ConfigDep
+from dewy.config import ServeConfig, ConfigDep
 from dewy.document.models import Document
 
 from .models import AddDocumentRequest, DocumentStatus
@@ -31,7 +31,7 @@ router = APIRouter(prefix="/documents")
 async def ingest_document(
     document_id: int,
     pg_pool: asyncpg.Pool,
-    config: Config,
+    config: ServeConfig,
     request: Union[IngestContent, IngestURL],
 ) -> None:
     try:

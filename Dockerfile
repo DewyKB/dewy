@@ -31,4 +31,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 COPY ./dewy /code/dewy
 COPY --from=frontend-stage /app/dist /code/dewy/frontend/dist
 
-CMD ["uvicorn", "--factory", "dewy.main:create_app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "dewy", "serve"]
