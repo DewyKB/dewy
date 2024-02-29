@@ -252,7 +252,7 @@ class CollectionEmbeddings:
                     # (https://github.com/DewyKB/dewy/issues/20). We do not know
                     # that all of this is truly necessary.
                     encoded = c.encode("utf-8").decode("utf-8", "ignore")
-                    return encoded.replace("\x00", "\uFFFD")
+                    return encoded.replace("\x00", "\ufffd")
 
                 # First, insert the chunks.
                 await conn.executemany(

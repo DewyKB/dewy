@@ -73,7 +73,7 @@ langchain = "^0.1.9"
 click = "^8.1.7"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.1.11"
+ruff = "^0.3.0"
 mypy = "^1.8.0"
 ipykernel = "^6.28.0"
 asyncpg-stubs = "^0.29.1"

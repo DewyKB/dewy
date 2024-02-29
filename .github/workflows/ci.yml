@@ -61,7 +61,7 @@ jobs:
       - name: Ruff Format (Check)
         uses: chartboost/ruff-action@v1
         with:
-            args: format --check
+            args: format --diff
 
   verify_clean_notebooks:
     runs-on: ubuntu-latest
