@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "python-langchain-cli"
+version = "0.1.0"
+description = ""
+authors = ["Ben Chambers <35960+bjchambers@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "python_langchain_cli"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain-core = "^0.1.27"
+langchain-openai = "^0.0.8"
+click = "^8.1.7"
+dewy-langchain = "^0.2.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
