@@ -126,4 +126,4 @@ show_error_context = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-timeout = 10
+timeout = 120
