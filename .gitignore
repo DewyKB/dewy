@@ -4,3 +4,4 @@ __pycache__
 .vscode/
 /dewy-client/dist
 .DS_Store
+.venv
