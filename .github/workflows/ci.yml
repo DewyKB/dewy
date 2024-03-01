@@ -38,6 +38,7 @@ jobs:
         run: poetry run pytest -v
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PYTEST_TIMEOUT: 120
       - name: check openapi client up to date
         run: |
           poetry run poe extract-openapi

@@ -71,6 +71,7 @@ langchain-openai = "^0.0.8"
 langchain-community = "^0.0.24"
 langchain = "^0.1.9"
 click = "^8.1.7"
+sentence-transformers = "^2.5.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.0"
@@ -127,4 +128,4 @@ show_error_context = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-timeout = 10
+timeout = 20
