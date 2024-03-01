@@ -66,7 +66,7 @@ def sync_detailed(
 ) -> Response[Union[Document, HTTPValidationError]]:
     """Add Document
 
-     Add a document from a URL.
+     Add a document to a collection.
 
     Args:
         body (AddDocumentRequest):
@@ -97,7 +97,7 @@ def sync(
 ) -> Optional[Union[Document, HTTPValidationError]]:
     """Add Document
 
-     Add a document from a URL.
+     Add a document to a collection.
 
     Args:
         body (AddDocumentRequest):
@@ -123,7 +123,7 @@ async def asyncio_detailed(
 ) -> Response[Union[Document, HTTPValidationError]]:
     """Add Document
 
-     Add a document from a URL.
+     Add a document to a collection.
 
     Args:
         body (AddDocumentRequest):
@@ -152,7 +152,7 @@ async def asyncio(
 ) -> Optional[Union[Document, HTTPValidationError]]:
     """Add Document
 
-     Add a document from a URL.
+     Add a document to a collection.
 
     Args:
         body (AddDocumentRequest):

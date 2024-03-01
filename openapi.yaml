@@ -114,7 +114,7 @@ paths:
       tags:
       - kb
       summary: Add Document
-      description: Add a document from a URL.
+      description: Add a document to a collection.
       operationId: addDocument
       requestBody:
         required: true
