@@ -16,7 +16,7 @@ from dewy_client.types import File
 from httpx import AsyncClient
 from pytest_docker_fixtures.images import configure as configure_image  # noqa: E402
 
-from dewy.config import Config
+from dewy.config import ServeConfig
 
 pytest_plugins = ["pytest_docker_fixtures"]
 
@@ -55,12 +55,12 @@ with open(NEARLY_EMPTY_PATH2, "rb") as file:
 @pytest.fixture(scope="session")
 async def app(pg, event_loop):
     (pg_host, pg_port) = pg
-    config = Config(
-        DB=f"postgresql://dewydbuser:dewydbpwd@{pg_host}:{pg_port}/dewydb",
-        APPLY_MIGRATIONS=True,
+    config = ServeConfig(
+        db=f"postgresql://dewydbuser:dewydbpwd@{pg_host}:{pg_port}/dewydb",
+        apply_migrations=True,
     )
 
-    from dewy.main import create_app
+    from dewy.serve import create_app
 
     app = create_app(config)
 

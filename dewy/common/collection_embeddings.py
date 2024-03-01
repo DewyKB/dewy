@@ -8,7 +8,7 @@ from loguru import logger
 from dewy.chunk.models import TextResult
 from dewy.collection.models import DistanceMetric
 from dewy.common.embeddings import EMBEDDINGS
-from dewy.config import Config
+from dewy.config import ServeConfig
 
 from .extract import extract_content, extract_url
 
@@ -32,7 +32,7 @@ class CollectionEmbeddings:
     def __init__(
         self,
         pg_pool: asyncpg.Pool,
-        config: Config,
+        config: ServeConfig,
         *,
         collection_id: int,
         text_embedding_model: str,
@@ -88,7 +88,7 @@ class CollectionEmbeddings:
         """
 
     @staticmethod
-    async def for_collection(pg_pool: asyncpg.Pool, config: Config, collection: str) -> Self:
+    async def for_collection(pg_pool: asyncpg.Pool, config: ServeConfig, collection: str) -> Self:
         """Retrieve the collection embeddings of the given collection."""
         async with pg_pool.acquire() as conn:
             result = await conn.fetchrow(
@@ -112,7 +112,9 @@ class CollectionEmbeddings:
             )
 
     @staticmethod
-    async def for_document_id(pg_pool: asyncpg.Pool, config: Config, document_id: int) -> Self:
+    async def for_document_id(
+        pg_pool: asyncpg.Pool, config: ServeConfig, document_id: int
+    ) -> Self:
         """Retrieve the collection embeddings and the URL of the given document."""
 
         # TODO: Ideally the collection embeddings would be cached, and this

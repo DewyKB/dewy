@@ -5,14 +5,14 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_core.embeddings import Embeddings
 from langchain_openai import OpenAIEmbeddings
 
-from dewy.config import Config
+from dewy.config import ServeConfig
 
 
 @dataclasses.dataclass
 class EmbeddingModel:
     name: str
     dimensions: int
-    factory: Callable[[Config], Embeddings]
+    factory: Callable[[ServeConfig], Embeddings]
 
 
 EMBEDDINGS = {
@@ -22,7 +22,7 @@ EMBEDDINGS = {
             name="openai:text-embedding-ada-002",
             dimensions=1536,
             factory=lambda config: OpenAIEmbeddings(
-                model="text-embedding-ada-002", api_key=config.OPENAI_API_KEY
+                model="text-embedding-ada-002", api_key=config.openai_api_key
             ),
         ),
         EmbeddingModel(
