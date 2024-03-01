@@ -71,7 +71,8 @@ async def handle_postgres_error(_request: Request, exception: asyncpg.PostgresEr
     print(f"Error: {exception}")
 
 
-def create_app(config: ServeConfig) -> FastAPI:
+def create_app(config: Optional[ServeConfig] = None) -> FastAPI:
+    config = config or ServeConfig()
     app_configs = dict(APP_CONFIGS)
     if not config.serve_openapi_ui:
         app_configs["openapi_url"] = None  # hide docs
