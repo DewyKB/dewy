@@ -1,4 +1,4 @@
-""" Contains all the data models used in inputs/outputs """
+"""Contains all the data models used in inputs/outputs"""
 
 from .add_document_request import AddDocumentRequest
 from .body_upload_document_content import BodyUploadDocumentContent

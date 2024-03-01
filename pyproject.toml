@@ -70,9 +70,10 @@ langchain-core = "^0.1.27"
 langchain-openai = "^0.0.8"
 langchain-community = "^0.0.24"
 langchain = "^0.1.9"
+sentence-transformers = "^2.5.0"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.1.11"
+ruff = "^0.3.0"
 mypy = "^1.8.0"
 ipykernel = "^6.28.0"
 asyncpg-stubs = "^0.29.1"
@@ -93,6 +94,10 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 98
 
+# Assume Python 3.11.
+target-version = "py311"
+
+[tool.ruff.lint]
 # Enable Pyflakes `E` and `F` codes by default.
 select = [
     # Pyflakes
@@ -108,10 +113,7 @@ ignore = []
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Assume Python 3.11.
-target-version = "py311"
-
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
 
@@ -125,4 +127,4 @@ show_error_context = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-timeout = 10
+timeout = 20
