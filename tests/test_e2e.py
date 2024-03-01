@@ -30,7 +30,6 @@ SKELETON_OF_THOUGHT_PDF = "https://arxiv.org/pdf/2307.15337.pdf"
     "embedding_model",
     ["openai:text-embedding-ada-002", "hf:BAAI/bge-small-en", "hf:BAAI/bge-small-en-v1.5"],
 )
-@pytest.mark.timeout(240)  # slow due to embedding (especially in CI)
 async def test_index_retrieval(client, embedding_model):
     collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
 
