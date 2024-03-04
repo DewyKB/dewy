@@ -32,9 +32,9 @@ configure_image(
     },
 )
 
-TEST_DATA_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "test_data"
-)
+PROJECT_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+TEST_DATA_DIR = os.path.join(PROJECT_ROOT_DIR, "test_data")
 NEARLY_EMPTY_PATH = os.path.join(TEST_DATA_DIR, "nearly_empty.pdf")
 assert os.path.isfile(NEARLY_EMPTY_PATH)
 NEARLY_EMPTY_TEXT = "This is a nearly empty PDF to test extraction and embedding.\n"

@@ -1,11 +1,11 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AddDocumentRequest(BaseModel):
-    collection: str
+    collection: str = Field(..., examples=["main"])
     """The id of the collection the document should be added to."""
 
     url: Optional[str] = None

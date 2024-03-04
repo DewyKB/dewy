@@ -200,6 +200,8 @@ class CollectionEmbeddings:
             logger.info("Loading content for document {} from content {}", document_id, request)
             extracted = await extract_content(
                 request.content_bytes,
+                filename=request.filename,
+                mimetype=request.content_type,
                 extract_tables=self.extract_tables,
                 extract_images=self.extract_images,
             )
