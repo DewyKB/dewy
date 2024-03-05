@@ -112,6 +112,7 @@ async def extract_from_html(
 
     return ExtractResult(text=documents[0].page_content)
 
+
 async def extract_from_docx(
     content: bytes,
     *,
@@ -224,8 +225,10 @@ async def extract_content(
         case unrecognized:
             raise HTTPException(
                 status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail=("Cannot add document from unrecognized mimetype "
-                        f"'{unrecognized}' and file name {filename}"),
+                detail=(
+                    "Cannot add document from unrecognized mimetype "
+                    f"'{unrecognized}' and file name {filename}"
+                ),
             )
 
 
