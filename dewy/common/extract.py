@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 import os
 import tempfile
+from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -59,6 +59,7 @@ def extract_from_pdf(
     text = "".join(texts)
     return ExtractResult(text=text)
 
+
 async def extract_from_markdown(
     content: bytes, *, extract_tables: bool = False, extract_images: bool = False
 ) -> ExtractResult:
@@ -74,6 +75,7 @@ async def extract_from_markdown(
         tf.flush()
 
         from langchain_community.document_loaders import UnstructuredMarkdownLoader
+
         loader = UnstructuredMarkdownLoader(tf.name)
 
         # At the time of writing, `alazy_load` is unsupported.
@@ -83,8 +85,12 @@ async def extract_from_markdown(
 
     return ExtractResult(text=documents[0].page_content)
 
+
 async def extract_from_html(
-    content: bytes, *, extract_tables: bool = False, extract_images: bool = False,
+    content: bytes,
+    *,
+    extract_tables: bool = False,
+    extract_images: bool = False,
 ) -> ExtractResult:
     logger.debug("Extracting from HTML")
 
@@ -96,28 +102,7 @@ async def extract_from_html(
         tf.flush()
 
         from langchain_community.document_loaders import BSHTMLLoader
-        loader = BSHTMLLoader(tf.name)
 
-        # At the time of writing, `alazy_load` is unsupported.
-        documents = loader.load()
-
-    assert len(documents) == 1, f"Expected one document, got {len(documents)}"
-
-    return ExtractResult(text=documents[0].page_content)
-
-async def extract_from_html(
-    content: bytes, *, extract_tables: bool = False, extract_images: bool = False,
-) -> ExtractResult:
-    logger.debug("Extracting from HTML")
-
-    # BSHTMLLoader expects content in a file, so put it in a named temporary
-    # file. This could be improved if we loaded using beautiful soup directly.
-    documents = []
-    with tempfile.NamedTemporaryFile(suffix=".html") as tf:
-        tf.write(content)
-        tf.flush()
-
-        from langchain_community.document_loaders import BSHTMLLoader
         loader = BSHTMLLoader(tf.name)
 
         # At the time of writing, `alazy_load` is unsupported.
@@ -128,7 +113,10 @@ async def extract_from_html(
     return ExtractResult(text=documents[0].page_content)
 
 async def extract_from_docx(
-    content: bytes, *, extract_tables: bool = False, extract_images: bool = False,
+    content: bytes,
+    *,
+    extract_tables: bool = False,
+    extract_images: bool = False,
 ) -> ExtractResult:
     logger.debug("Extracting from docx")
 
@@ -140,6 +128,7 @@ async def extract_from_docx(
         tf.flush()
 
         from langchain_community.document_loaders import UnstructuredWordDocumentLoader
+
         loader = UnstructuredWordDocumentLoader(tf.name)
 
         # At the time of writing, `alazy_load` is unsupported.
@@ -149,8 +138,12 @@ async def extract_from_docx(
 
     return ExtractResult(text=documents[0].page_content)
 
+
 async def extract_from_doc(
-    content: bytes, *, extract_tables: bool = False, extract_images: bool = False,
+    content: bytes,
+    *,
+    extract_tables: bool = False,
+    extract_images: bool = False,
 ) -> ExtractResult:
     logger.debug("Extracting from doc")
 
@@ -162,6 +155,7 @@ async def extract_from_doc(
         tf.flush()
 
         from langchain_community.document_loaders import UnstructuredWordDocumentLoader
+
         loader = UnstructuredWordDocumentLoader(tf.name)
 
         # At the time of writing, `alazy_load` is unsupported.
@@ -171,13 +165,14 @@ async def extract_from_doc(
 
     return ExtractResult(text=documents[0].page_content)
 
+
 async def extract_content(
     content: bytes,
     filename: str,
     mimetype: Optional[str] = None,
     *,
     extract_tables: bool = False,
-    extract_images: bool = False
+    extract_images: bool = False,
 ) -> ExtractResult:
     logger.info("Extracting content from {} bytes", len(content))
     import filetype
@@ -188,11 +183,13 @@ async def extract_content(
 
     if mime is None and mimetype is not None:
         # Mimetype may be 'text/html; charset=utf-8' but we want just the first part
-        mime = mimetype.split(';')[0]
+        mime = mimetype.split(";")[0]
 
     if mime is None:
         (_, extension) = os.path.splitext(filename)
-        logger.info("No mimetype provided or inferred from content. Considering extension {}", extension)
+        logger.info(
+            "No mimetype provided or inferred from content. Considering extension {}", extension
+        )
         match extension.lower():
             case ".markdown" | ".md":
                 mime = "text/markdown"
@@ -227,7 +224,8 @@ async def extract_content(
         case unrecognized:
             raise HTTPException(
                 status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail=f"Cannot add document from unrecognized mimetype '{unrecognized}' and file name {filename}",
+                detail=("Cannot add document from unrecognized mimetype "
+                        f"'{unrecognized}' and file name {filename}"),
             )
 
 
