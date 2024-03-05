@@ -13,7 +13,7 @@ from dewy_client.api.kb import (
     list_collections,
     list_documents,
 )
-from dewy_client.models import AddDocumentRequest, CollectionCreate
+from dewy_client.models import AddDocumentRequest, Collection
 
 from tests.conftest import (
     NEARLY_EMPTY_BYTES,
@@ -32,10 +32,10 @@ class CollectionFixture:
 async def collection_fixture(client) -> CollectionFixture:
     """Adds two collections with random names."""
     collection_name1 = "".join(random.choices(string.ascii_lowercase, k=5))
-    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name1))
+    await add_collection.asyncio(client=client, body=Collection(name=collection_name1))
 
     collection_name2 = "".join(random.choices(string.ascii_lowercase, k=5))
-    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name2))
+    await add_collection.asyncio(client=client, body=Collection(name=collection_name2))
 
     return CollectionFixture(
         collection1=collection_name1,
@@ -45,7 +45,7 @@ async def collection_fixture(client) -> CollectionFixture:
 
 async def test_get_collection(client):
     name = "".join(random.choices(string.ascii_lowercase, k=5))
-    collection = await add_collection.asyncio(client=client, body=CollectionCreate(name=name))
+    collection = await add_collection.asyncio(client=client, body=Collection(name=name))
 
     get_response = await get_collection.asyncio(collection.name, client=client)
     assert get_response.name == name
@@ -55,7 +55,7 @@ async def test_get_collection(client):
 
 async def test_get_collection_case_insensitive(client):
     lower_name = "".join(random.choices(string.ascii_lowercase, k=5))
-    await add_collection.asyncio(client=client, body=CollectionCreate(name=lower_name))
+    await add_collection.asyncio(client=client, body=Collection(name=lower_name))
 
     upper_name = lower_name.upper()
     assert lower_name != upper_name
@@ -75,7 +75,7 @@ async def test_get_collection_invalid(client):
 
 async def test_list_collection(client):
     name = "".join(random.choices(string.ascii_lowercase, k=5))
-    await add_collection.asyncio(client=client, body=CollectionCreate(name=name))
+    await add_collection.asyncio(client=client, body=Collection(name=name))
 
     collections = await list_collections.asyncio(client=client)
 
@@ -87,7 +87,7 @@ async def test_list_collection(client):
 
 async def test_delete_collection(client):
     collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
-    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name))
+    await add_collection.asyncio(client=client, body=Collection(name=collection_name))
 
     await delete_collection.asyncio(client=client, name=collection_name)
 
@@ -105,7 +105,7 @@ async def test_delete_unknown_collection(client):
 async def test_collection_lifecycle(client):
     # 1. Create a collection
     collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
-    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name))
+    await add_collection.asyncio(client=client, body=Collection(name=collection_name))
 
     # 1. Create a document in the collection
     doc = await add_document.asyncio(

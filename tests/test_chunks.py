@@ -13,10 +13,9 @@ from dewy_client.api.kb import (
 )
 from dewy_client.models.add_document_request import AddDocumentRequest
 from dewy_client.models.body_upload_document_content import BodyUploadDocumentContent
-from dewy_client.models.collection_create import CollectionCreate
+from dewy_client.models import Collection, IngestState
 from dewy_client.types import File
 
-from dewy.document.models import IngestState
 from tests.conftest import NEARLY_EMPTY_BYTES
 
 
@@ -55,7 +54,7 @@ async def _add_nearly_empty_doc(client, collection_name) -> int:
 async def chunk_fixture(client) -> ChunkFixture:
     """Adds two documents to a collection with random names."""
     collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
-    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name))
+    await add_collection.asyncio(client=client, body=Collection(name=collection_name))
 
     assert NEARLY_EMPTY_BYTES
     docs = await asyncio.gather(

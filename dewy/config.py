@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from typing import Annotated, Any, Optional
 
-from fastapi import Depends, Request
+from fastapi import Request
 from fastapi.routing import APIRoute
+from taskiq import TaskiqDepends
 
 # See https://github.com/zhanymkanov/fastapi-best-practices#10-use-pydantics-basesettings-for-configs
 
@@ -37,19 +38,14 @@ APP_CONFIGS: dict[str, Any] = {
 }
 
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class ServeConfig:
     """The configuration for the Dewy Service."""
 
     db: Optional[str] = None
+    broker: Optional[str] = None
+
     serve_openapi_ui: bool = True
     serve_admin_ui: bool = True
     apply_migrations: bool = True
     openai_api_key: Optional[str] = None
-
-
-def _get_config(request: Request) -> ServeConfig:
-    return request.app.config
-
-
-ConfigDep = Annotated[ServeConfig, Depends(_get_config)]

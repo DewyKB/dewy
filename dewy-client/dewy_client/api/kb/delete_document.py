@@ -5,7 +5,6 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.document import Document
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
@@ -23,10 +22,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Document, HTTPValidationError]]:
+) -> Optional[Union[Any, HTTPValidationError]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = Document.from_dict(response.json())
-
+        response_200 = response.json()
         return response_200
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
         response_422 = HTTPValidationError.from_dict(response.json())
@@ -40,7 +38,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Document, HTTPValidationError]]:
+) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -53,7 +51,7 @@ def sync_detailed(
     id: int,
     *,
     client: Union[AuthenticatedClient, Client],
-) -> Response[Union[Document, HTTPValidationError]]:
+) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Document
 
      Delete a document.
@@ -66,7 +64,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Document, HTTPValidationError]]
+        Response[Union[Any, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -84,7 +82,7 @@ def sync(
     id: int,
     *,
     client: Union[AuthenticatedClient, Client],
-) -> Optional[Union[Document, HTTPValidationError]]:
+) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Document
 
      Delete a document.
@@ -97,7 +95,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Document, HTTPValidationError]
+        Union[Any, HTTPValidationError]
     """
 
     return sync_detailed(
@@ -110,7 +108,7 @@ async def asyncio_detailed(
     id: int,
     *,
     client: Union[AuthenticatedClient, Client],
-) -> Response[Union[Document, HTTPValidationError]]:
+) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Document
 
      Delete a document.
@@ -123,7 +121,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Document, HTTPValidationError]]
+        Response[Union[Any, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -139,7 +137,7 @@ async def asyncio(
     id: int,
     *,
     client: Union[AuthenticatedClient, Client],
-) -> Optional[Union[Document, HTTPValidationError]]:
+) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Document
 
      Delete a document.
@@ -152,7 +150,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Document, HTTPValidationError]
+        Union[Any, HTTPValidationError]
     """
 
     return (

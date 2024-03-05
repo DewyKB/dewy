@@ -1,25 +1,23 @@
+import asyncio
 import contextlib
 import os
 from pathlib import Path
-from typing import AsyncIterator, Optional, TypedDict
+from typing import Optional
 
 import asyncpg
 import click
+from fastapi.responses import JSONResponse
+import taskiq
 import uvicorn
-from fastapi import APIRouter, FastAPI, Request
+from fastapi import APIRouter, FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 
-from dewy.common import db
+from dewy import domain
 from dewy.common.db_migration import apply_migrations
 from dewy.config import APP_CONFIGS, ServeConfig
-from dewy.routes import api_router
-
-
-class State(TypedDict):
-    pg_pool: Optional[asyncpg.Pool]
-
+from dewy.tasks import DewyTasks
 
 # Resolve paths, independent of PWD
 current_file_path = Path(__file__).resolve()
@@ -27,23 +25,59 @@ react_build_path = current_file_path.parent / "frontend" / "dist"
 migrations_path = current_file_path.parent / "migrations"
 
 
+async def _create_pg_pool(config: ServeConfig) -> Optional[asyncpg.Pool]:
+    if config.db is None:
+        logger.warning("No database configured. CRUD methods will fail.")
+        return None
+    else:
+        pg_pool = await domain.database.create_pool(config.db)
+        logger.info("Created database for {}", config.db)
+        if config.apply_migrations:
+            async with pg_pool.acquire() as conn:
+                await apply_migrations(conn, migration_dir=migrations_path)
+        else:
+            logger.info("Skipping migrations.")
+        return pg_pool
+
+
 @contextlib.asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[State]:
+async def lifespan(app: FastAPI):
     """Function creating instances used during the lifespan of the service."""
 
-    if app.config.db is not None:
-        async with db.create_pool(app.config.db) as pg_pool:
-            if app.config.apply_migrations:
-                async with pg_pool.acquire() as conn:
-                    await apply_migrations(conn, migration_dir=migrations_path)
+    pg_pool = await _create_pg_pool(app.config)
 
-            logger.info("Created database connection")
-            state = State(pg_pool=pg_pool)
-            yield state
-    else:
-        logger.warning("No database configured. CRUD methods will fail.")
-        state = State(pg_pool=None)
-        yield state
+    state = {}
+    state["pg_pool"] = pg_pool
+
+    tasks = DewyTasks(pg_pool, app.config)
+    broker = tasks.broker
+
+    await broker.startup()
+
+    state["tasks"] = tasks
+
+    worker_task = None
+    if not isinstance(broker, taskiq.InMemoryBroker):
+        # Run a worker task locally.
+        # Note - this is less robust than a true taskiq worker. We likely want to provide
+        # an option to *only* run the worker the conventional way (with `taskiq` owning the
+        # process).
+        from taskiq.api import run_receiver_task
+
+        worker_task = asyncio.create_task(run_receiver_task(app.broker))
+
+    # Yield. Code after this will be teardown.
+    yield state
+
+    # Tear down.
+    if worker_task:
+        logger.info("Cancelling task queue")
+        if worker_task.cancel():
+            await worker_task
+
+    if pg_pool:
+        logger.info("Closing DB")
+        await pg_pool.close()
 
 
 root_router = APIRouter()
@@ -68,11 +102,18 @@ def install_middleware(app: FastAPI) -> None:
 
 
 async def handle_postgres_error(_request: Request, exception: asyncpg.PostgresError):
-    print(f"Error: {exception}")
+    logger.exception("Postgres Error")
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={})
+
+
+async def handle_dewy_error(_request, exception: domain.DewyError):
+    logger.exception("Dewy Error")
+    return JSONResponse(status_code=exception.status(), content={"detail": str(exception)})
 
 
 def create_app(config: Optional[ServeConfig] = None) -> FastAPI:
     config = config or ServeConfig()
+
     app_configs = dict(APP_CONFIGS)
     if not config.serve_openapi_ui:
         app_configs["openapi_url"] = None  # hide docs
@@ -84,7 +125,14 @@ def create_app(config: Optional[ServeConfig] = None) -> FastAPI:
 
     install_middleware(app)
 
+    from dewy.backend import chunks_api, collections_api, documents_api
+
     app.include_router(root_router)
+
+    api_router = APIRouter(prefix="/api")
+    api_router.include_router(chunks_api.router, tags=["kb"])
+    api_router.include_router(collections_api.router, tags=["kb"])
+    api_router.include_router(documents_api.router, tags=["kb"])
     app.include_router(api_router)
 
     if config.serve_admin_ui:
@@ -99,6 +147,7 @@ def create_app(config: Optional[ServeConfig] = None) -> FastAPI:
         )
 
     app.add_exception_handler(asyncpg.PostgresError, handle_postgres_error)
+    app.add_exception_handler(domain.DewyError, handle_dewy_error)
 
     return app
 

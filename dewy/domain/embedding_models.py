@@ -1,4 +1,5 @@
 import dataclasses
+from functools import lru_cache
 from typing import Callable
 
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
@@ -37,3 +38,8 @@ EMBEDDINGS = {
         ),
     ]
 }
+
+
+@lru_cache()
+def text_embedding_model(text_embedding_model: str, server_config: ServeConfig) -> Embeddings:
+    return EMBEDDINGS[text_embedding_model].factory(server_config)

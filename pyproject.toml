@@ -74,6 +74,9 @@ sentence-transformers = "^2.5.0"
 unstructured = { version = "^0.12.5", extras = ["html", "docx", "doc", "md", "pdf"] }
 markdown = "^3.5.2"
 docx = "^0.2.4"
+taskiq = { version = "^0.11.0", extras = ["cbor"] }
+taskiq-aio-pika = "^0.4.0"
+taskiq-dependencies = "^1.5.1"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.0"
