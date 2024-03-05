@@ -1,5 +1,4 @@
 import mimetypes
-import os
 import tempfile
 from dataclasses import dataclass
 from typing import Optional
@@ -10,6 +9,7 @@ from loguru import logger
 
 mimetypes.add_type("text/markdown", ".md")
 mimetypes.add_type("text/markdown", ".markdown")
+
 
 @dataclass
 class ExtractResult:
@@ -179,14 +179,12 @@ async def extract_content(
     extract_images: bool = False,
 ) -> ExtractResult:
     logger.info("Extracting content from {} bytes", len(content))
-    from filetype.types.document import Doc, Docx
 
     if mimetype is None:
         (mimetype, encoding) = mimetypes.guess_type(filename)
         logger.debug("Inferred mime type '{}' from path '{}'", mimetype, filename)
         if encoding is not None:
             raise ValueError(f"Unsupported encoding: '{encoding}'")
-
 
     match mimetype:
         case "application/pdf":
