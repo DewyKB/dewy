@@ -1,4 +1,4 @@
-import os
+import mimetypes
 import tempfile
 from dataclasses import dataclass
 from typing import Optional
@@ -6,6 +6,9 @@ from urllib.parse import urlparse
 
 from fastapi import HTTPException, status
 from loguru import logger
+
+mimetypes.add_type("text/markdown", ".md")
+mimetypes.add_type("text/markdown", ".markdown")
 
 
 @dataclass
@@ -176,32 +179,14 @@ async def extract_content(
     extract_images: bool = False,
 ) -> ExtractResult:
     logger.info("Extracting content from {} bytes", len(content))
-    import filetype
-    from filetype.types.document import Doc, Docx
 
-    mime = getattr(filetype.guess(content), "mime", None)
-    logger.debug("Inferred mime type from content: {}", mime)
+    if mimetype is None:
+        (mimetype, encoding) = mimetypes.guess_type(filename)
+        logger.debug("Inferred mime type '{}' from path '{}'", mimetype, filename)
+        if encoding is not None:
+            raise ValueError(f"Unsupported encoding: '{encoding}'")
 
-    if mime is None and mimetype is not None:
-        # Mimetype may be 'text/html; charset=utf-8' but we want just the first part
-        mime = mimetype.split(";")[0]
-
-    if mime is None:
-        (_, extension) = os.path.splitext(filename)
-        logger.info(
-            "No mimetype provided or inferred from content. Considering extension {}", extension
-        )
-        match extension.lower():
-            case ".markdown" | ".md":
-                mime = "text/markdown"
-            case ".html" | ".htm":
-                mime = "text/html"
-            case ".docx":
-                mime = Docx.MIME
-            case ".doc":
-                mime = Doc.MIME
-
-    match mime:
+    match mimetype:
         case "application/pdf":
             return extract_from_pdf(
                 content, extract_tables=extract_tables, extract_images=extract_images
@@ -214,11 +199,11 @@ async def extract_content(
             return await extract_from_html(
                 content, extract_tables=extract_tables, extract_images=extract_images
             )
-        case Doc.MIME:
+        case "application/msword":
             return await extract_from_doc(
                 content, extract_tables=extract_tables, extract_images=extract_images
             )
-        case Docx.MIME:
+        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
             return await extract_from_docx(
                 content, extract_tables=extract_tables, extract_images=extract_images
             )
@@ -227,7 +212,7 @@ async def extract_content(
                 status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
                 detail=(
                     "Cannot add document from unrecognized mimetype "
-                    f"'{unrecognized}' and file name {filename}"
+                    f"'{unrecognized}' and file name '{filename}'"
                 ),
             )
 
