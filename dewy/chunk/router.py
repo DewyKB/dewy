@@ -21,16 +21,18 @@ async def list_chunks(
     document_id: Annotated[
         int | None, Query(description="Limit to chunks associated with this document")
     ] = None,
-    page: int | None = 0,
+    page: Annotated[
+        int | None, Query(description="Page number to fetch. The first page of results is page 1")
+    ] = 1,
     perPage: int | None = 10,
 ) -> List[Chunk]:
     """List chunks."""
 
     # TODO: handle collection & document ID
     perPage = perPage or 10
-    page = page or 0
+    page = page or 1
     limit = perPage
-    offset = page * perPage
+    offset = ( page-1 ) * perPage
     results = await pg_pool.fetch(
         """
         SELECT k.id, k.document_id, k.kind, TRUE as raw, k.text
@@ -48,7 +50,7 @@ async def list_chunks(
         offset,
         limit,
     )
-    logger.info("Retrieved {} chunks", len(results))
+    logger.info("Retrieved {} chunks with limit {} and offset {}", len(results), limit, offset)
     return [TextChunk.model_validate(dict(result)) for result in results]
 
 

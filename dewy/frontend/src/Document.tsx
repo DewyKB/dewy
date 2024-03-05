@@ -23,7 +23,9 @@ import {
     RichTextField,
     FileInput,
     required,
-    TextInput
+    TextInput,
+    TabbedForm,
+    TabbedShowLayout
 } from 'react-admin';
 
 import { ChunkingConfig } from "./Collection";
@@ -36,13 +38,15 @@ const ListActions = () => (
 );
 
 const listFilters = [
-    <ReferenceInput source="collection_id" reference="collections"/>,
+    <ReferenceInput source="collection" reference="collections"/>,
 ];
 
 export const DocumentList = () => (
     <List actions={<ListActions/>} filters={listFilters} >
         <Datagrid>
             <TextField source="url" />
+            <TextField source="ingest_state" />
+            <TextField source="ingest_error" />
             <>
             <ShowButton />
             <EditButton />
@@ -54,10 +58,18 @@ export const DocumentList = () => (
 
 export const DocumentCreate = () => (
     <Create redirect="list">
-        <SimpleForm>
-            <ReferenceInput source="collection_id" reference="collections" />
-            <TextInput source="url"/>
-        </SimpleForm>
+        <TabbedForm>
+            <TabbedForm.Tab label="File">
+                <ReferenceInput source="collection" reference="collections" />
+                <FileInput source="file">
+                    <FileField source="src" title="title" />
+                </FileInput>
+            </TabbedForm.Tab>
+            <TabbedForm.Tab label="URL">
+                <ReferenceInput source="collection" reference="collections" />
+                <TextInput source="url"/>
+            </TabbedForm.Tab>
+        </TabbedForm>
     </Create>
 );
 

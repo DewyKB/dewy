@@ -36,7 +36,7 @@ const ListActions = () => (
 
 const listFilters = [
     <TextInput label="Kind" source="kind" defaultValue="all"/>,
-    <ReferenceInput source="collection_id" reference="collections"/>,
+    <ReferenceInput source="collection" reference="collections"/>,
     <ReferenceInput source="document_id" reference="documents"/>,
 ];
 
@@ -51,7 +51,7 @@ const ChunkListView = () => {
                     <SimpleShowLayout>
                         <ChipField source="kind"/>
                         <RichTextField source="text"/>
-                        <ReferenceField source="document_id" reference="documents" />
+                        <ReferenceField source="document_id" reference="documents" link="show" />
                     </SimpleShowLayout>
                 </Card>
             </RecordContextProvider>)}
