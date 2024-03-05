@@ -40,7 +40,7 @@ async def ingest_document(
         embeddings = await CollectionEmbeddings.for_document_id(pg_pool, config, document_id)
         await embeddings.ingest(document_id, request)
     except Exception as e:
-        logger.error("Failed to ingest {}: {}", document_id, e)
+        logger.exception("Failed to ingest")
         async with pg_pool.acquire() as conn:
             async with conn.transaction():
                 logger.info("Deleting embeddings for failed document {}", document_id)

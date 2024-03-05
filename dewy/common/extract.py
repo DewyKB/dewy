@@ -1,4 +1,8 @@
+import os
+import tempfile
 from dataclasses import dataclass
+from typing import Optional
+from urllib.parse import urlparse
 
 from fastapi import HTTPException, status
 from loguru import logger
@@ -56,23 +60,175 @@ def extract_from_pdf(
     return ExtractResult(text=text)
 
 
-async def extract_content(
+async def extract_from_markdown(
     content: bytes, *, extract_tables: bool = False, extract_images: bool = False
+) -> ExtractResult:
+    """Extract documents from markdoown."""
+
+    logger.debug("Extracting from markdown")
+
+    # UnstructuredMarkdownLoader expects content in a file, so put it in a named
+    # temporary file. This could be improved if we used unstructured more directly.
+    documents = []
+    with tempfile.NamedTemporaryFile(suffix=".md") as tf:
+        tf.write(content)
+        tf.flush()
+
+        from langchain_community.document_loaders import UnstructuredMarkdownLoader
+
+        loader = UnstructuredMarkdownLoader(tf.name)
+
+        # At the time of writing, `alazy_load` is unsupported.
+        documents = loader.load()
+
+    assert len(documents) == 1, f"Expected one document, got {len(documents)}"
+
+    return ExtractResult(text=documents[0].page_content)
+
+
+async def extract_from_html(
+    content: bytes,
+    *,
+    extract_tables: bool = False,
+    extract_images: bool = False,
+) -> ExtractResult:
+    logger.debug("Extracting from HTML")
+
+    # BSHTMLLoader expects content in a file, so put it in a named temporary
+    # file. This could be improved if we loaded using beautiful soup directly.
+    documents = []
+    with tempfile.NamedTemporaryFile(suffix=".html") as tf:
+        tf.write(content)
+        tf.flush()
+
+        from langchain_community.document_loaders import BSHTMLLoader
+
+        loader = BSHTMLLoader(tf.name)
+
+        # At the time of writing, `alazy_load` is unsupported.
+        documents = loader.load()
+
+    assert len(documents) == 1, f"Expected one document, got {len(documents)}"
+
+    return ExtractResult(text=documents[0].page_content)
+
+
+async def extract_from_docx(
+    content: bytes,
+    *,
+    extract_tables: bool = False,
+    extract_images: bool = False,
+) -> ExtractResult:
+    logger.debug("Extracting from docx")
+
+    # UnstructuredWordDocumentLoader expects content in a file, so put it in a named temporary
+    # file. This could be improved if we loaded using beautiful soup directly.
+    documents = []
+    with tempfile.NamedTemporaryFile(suffix=".docx") as tf:
+        tf.write(content)
+        tf.flush()
+
+        from langchain_community.document_loaders import UnstructuredWordDocumentLoader
+
+        loader = UnstructuredWordDocumentLoader(tf.name)
+
+        # At the time of writing, `alazy_load` is unsupported.
+        documents = loader.load()
+
+    assert len(documents) == 1, f"Expected one document, got {len(documents)}"
+
+    return ExtractResult(text=documents[0].page_content)
+
+
+async def extract_from_doc(
+    content: bytes,
+    *,
+    extract_tables: bool = False,
+    extract_images: bool = False,
+) -> ExtractResult:
+    logger.debug("Extracting from doc")
+
+    # UnstructuredWordDocumentLoader expects content in a file, so put it in a named temporary
+    # file. This could be improved if we loaded using beautiful soup directly.
+    documents = []
+    with tempfile.NamedTemporaryFile(suffix=".doc") as tf:
+        tf.write(content)
+        tf.flush()
+
+        from langchain_community.document_loaders import UnstructuredWordDocumentLoader
+
+        loader = UnstructuredWordDocumentLoader(tf.name)
+
+        # At the time of writing, `alazy_load` is unsupported.
+        documents = loader.load()
+
+    assert len(documents) == 1, f"Expected one document, got {len(documents)}"
+
+    return ExtractResult(text=documents[0].page_content)
+
+
+async def extract_content(
+    content: bytes,
+    filename: str,
+    mimetype: Optional[str] = None,
+    *,
+    extract_tables: bool = False,
+    extract_images: bool = False,
 ) -> ExtractResult:
     logger.info("Extracting content from {} bytes", len(content))
     import filetype
+    from filetype.types.document import Doc, Docx
 
-    mime = filetype.guess(content).mime
-    logger.debug("Inferred mime type: {}", mime)
+    mime = getattr(filetype.guess(content), "mime", None)
+    logger.debug("Inferred mime type from content: {}", mime)
+
+    if mime is None and mimetype is not None:
+        # Mimetype may be 'text/html; charset=utf-8' but we want just the first part
+        mime = mimetype.split(";")[0]
+
+    if mime is None:
+        (_, extension) = os.path.splitext(filename)
+        logger.info(
+            "No mimetype provided or inferred from content. Considering extension {}", extension
+        )
+        match extension.lower():
+            case ".markdown" | ".md":
+                mime = "text/markdown"
+            case ".html" | ".htm":
+                mime = "text/html"
+            case ".docx":
+                mime = Docx.MIME
+            case ".doc":
+                mime = Doc.MIME
+
     match mime:
         case "application/pdf":
             return extract_from_pdf(
                 content, extract_tables=extract_tables, extract_images=extract_images
             )
+        case "text/markdown":
+            return await extract_from_markdown(
+                content, extract_tables=extract_tables, extract_images=extract_images
+            )
+        case "text/html":
+            return await extract_from_html(
+                content, extract_tables=extract_tables, extract_images=extract_images
+            )
+        case Doc.MIME:
+            return await extract_from_doc(
+                content, extract_tables=extract_tables, extract_images=extract_images
+            )
+        case Docx.MIME:
+            return await extract_from_docx(
+                content, extract_tables=extract_tables, extract_images=extract_images
+            )
         case unrecognized:
             raise HTTPException(
                 status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-                detail=f"Cannot add document from unrecognized mimetype '{unrecognized}'",
+                detail=(
+                    "Cannot add document from unrecognized mimetype "
+                    f"'{unrecognized}' and file name {filename}"
+                ),
             )
 
 
@@ -86,16 +242,22 @@ async def extract_url(
     import httpx
 
     async with httpx.AsyncClient(follow_redirects=True) as client:
+        parsed = urlparse(url)
+        if parsed.scheme != "http" and parsed.scheme != "https":
+            raise ValueError(f"Unsupported scheme: {parsed.scheme}")
+
         # Determine the extension by requesting the headers.
-        response = await client.head(url)
-        response.raise_for_status()
-        content_type = response.headers["content-type"]
-        logger.debug("Content type of {} is {}", url, content_type)
 
         logger.debug("Downloading {}", url)
         response = await client.get(url)
+        response.raise_for_status()
+        content_type = response.headers["content-type"]
+        logger.debug("Content type of {} is '{}'", url, content_type)
+
         return await extract_content(
             response.content,
+            filename=parsed.path,
+            mimetype=content_type,
             extract_tables=extract_tables,
             extract_images=extract_images,
         )

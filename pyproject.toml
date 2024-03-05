@@ -50,7 +50,7 @@ help = "Update the openapi client"
 cmd = "openapi-python-client update --path=openapi.yaml --config=openapi_client_config.yaml"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.12"
 pydantic = "^2.5.3"
 pydantic-settings = "^2.1.0"
 fastapi = "^0.108.0"
@@ -72,6 +72,9 @@ langchain-community = "^0.0.24"
 langchain = "^0.1.9"
 click = "^8.1.7"
 sentence-transformers = "^2.5.0"
+unstructured = { version = "^0.12.5", extras = ["html", "docx", "doc", "md", "pdf"] }
+markdown = "^3.5.2"
+docx = "^0.2.4"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.0"

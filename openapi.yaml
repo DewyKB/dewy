@@ -428,6 +428,8 @@ components:
         collection:
           type: string
           title: Collection
+          examples:
+          - main
         url:
           anyOf:
           - type: string
