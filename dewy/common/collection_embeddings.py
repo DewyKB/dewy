@@ -84,6 +84,7 @@ class CollectionEmbeddings:
         FROM relevant_embeddings
         JOIN chunk
         ON chunk.id = relevant_embeddings.chunk_id
+        ORDER BY score DESC
         LIMIT $3
         """
 
