@@ -325,8 +325,10 @@ paths:
           anyOf:
           - type: integer
           - type: 'null'
-          default: 0
+          description: Page number to fetch. The first page of results is page 1
+          default: 1
           title: Page
+        description: Page number to fetch. The first page of results is page 1
       - name: perPage
         in: query
         required: false
