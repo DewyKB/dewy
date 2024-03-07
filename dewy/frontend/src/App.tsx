@@ -39,7 +39,7 @@ export const App = () => (
       edit={DocumentEdit}
       create={DocumentCreate}
       show={DocumentShow}
-      recordRepresentation={(record) => record.url}
+      recordRepresentation={(record) => record.url || record.id }
       icon={ArticleIcon}
     />
     <Resource

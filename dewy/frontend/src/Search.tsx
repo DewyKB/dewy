@@ -38,6 +38,7 @@ const SearchResults = ({results}) => {
                 <SimpleShowLayout>
                     <RichTextField source="text"/>
                     <ReferenceField source="document_id" reference="documents" link="show" />
+                    <RichTextField source="score"/>
                 </SimpleShowLayout>
             </Card>
         </RecordContextProvider>)}
@@ -45,6 +46,7 @@ const SearchResults = ({results}) => {
 }
 
 export const Search: React.FC<SearchComponentProps> = () => {
+    const [searchCollection, setSearchCollection] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [numResults, setNumResults] = useState(10);
     const [results, setResults] = useState<string[]>(null);
@@ -54,7 +56,7 @@ export const Search: React.FC<SearchComponentProps> = () => {
 
     const handleSearch = async () => {
         const params = {
-            collection_id: 1,
+            collection: searchCollection,
             query: searchQuery,
             n: numResults,
         }
@@ -68,6 +70,11 @@ export const Search: React.FC<SearchComponentProps> = () => {
     return (
         <>
             <Title title="Search" />
+            <TextField 
+                label="collection" 
+                value={searchCollection} 
+                onChange={(e) => setSearchCollection(e.target.value)}
+            />
             <TextField 
                 label="Search Query" 
                 value={searchQuery} 
