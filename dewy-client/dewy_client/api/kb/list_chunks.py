@@ -15,7 +15,7 @@ def _get_kwargs(
     *,
     collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
-    page: Union[None, Unset, int] = 0,
+    page: Union[None, Unset, int] = 1,
     per_page: Union[None, Unset, int] = 10,
 ) -> Dict[str, Any]:
     params: Dict[str, Any] = {}
@@ -113,7 +113,7 @@ def sync_detailed(
     client: Union[AuthenticatedClient, Client],
     collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
-    page: Union[None, Unset, int] = 0,
+    page: Union[None, Unset, int] = 1,
     per_page: Union[None, Unset, int] = 10,
 ) -> Response[Union[HTTPValidationError, List[Union["ImageChunk", "TextChunk"]]]]:
     """List Chunks
@@ -123,7 +123,8 @@ def sync_detailed(
     Args:
         collection (Union[None, Unset, str]): Limit to chunks associated with this collection
         document_id (Union[None, Unset, int]): Limit to chunks associated with this document
-        page (Union[None, Unset, int]):  Default: 0.
+        page (Union[None, Unset, int]): Page number to fetch. The first page of results is page 1
+            Default: 1.
         per_page (Union[None, Unset, int]):  Default: 10.
 
     Raises:
@@ -153,7 +154,7 @@ def sync(
     client: Union[AuthenticatedClient, Client],
     collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
-    page: Union[None, Unset, int] = 0,
+    page: Union[None, Unset, int] = 1,
     per_page: Union[None, Unset, int] = 10,
 ) -> Optional[Union[HTTPValidationError, List[Union["ImageChunk", "TextChunk"]]]]:
     """List Chunks
@@ -163,7 +164,8 @@ def sync(
     Args:
         collection (Union[None, Unset, str]): Limit to chunks associated with this collection
         document_id (Union[None, Unset, int]): Limit to chunks associated with this document
-        page (Union[None, Unset, int]):  Default: 0.
+        page (Union[None, Unset, int]): Page number to fetch. The first page of results is page 1
+            Default: 1.
         per_page (Union[None, Unset, int]):  Default: 10.
 
     Raises:
@@ -188,7 +190,7 @@ async def asyncio_detailed(
     client: Union[AuthenticatedClient, Client],
     collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
-    page: Union[None, Unset, int] = 0,
+    page: Union[None, Unset, int] = 1,
     per_page: Union[None, Unset, int] = 10,
 ) -> Response[Union[HTTPValidationError, List[Union["ImageChunk", "TextChunk"]]]]:
     """List Chunks
@@ -198,7 +200,8 @@ async def asyncio_detailed(
     Args:
         collection (Union[None, Unset, str]): Limit to chunks associated with this collection
         document_id (Union[None, Unset, int]): Limit to chunks associated with this document
-        page (Union[None, Unset, int]):  Default: 0.
+        page (Union[None, Unset, int]): Page number to fetch. The first page of results is page 1
+            Default: 1.
         per_page (Union[None, Unset, int]):  Default: 10.
 
     Raises:
@@ -226,7 +229,7 @@ async def asyncio(
     client: Union[AuthenticatedClient, Client],
     collection: Union[None, Unset, str] = UNSET,
     document_id: Union[None, Unset, int] = UNSET,
-    page: Union[None, Unset, int] = 0,
+    page: Union[None, Unset, int] = 1,
     per_page: Union[None, Unset, int] = 10,
 ) -> Optional[Union[HTTPValidationError, List[Union["ImageChunk", "TextChunk"]]]]:
     """List Chunks
@@ -236,7 +239,8 @@ async def asyncio(
     Args:
         collection (Union[None, Unset, str]): Limit to chunks associated with this collection
         document_id (Union[None, Unset, int]): Limit to chunks associated with this document
-        page (Union[None, Unset, int]):  Default: 0.
+        page (Union[None, Unset, int]): Page number to fetch. The first page of results is page 1
+            Default: 1.
         per_page (Union[None, Unset, int]):  Default: 10.
 
     Raises:
