@@ -27,7 +27,7 @@ def custom_generate_unique_id_function(route: APIRoute) -> str:
 
 APP_CONFIGS: dict[str, Any] = {
     "title": "Dewy Knowledge Base API",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "summary": "Knowledge curation for Retrieval Augmented Generation",
     "description": API_DESCRIPTION,
     "servers": [
