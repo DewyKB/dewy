@@ -8,7 +8,7 @@ info:
     Knowledge comes in a variety of forms -- text, image, tables, etc. and
 
     from a variety of sources -- documents, web pages, audio, etc.'
-  version: 0.3.0
+  version: 0.4.0
 servers:
 - url: http://localhost:8000
   description: Local server
