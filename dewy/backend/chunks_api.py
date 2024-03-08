@@ -60,9 +60,9 @@ async def list_chunks(
         int | None, Query(description="Page number to fetch. The first page of results is page 1")
     ] = 1,
     perPage: int | None = 10,
-) -> List[Annotated[Union[chunks.TextChunk, chunks.ImageChunk],
-                    pydantic.Field(discriminator="kind")]]:
-
+) -> List[
+    Annotated[Union[chunks.TextChunk, chunks.ImageChunk], pydantic.Field(discriminator="kind")]
+]:
     """List chunks."""
 
     # TODO: Allow multiple document IDs?

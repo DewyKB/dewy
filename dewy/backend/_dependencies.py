@@ -2,8 +2,8 @@ from typing import Annotated, AsyncIterator
 
 import asyncpg
 from fastapi import Depends, Request
-from dewy.config import ServeConfig
 
+from dewy.config import ServeConfig
 from dewy.tasks.dewy_tasks import DewyTasks
 
 
@@ -23,6 +23,7 @@ async def _dewy_tasks(request: Request) -> DewyTasks:
 
 
 DewyTasksDep = Annotated[DewyTasks, Depends(_dewy_tasks)]
+
 
 def _get_config(request: Request) -> ServeConfig:
     return request.app.config

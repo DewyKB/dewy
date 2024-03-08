@@ -1,5 +1,4 @@
 import asyncio
-from http import HTTPStatus
 import random
 import string
 

@@ -1,9 +1,7 @@
 from dataclasses import dataclass
-from typing import Annotated, Any, Optional
+from typing import Any, Optional
 
-from fastapi import Request
 from fastapi.routing import APIRoute
-from taskiq import TaskiqDepends
 
 # See https://github.com/zhanymkanov/fastapi-best-practices#10-use-pydantics-basesettings-for-configs
 

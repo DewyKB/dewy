@@ -3,8 +3,9 @@ from typing import Union
 from loguru import logger
 
 from dewy.domain import chunks, documents
-from ._dependencies import PgConnectionDep, ServeConfigDep
 from dewy.domain.ingest import IngestContent, IngestURL, ingest
+
+from ._dependencies import PgConnectionDep, ServeConfigDep
 
 
 async def ingest_task(

@@ -11,9 +11,9 @@ from dewy_client.api.kb import (
     list_chunks,
     upload_document_content,
 )
+from dewy_client.models import Collection, IngestState
 from dewy_client.models.add_document_request import AddDocumentRequest
 from dewy_client.models.body_upload_document_content import BodyUploadDocumentContent
-from dewy_client.models import Collection, IngestState
 from dewy_client.types import File
 
 from tests.conftest import NEARLY_EMPTY_BYTES

@@ -1,4 +1,3 @@
-import base64
 import dataclasses
 from typing import List, Optional, Tuple, Union
 
@@ -81,9 +80,7 @@ async def ingest(
 
         # Update the status.
         await documents.update_status(
-            conn, document_id,
-            documents.IngestState.INGESTED,
-            extracted_text = extracted.text
+            conn, document_id, documents.IngestState.INGESTED, extracted_text=extracted.text
         )
 
     logger.info("Finished ingesting {} document {}", request, document_id)

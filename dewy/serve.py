@@ -6,11 +6,11 @@ from typing import Optional
 
 import asyncpg
 import click
-from fastapi.responses import JSONResponse
 import taskiq
 import uvicorn
 from fastapi import APIRouter, FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from loguru import logger
 

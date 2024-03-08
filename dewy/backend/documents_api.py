@@ -13,11 +13,12 @@ from fastapi import (
 )
 
 from dewy.domain import chunks, documents
-from ._dependencies import PgConnectionDep, DewyTasksDep
 from dewy.domain.ingest import (
     IngestContent,
     IngestURL,
 )
+
+from ._dependencies import DewyTasksDep, PgConnectionDep
 
 router = APIRouter(prefix="/documents")
 
