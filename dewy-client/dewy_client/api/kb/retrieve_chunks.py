@@ -5,15 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.body_retrieve_chunks import BodyRetrieveChunks
 from ...models.http_validation_error import HTTPValidationError
+from ...models.retrieve_request import RetrieveRequest
 from ...models.retrieved_chunks import RetrievedChunks
 from ...types import Response
 
 
 def _get_kwargs(
     *,
-    body: BodyRetrieveChunks,
+    body: RetrieveRequest,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
 
@@ -62,14 +62,14 @@ def _build_response(
 def sync_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: BodyRetrieveChunks,
+    body: RetrieveRequest,
 ) -> Response[Union[HTTPValidationError, RetrievedChunks]]:
     """Retrieve Chunks
 
      Retrieve chunks based on a given query.
 
     Args:
-        body (BodyRetrieveChunks):
+        body (RetrieveRequest): A request for retrieving chunks from a collection.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -93,14 +93,14 @@ def sync_detailed(
 def sync(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: BodyRetrieveChunks,
+    body: RetrieveRequest,
 ) -> Optional[Union[HTTPValidationError, RetrievedChunks]]:
     """Retrieve Chunks
 
      Retrieve chunks based on a given query.
 
     Args:
-        body (BodyRetrieveChunks):
+        body (RetrieveRequest): A request for retrieving chunks from a collection.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -119,14 +119,14 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: BodyRetrieveChunks,
+    body: RetrieveRequest,
 ) -> Response[Union[HTTPValidationError, RetrievedChunks]]:
     """Retrieve Chunks
 
      Retrieve chunks based on a given query.
 
     Args:
-        body (BodyRetrieveChunks):
+        body (RetrieveRequest): A request for retrieving chunks from a collection.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -148,14 +148,14 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: BodyRetrieveChunks,
+    body: RetrieveRequest,
 ) -> Optional[Union[HTTPValidationError, RetrievedChunks]]:
     """Retrieve Chunks
 
      Retrieve chunks based on a given query.
 
     Args:
-        body (BodyRetrieveChunks):
+        body (RetrieveRequest): A request for retrieving chunks from a collection.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

@@ -131,7 +131,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Body_retrieveChunks'
+              $ref: '#/components/schemas/RetrieveRequest'
         required: true
       responses:
         '200':
@@ -440,17 +440,6 @@ components:
       required:
       - collection
       title: AddDocumentRequest
-    Body_retrieveChunks:
-      properties:
-        config:
-          $ref: '#/components/schemas/ServeConfig'
-        request:
-          $ref: '#/components/schemas/RetrieveRequest'
-      type: object
-      required:
-      - config
-      - request
-      title: Body_retrieveChunks
     Body_uploadDocumentContent:
       properties:
         content:
@@ -639,37 +628,6 @@ components:
       type: object
       title: RetrievedChunks
       description: The response from a retrieval request.
-    ServeConfig:
-      properties:
-        db:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Db
-        broker:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Broker
-        serve_openapi_ui:
-          type: boolean
-          title: Serve Openapi Ui
-          default: true
-        serve_admin_ui:
-          type: boolean
-          title: Serve Admin Ui
-          default: true
-        apply_migrations:
-          type: boolean
-          title: Apply Migrations
-          default: true
-        openai_api_key:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Openai Api Key
-      type: object
-      title: ServeConfig
     TextChunk:
       properties:
         kind:
