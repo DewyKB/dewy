@@ -50,6 +50,11 @@ class DewyTasks:
         broker = (
             _create_broker(config)
             .with_middlewares(_KeywordMiddleware())
+            # Use the CBORSerializer. Some messages (currently `IngestContent`)
+            # contain `bytes` which are not JSON serialiazable. We could use a
+            # different mechanism for passing the content (S3 or `bytes` in the DB)
+            # which would allow us to use JSON or ORJSONSerializer. These would
+            # have benefits in debugging the messages in the queue.
             .with_serializer(CBORSerializer())
         )
         self.broker = broker

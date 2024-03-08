@@ -2,7 +2,7 @@ from typing import Optional
 
 import click
 
-from .backend import serve
+from .serve import serve
 from .migration import migrate
 
 
