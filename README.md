@@ -178,7 +178,7 @@ To get a local copy up and running follow these steps.
     prompt = f"""
     You will take into account any CONTEXT BLOCK that is provided in a conversation.
       START CONTEXT BLOCK
-      {"\n".join([chunk.text for chunk in chunks.text_results])}
+      {"\n".join([chunk.text for chunk in chunks.text_chunks])}
       END OF CONTEXT BLOCK
     """
     ```
