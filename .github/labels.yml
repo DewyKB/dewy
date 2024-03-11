@@ -41,6 +41,11 @@
   description: Apply to PRs that should not appear in the changelog
   color: d8eb34
 
+# Labels about specific components.
+- name: ui
+  description: Apply to PRs and Issues related to the admin UI.
+  color: 42d4f5
+
 # Labels providing additional information on status of an issue/PR.
 - name: good first issue
   description: Good for newcomers
