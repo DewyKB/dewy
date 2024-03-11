@@ -18,7 +18,7 @@ from dewy_client.api.kb import (
 from dewy_client.models import (
     AddDocumentRequest,
     BodyUploadDocumentContent,
-    CollectionCreate,
+    Collection,
     IngestState,
 )
 from dewy_client.types import File
@@ -44,7 +44,7 @@ class DocFixture:
 async def doc_fixture(client) -> DocFixture:
     """Adds two documents to a collection with random names."""
     collection_name = "".join(random.choices(string.ascii_lowercase, k=5))
-    await add_collection.asyncio(client=client, body=CollectionCreate(name=collection_name))
+    await add_collection.asyncio(client=client, body=Collection(name=collection_name))
 
     doc1 = await add_document.asyncio(
         client=client,
@@ -127,7 +127,7 @@ async def test_add_document_collection_case_insensitive(client):
     # different casing (uppercase) still works.
     lower_name = "".join(random.choices(string.ascii_lowercase, k=5))
 
-    await add_collection.asyncio(client=client, body=CollectionCreate(name=lower_name))
+    await add_collection.asyncio(client=client, body=Collection(name=lower_name))
 
     upper_name = lower_name.upper()
     assert upper_name != lower_name
@@ -153,7 +153,7 @@ async def test_add_document_ingest_error(client):
 
     collection = await add_collection.asyncio(
         client=client,
-        body=CollectionCreate(name=collection_name, text_embedding_model="hf:BAAI/bge-small-en"),
+        body=Collection(name=collection_name, text_embedding_model="hf:BAAI/bge-small-en"),
     )
 
     MESSAGE = "expected-test-failure"

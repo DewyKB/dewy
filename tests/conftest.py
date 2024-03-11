@@ -1,5 +1,6 @@
 import asyncio
 import os
+from typing import AsyncIterator
 
 import pytest
 from asgi_lifespan import LifespanManager
@@ -69,7 +70,7 @@ async def app(pg, event_loop):
 
 
 @pytest.fixture(scope="session")
-async def client(app) -> Client:
+async def client(app) -> AsyncIterator[Client]:
     async with AsyncClient(app=app, base_url="http://test") as httpx_client:
         client = Client(base_url="http://test")
         client.set_async_httpx_client(httpx_client)

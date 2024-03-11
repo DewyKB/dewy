@@ -13,7 +13,7 @@ from dewy_client.api.kb import (
     upload_document_content,
 )
 from dewy_client.models import (
-    CollectionCreate,
+    Collection,
     IngestState,
     RetrieveRequest,
 )
@@ -35,7 +35,7 @@ async def test_index_retrieval(client, embedding_model):
 
     collection = await add_collection.asyncio(
         client=client,
-        body=CollectionCreate(name=collection_name, text_embedding_model=embedding_model),
+        body=Collection(name=collection_name, text_embedding_model=embedding_model),
     )
 
     assert NEARLY_EMPTY_BYTES
@@ -69,14 +69,17 @@ async def test_index_retrieval(client, embedding_model):
     assert len(chunks) > 0
     assert chunks[0].document_id == document.id
 
-    retrieved = await retrieve_chunks.asyncio(
+    retrieved = await retrieve_chunks.asyncio_detailed(
         client=client,
         body=RetrieveRequest(
             collection=collection.name,
             query="extraction",
         ),
     )
-    assert len(retrieved.text_results) > 0
+    assert retrieved.status_code.value == 200, retrieved.content
+    retrieved = retrieved.parsed
 
-    assert retrieved.text_results[0].document_id == document.id
-    assert "empty" in retrieved.text_results[0].text.lower()
+    assert len(retrieved.text_chunks) > 0
+
+    assert retrieved.text_chunks[0].document_id == document.id
+    assert "empty" in retrieved.text_chunks[0].text.lower()

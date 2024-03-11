@@ -17,6 +17,7 @@ class TextChunk:
         text (str):
         raw (bool):
         kind (Union[Literal['text'], Unset]):  Default: 'text'.
+        score (Union[None, Unset, float]):
         start_char_idx (Union[None, Unset, int]): Start char index of the chunk.
         end_char_idx (Union[None, Unset, int]): End char index of the chunk.
     """
@@ -26,6 +27,7 @@ class TextChunk:
     text: str
     raw: bool
     kind: Union[Literal["text"], Unset] = "text"
+    score: Union[None, Unset, float] = UNSET
     start_char_idx: Union[None, Unset, int] = UNSET
     end_char_idx: Union[None, Unset, int] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -40,6 +42,12 @@ class TextChunk:
         raw = self.raw
 
         kind = self.kind
+
+        score: Union[None, Unset, float]
+        if isinstance(self.score, Unset):
+            score = UNSET
+        else:
+            score = self.score
 
         start_char_idx: Union[None, Unset, int]
         if isinstance(self.start_char_idx, Unset):
@@ -65,6 +73,8 @@ class TextChunk:
         )
         if kind is not UNSET:
             field_dict["kind"] = kind
+        if score is not UNSET:
+            field_dict["score"] = score
         if start_char_idx is not UNSET:
             field_dict["start_char_idx"] = start_char_idx
         if end_char_idx is not UNSET:
@@ -84,6 +94,15 @@ class TextChunk:
         raw = d.pop("raw")
 
         kind = d.pop("kind", UNSET)
+
+        def _parse_score(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        score = _parse_score(d.pop("score", UNSET))
 
         def _parse_start_char_idx(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -109,6 +128,7 @@ class TextChunk:
             text=text,
             raw=raw,
             kind=kind,
+            score=score,
             start_char_idx=start_char_idx,
             end_char_idx=end_char_idx,
         )

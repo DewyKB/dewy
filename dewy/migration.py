@@ -2,8 +2,8 @@ import click
 from loguru import logger
 
 from dewy.async_command import async_command
-from dewy.common.db import create_pool
 from dewy.common.db_migration import apply_migrations
+from dewy.domain.database import create_pool
 
 
 @click.command()

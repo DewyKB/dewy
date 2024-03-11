@@ -11,15 +11,16 @@ T = TypeVar("T", bound="Collection")
 
 @_attrs_define
 class Collection:
-    """
+    """A collection of indexed documents.
+
     Attributes:
         name (str):
-        text_embedding_model (str):
+        text_embedding_model (Union[Unset, str]):  Default: 'openai:text-embedding-ada-002'.
         text_distance_metric (Union[Unset, DistanceMetric]):  Default: DistanceMetric.COSINE.
     """
 
     name: str
-    text_embedding_model: str
+    text_embedding_model: Union[Unset, str] = "openai:text-embedding-ada-002"
     text_distance_metric: Union[Unset, DistanceMetric] = DistanceMetric.COSINE
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -37,9 +38,10 @@ class Collection:
         field_dict.update(
             {
                 "name": name,
-                "text_embedding_model": text_embedding_model,
             }
         )
+        if text_embedding_model is not UNSET:
+            field_dict["text_embedding_model"] = text_embedding_model
         if text_distance_metric is not UNSET:
             field_dict["text_distance_metric"] = text_distance_metric
 
@@ -50,7 +52,7 @@ class Collection:
         d = src_dict.copy()
         name = d.pop("name")
 
-        text_embedding_model = d.pop("text_embedding_model")
+        text_embedding_model = d.pop("text_embedding_model", UNSET)
 
         _text_distance_metric = d.pop("text_distance_metric", UNSET)
         text_distance_metric: Union[Unset, DistanceMetric]

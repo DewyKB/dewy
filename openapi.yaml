@@ -13,6 +13,139 @@ servers:
 - url: http://localhost:8000
   description: Local server
 paths:
+  /api/chunks/:
+    get:
+      tags:
+      - kb
+      summary: List Chunks
+      description: List chunks.
+      operationId: listChunks
+      parameters:
+      - name: collection
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Limit to chunks associated with this collection
+          title: Collection
+        description: Limit to chunks associated with this collection
+      - name: document_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Limit to chunks associated with this document
+          title: Document Id
+        description: Limit to chunks associated with this document
+      - name: page
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Page number to fetch. The first page of results is page 1
+          default: 1
+          title: Page
+        description: Page number to fetch. The first page of results is page 1
+      - name: perPage
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          default: 10
+          title: Perpage
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                  - $ref: '#/components/schemas/TextChunk'
+                  - $ref: '#/components/schemas/ImageChunk'
+                  discriminator:
+                    propertyName: kind
+                    mapping:
+                      text: '#/components/schemas/TextChunk'
+                      image: '#/components/schemas/ImageChunk'
+                title: Response Listchunks
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chunks/{id}:
+    get:
+      tags:
+      - kb
+      summary: Get Chunk
+      operationId: getChunk
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          description: The chunk ID.
+          title: Id
+        description: The chunk ID.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/TextChunk'
+                - $ref: '#/components/schemas/ImageChunk'
+                discriminator:
+                  propertyName: kind
+                  mapping:
+                    text: '#/components/schemas/TextChunk'
+                    image: '#/components/schemas/ImageChunk'
+                title: Response Getchunk
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/chunks/retrieve:
+    post:
+      tags:
+      - kb
+      summary: Retrieve Chunks
+      description: Retrieve chunks based on a given query.
+      operationId: retrieveChunks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetrieveRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrievedChunks'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/collections/:
     get:
       tags:
@@ -40,7 +173,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CollectionCreate'
+              $ref: '#/components/schemas/Collection'
         required: true
       responses:
         '200':
@@ -254,8 +387,7 @@ paths:
           description: Successful Response
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Document'
+              schema: {}
         '422':
           description: Validation Error
           content:
@@ -283,140 +415,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentStatus'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/chunks/:
-    get:
-      tags:
-      - kb
-      summary: List Chunks
-      description: List chunks.
-      operationId: listChunks
-      parameters:
-      - name: collection
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Limit to chunks associated with this collection
-          title: Collection
-        description: Limit to chunks associated with this collection
-      - name: document_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Limit to chunks associated with this document
-          title: Document Id
-        description: Limit to chunks associated with this document
-      - name: page
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          description: Page number to fetch. The first page of results is page 1
-          default: 1
-          title: Page
-        description: Page number to fetch. The first page of results is page 1
-      - name: perPage
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          default: 10
-          title: Perpage
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  oneOf:
-                  - $ref: '#/components/schemas/TextChunk'
-                  - $ref: '#/components/schemas/ImageChunk'
-                  discriminator:
-                    propertyName: kind
-                    mapping:
-                      text: '#/components/schemas/TextChunk'
-                      image: '#/components/schemas/ImageChunk'
-                title: Response Listchunks
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/chunks/{id}:
-    get:
-      tags:
-      - kb
-      summary: Get Chunk
-      operationId: getChunk
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: integer
-          description: The chunk ID.
-          title: Id
-        description: The chunk ID.
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/TextChunk'
-                - $ref: '#/components/schemas/ImageChunk'
-                discriminator:
-                  propertyName: kind
-                  mapping:
-                    text: '#/components/schemas/TextChunk'
-                    image: '#/components/schemas/ImageChunk'
-                title: Response Getchunk
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/chunks/retrieve:
-    post:
-      tags:
-      - kb
-      summary: Retrieve Chunks
-      description: Retrieve chunks based on a given query.
-      operationId: retrieveChunks
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RetrieveRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RetrieveResponse'
+                $ref: '#/components/schemas/Document'
         '422':
           description: Validation Error
           content:
@@ -457,23 +456,6 @@ components:
         name:
           type: string
           title: Name
-        text_embedding_model:
-          type: string
-          title: Text Embedding Model
-        text_distance_metric:
-          allOf:
-          - $ref: '#/components/schemas/DistanceMetric'
-          default: cosine
-      type: object
-      required:
-      - name
-      - text_embedding_model
-      title: Collection
-    CollectionCreate:
-      properties:
-        name:
-          type: string
-          title: Name
           examples:
           - my_collection
         text_embedding_model:
@@ -490,8 +472,8 @@ components:
       type: object
       required:
       - name
-      title: CollectionCreate
-      description: The request to create a collection.
+      title: Collection
+      description: A collection of indexed documents.
     DistanceMetric:
       type: string
       enum:
@@ -533,24 +515,6 @@ components:
       - collection
       title: Document
       description: Model for documents in Dewy.
-    DocumentStatus:
-      properties:
-        id:
-          type: integer
-          title: Id
-        ingest_state:
-          $ref: '#/components/schemas/IngestState'
-        ingest_error:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Ingest Error
-      type: object
-      required:
-      - id
-      - ingest_state
-      title: DocumentStatus
-      description: Model for document status.
     HTTPValidationError:
       properties:
         detail:
@@ -605,51 +569,6 @@ components:
       - image_path
       - image_url
       title: ImageChunk
-    ImageResult:
-      properties:
-        chunk_id:
-          type: integer
-          title: Chunk Id
-        document_id:
-          type: integer
-          title: Document Id
-        score:
-          type: number
-          title: Score
-        image:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Image
-          description: Image of the node.
-        image_mimetype:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Image Mimetype
-          description: Mimetype of the image.
-        image_path:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Image Path
-          description: Path of the image.
-        image_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Image Url
-          description: URL of the image.
-      type: object
-      required:
-      - chunk_id
-      - document_id
-      - score
-      - image
-      - image_mimetype
-      - image_path
-      - image_url
-      title: ImageResult
     IngestState:
       type: string
       enum:
@@ -687,42 +606,45 @@ components:
       - query
       title: RetrieveRequest
       description: A request for retrieving chunks from a collection.
-    RetrieveResponse:
+    RetrievedChunks:
       properties:
         summary:
           anyOf:
           - type: string
           - type: 'null'
           title: Summary
-        text_results:
+        text_chunks:
           items:
-            $ref: '#/components/schemas/TextResult'
+            $ref: '#/components/schemas/TextChunk'
           type: array
-          title: Text Results
-        image_results:
+          title: Text Chunks
+          default: []
+        image_chunks:
           items:
-            $ref: '#/components/schemas/ImageResult'
+            $ref: '#/components/schemas/ImageChunk'
           type: array
-          title: Image Results
+          title: Image Chunks
+          default: []
       type: object
-      required:
-      - summary
-      - text_results
-      - image_results
-      title: RetrieveResponse
+      title: RetrievedChunks
       description: The response from a retrieval request.
     TextChunk:
       properties:
+        kind:
+          const: text
+          title: Kind
+          default: text
         id:
           type: integer
           title: Id
         document_id:
           type: integer
           title: Document Id
-        kind:
-          const: text
-          title: Kind
-          default: text
+        score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Score
         text:
           type: string
           title: Text
@@ -748,43 +670,6 @@ components:
       - text
       - raw
       title: TextChunk
-    TextResult:
-      properties:
-        chunk_id:
-          type: integer
-          title: Chunk Id
-        document_id:
-          type: integer
-          title: Document Id
-        score:
-          type: number
-          title: Score
-        text:
-          type: string
-          title: Text
-        raw:
-          type: boolean
-          title: Raw
-        start_char_idx:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Start Char Idx
-          description: Start char index of the chunk.
-        end_char_idx:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: End Char Idx
-          description: End char index of the chunk.
-      type: object
-      required:
-      - chunk_id
-      - document_id
-      - score
-      - text
-      - raw
-      title: TextResult
     ValidationError:
       properties:
         loc:

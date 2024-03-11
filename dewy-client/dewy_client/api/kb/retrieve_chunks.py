@@ -7,7 +7,7 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.retrieve_request import RetrieveRequest
-from ...models.retrieve_response import RetrieveResponse
+from ...models.retrieved_chunks import RetrievedChunks
 from ...types import Response
 
 
@@ -33,9 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, RetrieveResponse]]:
+) -> Optional[Union[HTTPValidationError, RetrievedChunks]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = RetrieveResponse.from_dict(response.json())
+        response_200 = RetrievedChunks.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
@@ -50,7 +50,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, RetrieveResponse]]:
+) -> Response[Union[HTTPValidationError, RetrievedChunks]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -63,7 +63,7 @@ def sync_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
     body: RetrieveRequest,
-) -> Response[Union[HTTPValidationError, RetrieveResponse]]:
+) -> Response[Union[HTTPValidationError, RetrievedChunks]]:
     """Retrieve Chunks
 
      Retrieve chunks based on a given query.
@@ -76,7 +76,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, RetrieveResponse]]
+        Response[Union[HTTPValidationError, RetrievedChunks]]
     """
 
     kwargs = _get_kwargs(
@@ -94,7 +94,7 @@ def sync(
     *,
     client: Union[AuthenticatedClient, Client],
     body: RetrieveRequest,
-) -> Optional[Union[HTTPValidationError, RetrieveResponse]]:
+) -> Optional[Union[HTTPValidationError, RetrievedChunks]]:
     """Retrieve Chunks
 
      Retrieve chunks based on a given query.
@@ -107,7 +107,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, RetrieveResponse]
+        Union[HTTPValidationError, RetrievedChunks]
     """
 
     return sync_detailed(
@@ -120,7 +120,7 @@ async def asyncio_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
     body: RetrieveRequest,
-) -> Response[Union[HTTPValidationError, RetrieveResponse]]:
+) -> Response[Union[HTTPValidationError, RetrievedChunks]]:
     """Retrieve Chunks
 
      Retrieve chunks based on a given query.
@@ -133,7 +133,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, RetrieveResponse]]
+        Response[Union[HTTPValidationError, RetrievedChunks]]
     """
 
     kwargs = _get_kwargs(
@@ -149,7 +149,7 @@ async def asyncio(
     *,
     client: Union[AuthenticatedClient, Client],
     body: RetrieveRequest,
-) -> Optional[Union[HTTPValidationError, RetrieveResponse]]:
+) -> Optional[Union[HTTPValidationError, RetrievedChunks]]:
     """Retrieve Chunks
 
      Retrieve chunks based on a given query.
@@ -162,7 +162,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, RetrieveResponse]
+        Union[HTTPValidationError, RetrievedChunks]
     """
 
     return (

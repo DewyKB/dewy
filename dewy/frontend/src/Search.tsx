@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { 
+import {
     List,
     ListBase,
     TopToolbar,
@@ -33,7 +33,7 @@ const SearchResults = ({results}) => {
         return <></>
     }
     return <>
-        {results.text_results.map((chunk) => <RecordContextProvider key={chunk.chunk_id} value={chunk}>
+        {results.text_chunks.map((chunk) => <RecordContextProvider key={chunk.chunk_id} value={chunk}>
             <Card sx={{padding: 2, margin: 1}}>
                 <SimpleShowLayout>
                     <RichTextField source="text"/>
@@ -70,14 +70,14 @@ export const Search: React.FC<SearchComponentProps> = () => {
     return (
         <>
             <Title title="Search" />
-            <TextField 
-                label="collection" 
-                value={searchCollection} 
+            <TextField
+                label="collection"
+                value={searchCollection}
                 onChange={(e) => setSearchCollection(e.target.value)}
             />
-            <TextField 
-                label="Search Query" 
-                value={searchQuery} 
+            <TextField
+                label="Search Query"
+                value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
             />
             <FormControl>

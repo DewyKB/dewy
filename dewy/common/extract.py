@@ -229,7 +229,7 @@ async def extract_url(
     async with httpx.AsyncClient(follow_redirects=True) as client:
         parsed = urlparse(url)
         if parsed.scheme != "http" and parsed.scheme != "https":
-            raise ValueError(f"Unsupported scheme: {parsed.scheme}")
+            raise ValueError(f"Unsupported scheme: '{parsed.scheme}'")
 
         # Determine the extension by requesting the headers.
 
