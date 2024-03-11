@@ -2,8 +2,8 @@ from typing import Optional
 
 import click
 
-from .serve import serve
 from .migration import migrate
+from .serve import serve
 
 
 @click.group(context_settings={"show_default": True, "max_content_width": 160})
