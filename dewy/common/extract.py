@@ -185,6 +185,8 @@ async def extract_content(
         logger.debug("Inferred mime type '{}' from path '{}'", mimetype, filename)
         if encoding is not None:
             raise ValueError(f"Unsupported encoding: '{encoding}'")
+    else:
+        mimetype = mimetype.split(";", 2)[0]
 
     match mimetype:
         case "application/pdf":
