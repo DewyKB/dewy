@@ -2,7 +2,7 @@ import os
 
 from filetype.types.document import Docx
 
-from dewy.common.extract import extract_content
+from dewy.common.extract import extract_content, extract_url
 from tests.conftest import NEARLY_EMPTY_PATH, NEARLY_EMPTY_TEXT, TEST_DATA_DIR
 
 NEARLY_EMPTY_MD_PATH = os.path.join(TEST_DATA_DIR, "nearly_empty.md")
@@ -48,6 +48,13 @@ async def test_extract_content_html_mimetype():
 
     result = await extract_content(content, "/root", mimetype="text/html")
     assert result.text == NEARLY_EMPTY_HTML_TEXT
+
+
+async def test_extract_content_html_url():
+    result = await extract_url(
+        "https://python.langchain.com/docs/expression_language/cookbook/retrieval"
+    )
+    assert "retrieval-augmented generation" in result.text
 
 
 async def test_extract_content_html_extension():
