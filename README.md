@@ -100,7 +100,7 @@ To get a local copy up and running follow these steps.
 
 1. Connect to an instance of Dewy
     ```typescript
-    import { Dewy } from 'dewy_ts';
+    import { Dewy } from 'dewy-ts';
     const dewy = new Dewy()
     ```
 
